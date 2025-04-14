@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Playwright user data
+user_data_chromium/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# Others
+.env
