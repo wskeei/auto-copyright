@@ -1,29 +1,6 @@
 import asyncio
 from playwright.async_api import async_playwright
 
-async def wait_for_stable_content(page, selector, check_interval=1.0, stable_times=3, timeout=60):
-    """等待 selector 内容稳定（连续 stable_times 次内容一致）"""
-    last_content = None
-    stable_count = 0
-    elapsed = 0
-    while elapsed < timeout:
-        try:
-            content = await page.inner_text(selector)
-        except Exception:
-            await asyncio.sleep(check_interval)
-            elapsed += check_interval
-            continue
-        if content == last_content:
-            stable_count += 1
-        else:
-            stable_count = 1
-            last_content = content
-        if stable_count >= stable_times:
-            return content
-        await asyncio.sleep(check_interval)
-        elapsed += check_interval
-    return last_content
-
 async def main():
     async with async_playwright() as p:
         # 使用自定义 user_data_dir 保存 Chromium 登录信息
@@ -41,16 +18,26 @@ async def main():
 
         # 等待输入框出现并输入内容
         await page.wait_for_selector("textarea")
-        await page.fill("textarea", "介绍一下什么是哲学")
+        await page.fill("textarea", "生成一个炫酷的前端界面！")
 
         # 等待发送按钮出现并点击
         await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
         await page.click('div._7436101[role="button"][aria-disabled="false"]')
 
-        # 等待 AI 回复内容出现并稳定
-        await page.wait_for_selector('.ds-markdown.ds-markdown--block')
+        # 等待 AI 回复生成完毕（通过检测复制按钮出现），增加超时时间
+        copy_button_selector = 'div._8f60047 div.ds-flex._965abe9 div.ds-icon-button:first-child'
         print("等待 AI 回复生成完毕...")
-        content = await wait_for_stable_content(page, '.ds-markdown.ds-markdown--block')
+        try:
+            await page.wait_for_selector(copy_button_selector, timeout=600000) # 超时时间设为 600 秒
+            print("检测到复制按钮，AI 回复已生成。")
+        except Exception as e:
+            print(f"等待复制按钮超时或出错: {e}")
+            await context.close()
+            return # 超时则退出
+
+        # 获取 AI 回复内容
+        content_selector = 'div._8f60047 .ds-markdown.ds-markdown--block'
+        content = await page.inner_text(content_selector)
         print("AI 回复内容：", content)
 
         # 保存到本地 markdown 文件
