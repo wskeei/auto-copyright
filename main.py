@@ -7,6 +7,17 @@ import random
 async def random_human_delay(min_sec=1, max_sec=3):
     await asyncio.sleep(random.uniform(min_sec, max_sec))
 
+# 工具函数：自动查找并点击“重新生成”按钮
+async def refresh_retry_click(page):
+    btns = await page.query_selector_all('.ds-icon-button')
+    for btn in btns:
+        rect = await btn.query_selector('rect[id="重新生成"]')
+        if rect is not None:
+            print("找到带有 id=重新生成 的 rect，点击父按钮！")
+            await btn.click()
+            return
+    raise Exception('未找到“重新生成”按钮，无法自动重试！')
+
 # 解析 AI_prompt.md，获取两个角色设定内容
 # 返回 (ai_role_content, ai_doc_content)
 def get_ai_prompts(ai_prompt_path):
@@ -233,14 +244,10 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 if retry_busy > 5:
                     raise Exception('说明生成遇到服务器繁忙，自动重试5次仍失败！')
                 print('说明生成遇到“服务器繁忙”，自动点击刷新按钮重试...')
-                refresh_btn = page.locator('div.ds-icon-button svg[id="重新生成"]')
-                if await refresh_btn.count() > 0:
-                    await refresh_btn.first.evaluate('el => el.closest(".ds-icon-button").click()')
-                    await asyncio.sleep(2)
-                    await page.wait_for_selector(content_selector, timeout=60000)
-                    continue
-                else:
-                    raise Exception('未找到“重新生成”按钮，无法自动重试！')
+                await refresh_retry_click(page)
+                await asyncio.sleep(2)
+                await page.wait_for_selector(content_selector, timeout=60000)
+                continue
             break
         doc_path = os.path.join(save_dir, "软件说明.md")
         with open(doc_path, "a", encoding="utf-8") as f:
