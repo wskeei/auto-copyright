@@ -2,6 +2,10 @@ import asyncio
 from playwright.async_api import async_playwright
 import os
 import re
+import random
+
+async def random_human_delay(min_sec=1, max_sec=3):
+    await asyncio.sleep(random.uniform(min_sec, max_sec))
 
 # 解析 AI_prompt.md，获取两个角色设定内容
 # 返回 (ai_role_content, ai_doc_content)
@@ -45,24 +49,30 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         print("user_data_dir 已清理。")
     context = await p.chromium.launch_persistent_context(user_data_dir, headless=False, args=["--disable-blink-features=AutomationControlled"])
     page = context.pages[0] if context.pages else await context.new_page()
+    await random_human_delay()
     await page.goto("https://chat.deepseek.com/")
     print(f"已打开 https://chat.deepseek.com/，处理：{user_title}")
+    await random_human_delay()
     await page.wait_for_selector("textarea")
     # 1. 组合第一个 prompt，生成代码
     prompt_code = f"# AI角色设定\n{ai_role}\n\n# {user_title}\n{user_content}"
+    await random_human_delay()
     await page.fill("textarea", prompt_code)
     await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
+    await random_human_delay()
     await page.click('div._7436101[role="button"][aria-disabled="false"]')
     copy_button_selector = 'div._8f60047 div.ds-flex._965abe9 div.ds-icon-button:first-child'
     print("等待 AI 代码回复生成完毕...")
     try:
         await page.wait_for_selector(copy_button_selector, timeout=600000)
+        await random_human_delay()
         print("检测到复制按钮，AI 代码已生成。")
         # 保存 HTML 文件
         content_selector = 'div._8f60047 .ds-markdown.ds-markdown--block'
         # 检查是否遇到服务器繁忙提示，若是则自动刷新重试
         retry_busy = 0
         while True:
+            await random_human_delay()
             content = await page.inner_text(content_selector)
             if '服务器繁忙，请稍后再试' in content:
                 retry_busy += 1
@@ -72,6 +82,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 # 定位刷新按钮（svg 内含 id="重新生成"）
                 refresh_btn = page.locator('div.ds-icon-button svg[id="重新生成"]')
                 if await refresh_btn.count() > 0:
+                    await random_human_delay()
                     await refresh_btn.first.evaluate('el => el.closest(".ds-icon-button").click()')
                     await asyncio.sleep(2)
                     await page.wait_for_selector(content_selector, timeout=60000)
@@ -79,10 +90,12 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 else:
                     raise Exception('未找到“重新生成”按钮，无法自动重试！')
             break
+        await random_human_delay()
         print("AI 代码内容已获取。")
         file_base = safe_filename(user_title)
         html_dir = os.path.join(save_dir, "html")
         os.makedirs(html_dir, exist_ok=True)
+        await random_human_delay()
         html_path = os.path.join(html_dir, f"{file_base}.html")
         # 只保留 <!DOCTYPE html> ... </html> 部分
         html_match = re.search(r'(<!DOCTYPE html[\s\S]*?</html>)', content, re.IGNORECASE)
@@ -91,6 +104,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 f.write(html_match.group(1))
             else:
                 f.write(content)
+        await random_human_delay()
         print(f"AI 代码已保存到 {html_path}")
         # 检测并点击 "运行 HTML" 按钮
         run_html_selector = 'div.md-code-block-footer span:has-text("运行 HTML")'
@@ -119,7 +133,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             frame = page.frame_locator(iframe_selector)
             print(f"成功定位 iframe。等待 iframe 内元素加载...")
             await frame.locator(internal_element_selector).wait_for(state="visible", timeout=45000)
-            await asyncio.sleep(1)
+            await random_human_delay()
             await frame.locator(internal_element_selector).screenshot(path=screenshot_path)
             print(f"已将 iframe 内 body 截图保存到 {screenshot_path}")
         except Exception as e:
@@ -171,6 +185,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             await asyncio.sleep(0.3)
             # 手动触发 input 事件，确保按钮被激活
             await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
+            await random_human_delay()
             print("页面已刷新并成功写入 02 AI 角色设定 prompt")
         except Exception as e:
             print(f"刷新页面或写入 prompt 时出错: {e}")
@@ -182,6 +197,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
             btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
             print(f"发送前按钮aria-disabled={btn_state}")
+            await random_human_delay()
             await page.click('div._7436101[role="button"][aria-disabled="false"]')
             print("已点击发送按钮，等待按钮状态变化...")
             # 严格等待按钮状态变化
