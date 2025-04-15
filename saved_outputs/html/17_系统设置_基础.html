@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业物联网数据采集与分析平台 - 系统设置</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --background-light: #f5f7fa;
+            --card-light: #ffffff;
+            --text-light: #1d1d1f;
+            --border-light: #d2d2d7;
+            --background-dark: #1a1a1a;
+            --card-dark: #2c2c2e;
+            --text-dark: #f5f5f7;
+            --border-dark: #424245;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--background-light);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .dark-mode .header {
+            border-bottom-color: var(--border-dark);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .settings-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+        }
+
+        .sidebar {
+            background-color: var(--card-light);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .dark-mode .sidebar {
+            background-color: var(--card-dark);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-light);
+        }
+
+        .dark-mode .sidebar-item {
+            color: var(--text-dark);
+        }
+
+        .sidebar-item.active {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dark-mode .sidebar-item.active {
+            background-color: rgba(0, 113, 227, 0.2);
+        }
+
+        .sidebar-item:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .sidebar-item:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-content {
+            background-color: var(--card-light);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .main-content {
+            background-color: var(--card-dark);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .settings-group {
+            margin-bottom: 32px;
+        }
+
+        .settings-group-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .dark-mode .setting-item {
+            border-bottom-color: var(--border-dark);
+        }
+
+        .setting-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .setting-name {
+            font-weight: 500;
+        }
+
+        .setting-description {
+            font-size: 13px;
+            color: #86868b;
+        }
+
+        .dark-mode .setting-description {
+            color: #a1a1a6;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 32px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 32px;
+        }
+
+        .dark-mode .slider {
+            background-color: #444;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .select-wrapper {
+            position: relative;
+            width: 180px;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            padding: 8px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background-color: var(--card-light);
+            color: var(--text-light);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .dark-mode .select-wrapper select {
+            border-color: var(--border-dark);
+            background-color: var(--card-dark);
+            color: var(--text-dark);
+        }
+
+        .select-wrapper::after {
+            content: "⌄";
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-light);
+        }
+
+        .dark-mode .select-wrapper::after {
+            color: var(--text-dark);
+        }
+
+        .save-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 16px;
+        }
+
+        .save-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+            background-color: var(--success-color);
+        }
+
+        .status-indicator.warning {
+            background-color: var(--warning-color);
+        }
+
+        .status-indicator.error {
+            background-color: var(--error-color);
+        }
+
+        @media (max-width: 768px) {
+            .settings-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for status change */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .status-animation {
+            animation: pulse 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">IIoT</div>
+                <div class="logo-text">工业物联网平台</div>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">AD</div>
+            </div>
+        </div>
+
+        <div class="settings-container">
+            <div class="sidebar">
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">📊</div>
+                    <div>数据看板</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">⚙️</div>
+                    <div>设备管理</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">📈</div>
+                    <div>分析报告</div>
+                </div>
+                <div class="sidebar-item active">
+                    <div class="sidebar-icon">🛠️</div>
+                    <div>系统设置</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">🔔</div>
+                    <div>告警中心</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">👥</div>
+                    <div>用户管理</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="section-title">
+                    <div class="section-icon">⚙️</div>
+                    <div>系统设置</div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">界面设置</div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">主题模式</div>
+                            <div class="setting-description">选择适合您工作环境的界面主题</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="theme-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">主色调</div>
+                            <div class="setting-description">自定义系统主色调</div>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="theme-color">
+                                <option value="#0071e3" selected>默认蓝</option>
+                                <option value="#34c759">绿色</option>
+                                <option value="#ff9500">橙色</option>
+                                <option value="#5856d6">紫色</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">数据设置</div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">数据刷新频率</div>
+                            <div class="setting-description">设置仪表板数据自动刷新间隔</div>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="refresh-interval">
+                                <option value="5">5秒</option>
+                                <option value="10" selected>10秒</option>
+                                <option value="30">30秒</option>
+                                <option value="60">1分钟</option>
+                                <option value="300">5分钟</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">历史数据保留</div>
+                            <div class="setting-description">设置历史数据保留时长</div>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="data-retention">
+                                <option value="7">7天</option>
+                                <option value="30" selected>30天</option>
+                                <option value="90">90天</option>
+                                <option value="365">1年</option>
+                                <option value="0">永久</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">通知设置</div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">告警声音</div>
+                            <div class="setting-description">启用或禁用告警提示音</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="alert-sound" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">邮件通知</div>
+                            <div class="setting-description">接收系统告警邮件通知</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="email-notification" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">短信通知</div>
+                            <div class="setting-description">接收紧急告警短信通知</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sms-notification">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">系统信息</div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">系统版本</div>
+                            <div class="setting-description">当前运行的平台版本</div>
+                        </div>
+                        <div>v1.0 (Build 20240615)</div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">系统状态</div>
+                            <div class="setting-description">当前系统运行状态</div>
+                        </div>
+                        <div>
+                            正常运行
+                            <span class="status-indicator"></span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-name">最后维护</div>
+                            <div class="setting-description">系统最后维护时间</div>
+                        </div>
+                        <div>2024年6月10日 14:30</div>
+                    </div>
+                </div>
+
+                <button class="save-button" id="save-settings">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题切换功能
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeColorSelect = document.getElementById('theme-color');
+            
+            // 检查本地存储中的主题设置
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.checked = true;
+            }
+            
+            // 主题切换事件
+            themeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // 主题颜色切换
+            themeColorSelect.addEventListener('change', function() {
+                const color = this.value;
+                document.documentElement.style.setProperty('--primary-color', color);
+                document.documentElement.style.setProperty('--primary-hover', lightenColor(color, 10));
+                localStorage.setItem('themeColor', color);
+            });
+            
+            // 检查本地存储中的主题颜色
+            const savedColor = localStorage.getItem('themeColor');
+            if (savedColor) {
+                themeColorSelect.value = savedColor;
+                document.documentElement.style.setProperty('--primary-color', savedColor);
+                document.documentElement.style.setProperty('--primary-hover', lightenColor(savedColor, 10));
+            }
+            
+            // 保存设置按钮
+            const saveButton = document.getElementById('save-settings');
+            saveButton.addEventListener('click', function() {
+                // 获取所有设置值
+                const settings = {
+                    theme: themeToggle.checked ? 'dark' : 'light',
+                    themeColor: themeColorSelect.value,
+                    refreshInterval: document.getElementById('refresh-interval').value,
+                    dataRetention: document.getElementById('data-retention').value,
+                    alertSound: document.getElementById('alert-sound').checked,
+                    emailNotification: document.getElementById('email-notification').checked,
+                    smsNotification: document.getElementById('sms-notification').checked
+                };
+                
+                // 保存到本地存储
+                localStorage.setItem('appSettings', JSON.stringify(settings));
+                
+                // 显示保存成功效果
+                this.textContent = '设置已保存';
+                this.style.backgroundColor = '#34c759';
+                
+                // 状态指示器动画
+                const statusIndicator = document.querySelector('.status-indicator');
+                statusIndicator.classList.add('status-animation');
+                
+                setTimeout(() => {
+                    this.textContent = '保存设置';
+                    this.style.backgroundColor = '';
+                    statusIndicator.classList.remove('status-animation');
+                }, 2000);
+            });
+            
+            // 从本地存储加载设置
+            const savedSettings = localStorage.getItem('appSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                document.getElementById('refresh-interval').value = settings.refreshInterval;
+                document.getElementById('data-retention').value = settings.dataRetention;
+                document.getElementById('alert-sound').checked = settings.alertSound;
+                document.getElementById('email-notification').checked = settings.emailNotification;
+                document.getElementById('sms-notification').checked = settings.smsNotification;
+            }
+            
+            // 辅助函数：颜色变亮
+            function lightenColor(color, percent) {
+                const num = parseInt(color.replace('#', ''), 16);
+                const amt = Math.round(2.55 * percent);
+                const R = (num >> 16) + amt;
+                const G = (num >> 8 & 0x00FF) + amt;
+                const B = (num & 0x0000FF) + amt;
+                
+                return '#' + (
+                    0x1000000 + 
+                    (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + 
+                    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + 
+                    (B < 255 ? B < 1 ? 0 : B : 255)
+                ).toString(16).slice(1);
+            }
+        });
+    </script>
+</body>
+</html>

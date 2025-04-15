@@ -1,0 +1,978 @@
+工业物联网数据采集与分析平台 - 设备详情
+
+我将为您创建一个符合苹果设计美学的设备详情页面，采用蓝色科技风格。以下是完整的纯前端实现：
+
+html
+复制
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备详情 | 工业物联网数据采集与分析平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-dark: #0062c4;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .header h1 .back-button {
+            margin-right: 15px;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .card-header .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-dot.online {
+            background-color: var(--success-color);
+            box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
+        }
+
+        .status-dot.offline {
+            background-color: var(--error-color);
+        }
+
+        .status-dot.warning {
+            background-color: var(--warning-color);
+            box-shadow: 0 0 8px rgba(255, 149, 0, 0.5);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .log-entry {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .log-info {
+            flex: 1;
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .log-message {
+            font-size: 14px;
+        }
+
+        .log-warning {
+            color: var(--warning-color);
+        }
+
+        .log-error {
+            color: var(--error-color);
+        }
+
+        .log-success {
+            color: var(--success-color);
+        }
+
+        .gauge-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .gauge {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .gauge-label {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .gauge-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-left: 2px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .sensor-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .sensor-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.1);
+        }
+
+        .sensor-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .sensor-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sensor-unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .sensor-trend {
+            margin-top: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .trend-up {
+            color: var(--error-color);
+        }
+
+        .trend-down {
+            color: var(--success-color);
+        }
+
+        .trend-neutral {
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 113, 227, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span class="back-button" onclick="window.history.back()">←</span>
+                CNC-0428 设备详情
+            </h1>
+            <div class="header-actions">
+                <button class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    生成报告
+                </button>
+                <button class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    编辑设备
+                </button>
+            </div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('overview')">概览</div>
+                <div class="tab" onclick="switchTab('metrics')">运行指标</div>
+                <div class="tab" onclick="switchTab('logs')">设备日志</div>
+                <div class="tab" onclick="switchTab('settings')">配置信息</div>
+            </div>
+        </div>
+
+        <div class="tab-content active" id="overview">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>设备状态</h2>
+                        <span class="badge badge-success">运行中</span>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">当前状态</div>
+                        <div class="info-value">
+                            <div class="status-indicator">
+                                <div class="status-dot online pulse"></div>
+                                <span>正常运行</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">运行时长</div>
+                        <div class="info-value">142 小时 36 分钟</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">当前任务</div>
+                        <div class="info-value">零件编号: P-2048-3 (45/120)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">生产效率</div>
+                        <div class="info-value">92.7%</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">最后维护</div>
+                        <div class="info-value">2024-06-12 08:30</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>关键指标</h2>
+                    </div>
+                    <div class="gauge-container">
+                        <div class="gauge">
+                            <canvas id="tempGauge"></canvas>
+                            <div class="gauge-value">42.3<span class="gauge-unit">°C</span></div>
+                            <div class="gauge-label">主轴温度</div>
+                        </div>
+                        <div class="gauge">
+                            <canvas id="vibrationGauge"></canvas>
+                            <div class="gauge-value">2.8<span class="gauge-unit">mm/s</span></div>
+                            <div class="gauge-label">振动速度</div>
+                        </div>
+                        <div class="gauge">
+                            <canvas id="loadGauge"></canvas>
+                            <div class="gauge-value">78<span class="gauge-unit">%</span></div>
+                            <div class="gauge-label">负载率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>实时监控</h2>
+                    <div>
+                        <span class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span class="tooltiptext">数据每5秒自动刷新，显示最近30分钟的趋势</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="realtimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="metrics">
+            <div class="card">
+                <div class="card-header">
+                    <h2>传感器数据</h2>
+                    <div>
+                        <span>更新时间: <span id="updateTime">2024-06-15 14:32:45</span></span>
+                    </div>
+                </div>
+                <div class="sensor-grid">
+                    <div class="sensor-card">
+                        <div class="sensor-name">主轴转速</div>
+                        <div class="sensor-value">4,250</div>
+                        <div class="sensor-unit">RPM</div>
+                        <div class="sensor-trend trend-neutral">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            稳定 (±0.2%)
+                        </div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">切削力</div>
+                        <div class="sensor-value">1,245</div>
+                        <div class="sensor-unit">N</div>
+                        <div class="sensor-trend trend-down">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            下降 3.2%
+                        </div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">冷却液温度</div>
+                        <div class="sensor-value">28.7</div>
+                        <div class="sensor-unit">°C</div>
+                        <div class="sensor-trend trend-up">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            上升 1.1°C
+                        </div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">气压</div>
+                        <div class="sensor-value">0.62</div>
+                        <div class="sensor-unit">MPa</div>
+                        <div class="sensor-trend trend-neutral">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            稳定
+                        </div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">X轴位置</div>
+                        <div class="sensor-value">124.58</div>
+                        <div class="sensor-unit">mm</div>
+                        <div class="sensor-trend trend-neutral">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            加工中
+                        </div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-name">Y轴位置</div>
+                        <div class="sensor-value">87.32</div>
+                        <div class="sensor-unit">mm</div>
+                        <div class="sensor-trend trend-neutral">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            加工中
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>历史趋势</h2>
+                    <div>
+                        <select id="historyRange" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;">
+                            <option value="1h">最近1小时</option>
+                            <option value="8h">最近8小时</option>
+                            <option value="24h">最近24小时</option>
+                            <option value="7d" selected>最近7天</option>
+                            <option value="30d">最近30天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="logs">
+            <div class="card">
+                <div class="card-header">
+                    <h2>设备日志</h2>
+                    <div>
+                        <select id="logLevel" class="btn btn-outline" style="padding: 6px 12px; font-size: 13px;">
+                            <option value="all">所有级别</option>
+                            <option value="info">信息</option>
+                            <option value="warning">警告</option>
+                            <option value="error">错误</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="log-container">
+                    <div class="log-entry">
+                        <div class="log-icon log-success">✓</div>
+                        <div class="log-info">
+                            <div class="log-message">加工任务 P-2048-3 第45件完成</div>
+                            <div class="log-time">2024-06-15 14:32:18</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon log-warning">⚠</div>
+                        <div class="log-info">
+                            <div class="log-message">冷却液温度达到阈值 28.5°C</div>
+                            <div class="log-time">2024-06-15 14:15:42</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon log-success">✓</div>
+                        <div class="log-info">
+                            <div class="log-message">自动润滑系统已启动</div>
+                            <div class="log-time">2024-06-15 13:58:03</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon">i</div>
+                        <div class="log-info">
+                            <div class="log-message">刀具寿命监测: T12 剩余寿命 83%</div>
+                            <div class="log-time">2024-06-15 13:45:21</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon log-success">✓</div>
+                        <div class="log-info">
+                            <div class="log-message">加工任务 P-2048-3 第44件完成</div>
+                            <div class="log-time">2024-06-15 13:32:15</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon">i</div>
+                        <div class="log-info">
+                            <div class="log-message">系统自检完成，所有参数正常</div>
+                            <div class="log-time">2024-06-15 13:00:00</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon log-error">✗</div>
+                        <div class="log-info">
+                            <div class="log-message">X轴伺服电机过载报警，已自动恢复</div>
+                            <div class="log-time">2024-06-15 12:48:37</div>
+                        </div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon log-success">✓</div>
+                        <div class="log-info">
+                            <div class="log-message">加工任务 P-2048-3 第43件完成</div>
+                            <div class="log-time">2024-06-15 12:32:10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="settings">
+            <div class="card">
+                <div class="card-header">
+                    <h2>设备配置</h2>
+                </div>
+                <div class="grid">
+                    <div class="info-item">
+                        <div class="info-label">设备编号</div>
+                        <div class="info-value">CNC-0428</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">设备型号</div>
+                        <div class="info-value">HAAS VF-4SS</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">序列号</div>
+                        <div class="info-value">HV4S-2048-3287</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">安装日期</div>
+                        <div class="info-value">2023-09-15</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">固件版本</div>
+                        <div class="info-value">v2.4.8</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">IP地址</div>
+                        <div class="info-value">192.168.10.28</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">MAC地址</div>
+                        <div class="info-value">00:1A:3F:8B:42:7C</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">位置</div>
+                        <div class="info-value">B车间 - 工位12</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">负责人</div>
+                        <div class="info-value">张工 (13800138000)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">供应商</div>
+                        <div class="info-value">HAAS Automation Inc.</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">维护周期</div>
+                        <div class="info-value">每500小时</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">上次校准</div>
+                        <div class="info-value">2024-05-28</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>报警阈值设置</h2>
+                </div>
+                <div class="grid">
+                    <div class="info-item">
+                        <div class="info-label">主轴温度报警</div>
+                        <div class="info-value">≥65°C</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">主轴温度警告</div>
+                        <div class="info-value">≥55°C</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">振动速度报警</div>
+                        <div class="info-value">≥7.1 mm/s</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">振动速度警告</div>
+                        <div class="info-value">≥4.5 mm/s</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">冷却液温度报警</div>
+                        <div class="info-value">≥35°C</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">气压报警</div>
+                        <div class="info-value">≤0.4 MPa 或 ≥0.8 MPa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 生成随机数据点
+        function generateDataPoints(count, min, max, variance) {
+            let data = [];
+            let lastValue = min + (max - min) * Math.random();
+            
+            for (let i = 0; i < count; i++) {
+                let change = (Math.random() - 0.5) * variance;
+                lastValue = Math.min(max, Math.max(min, lastValue + change));
+                data.push(lastValue);
+            }
+            
+            return data;
+        }
+
+        // 初始化仪表盘
+        function initGauge(canvasId, value, max, warningThreshold, dangerThreshold) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const data = {
+                datasets: [{
+                    data: [value, max - value],
+                    backgroundColor: [
+                        value > dangerThreshold ? '#ff3b30' : 
+                        value > warningThreshold ? '#ff9500' : '#34c759',
+                        '#f0f0f0'
+                    ],
+                    borderWidth: 0
+                }]
+            };
+            
+            const config = {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    circumference: 270,
+                    rotation: 225,
+                    cutout: '80%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            };
+            
+            new Chart(ctx, config);
+        }
+
+        // 初始化实时图表
+        function initRealtimeChart() {
+            const ctx = document.getElementById('realtimeChart').getContext('2d');
+            const labels = [];
+            const now = new Date();
+            
+            for (let i = 29; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 60000);
+                labels.push(time.getHours() + ':' + (time.getMinutes() < 10 ? '0' : '') + time.getMinutes());
+            }
+            
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '主轴温度 (°C)',
+                            data: generateDataPoints(30, 38, 46, 0.8),
+                            borderColor: '#0071e3',
+                            backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: '振动速度 (mm/s)',
+                            data: generateDataPoints(30, 1.5, 3.5, 0.3),
+                            borderColor: '#34c759',
+                            backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: '负载率 (%)',
+                            data: generateDataPoints(30, 65, 85, 3),
+                            borderColor: '#ff9500',
+                            backgroundColor: 'rgba(255, 149, 0, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+            
+            // 模拟实时数据更新
+            setInterval(() => {
+                const now = new Date();
+                const timeLabel = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+                
+                chart.data.labels.shift();
+                chart.data.labels.push(time
+运行 HTML

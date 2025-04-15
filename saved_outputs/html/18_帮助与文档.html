@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业物联网数据采集与分析平台 - 帮助与文档</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-dark: #0062c4;
+            --primary-light: #e6f2ff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background: #f5f5f7;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .help-hero {
+            background: linear-gradient(135deg, var(--primary-color), #005bb5);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .help-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23005bb5' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .help-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            display: block;
+            padding: 8px 0;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .faq-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .faq-question {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-answer {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .faq-answer.active {
+            max-height: 500px;
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .chevron-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 113, 227, 0.1);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 113, 227, 0.1);
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 20px;
+        }
+
+        .contact-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .contact-info {
+            color: var(--text-secondary);
+        }
+
+        .video-tutorials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background-color: var(--background);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            background-color: #ddd;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-thumbnail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 113, 227, 0.7), rgba(0, 113, 227, 0.3));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .video-card:hover .video-thumbnail::before {
+            opacity: 1;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 20px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .video-card:hover .play-icon {
+            opacity: 1;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .video-duration {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background-color: var(--card-bg);
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-link {
+            margin-bottom: 10px;
+        }
+
+        .footer-link a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .footer-link a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .help-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                margin-bottom: 30px;
+            }
+            
+            .hero-title {
+                font-size: 32px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animated {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.6s;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <div class="logo-icon">IIoT</div>
+                <div class="logo-text">工业物联网平台</div>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link">仪表盘</a>
+                <a href="devices.html" class="nav-link">设备管理</a>
+                <a href="analytics.html" class="nav-link">数据分析</a>
+                <a href="alerts.html" class="nav-link">告警中心</a>
+                <a href="help.html" class="nav-link active">帮助文档</a>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">JD</div>
+            </div>
+        </div>
+    </header>
+
+    <section class="help-hero animated">
+        <div class="hero-content">
+            <h1 class="hero-title">需要帮助?</h1>
+            <p class="hero-subtitle">查找文档、常见问题解答或联系我们的支持团队</p>
+            <div class="search-container delay-1">
+                <input type="text" class="search-input" placeholder="搜索帮助文档...">
+                <button class="search-button">搜索</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="help-content">
+            <aside class="sidebar animated delay-1">
+                <h3 class="sidebar-title">文档分类</h3>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item"><a href="#getting-started" class="sidebar-link active">入门指南</a></li>
+                    <li class="sidebar-item"><a href="#faq" class="sidebar-link">常见问题</a></li>
+                    <li class="sidebar-item"><a href="#contact" class="sidebar-link">联系我们</a></li>
+                    <li class="sidebar-item"><a href="#tutorials" class="sidebar-link">视频教程</a></li>
+                    <li class="sidebar-item"><a href="#api" class="sidebar-link">API文档</a></li>
+                    <li class="sidebar-item"><a href="#troubleshooting" class="sidebar-link">故障排除</a></li>
+                    <li class="sidebar-item"><a href="#release-notes" class="sidebar-link">版本说明</a></li>
+                </ul>
+            </aside>
+
+            <main class="main-content animated delay-2">
+                <section id="getting-started" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📚</span>
+                        入门指南
+                    </h2>
+                    <p>欢迎使用工业物联网数据采集与分析平台。本指南将帮助您快速开始使用我们的平台。</p>
+                    
+                    <h3 style="margin: 20px 0 10px; font-weight: 500;">1. 平台概述</h3>
+                    <p>我们的平台提供实时数据采集、设备监控、数据分析和可视化功能，帮助您优化工业流程并提高效率。</p>
+                    
+                    <h3 style="margin: 20px 0 10px; font-weight: 500;">2. 系统要求</h3>
+                    <ul style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>现代浏览器(Chrome, Firefox, Safari, Edge最新版本)</li>
+                        <li>推荐分辨率: 1920x1080或更高</li>
+                        <li>网络连接: 稳定的互联网连接</li>
+                    </ul>
+                    
+                    <h3 style="margin: 20px 0 10px; font-weight: 500;">3. 快速开始</h3>
+                    <ol style="margin-left: 20px;">
+                        <li>登录您的账户</li>
+                        <li>添加您的第一个设备</li>
+                        <li>配置数据采集参数</li>
+                        <li>设置仪表盘视图</li>
+                        <li>配置告警规则</li>
+                    </ol>
+                </section>
+
+                <section id="faq" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">❓</span>
+                        常见问题
+                    </h2>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>如何添加新设备到平台?</span>
+                            <span class="chevron-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>要添加新设备，请导航至"设备管理"页面，点击"添加设备"按钮。您需要提供设备名称、类型、唯一标识符和连接参数。平台支持多种工业协议，包括Modbus、OPC UA和MQTT。</p>
+                            <p>添加完成后，设备将出现在您的设备列表中，您可以开始配置数据采集点和告警规则。</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>数据采集频率可以调整吗?</span>
+                            <span class="chevron-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>是的，您可以为每个数据点单独配置采集频率。在设备配置页面，选择特定数据点，然后设置您需要的采集间隔。请注意，高频采集可能会增加网络负载和存储需求。</p>
+                            <p>平台支持从1秒到24小时不等的采集间隔设置。</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>如何导出历史数据?</span>
+                            <span class="chevron-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>在"数据分析"页面，您可以选择时间范围和特定数据点，然后点击"导出"按钮。平台支持多种导出格式，包括CSV、Excel和JSON。</p>
+                            <p>对于大量数据导出，系统会生成下载链接并通过电子邮件发送给您。</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>告警通知支持哪些方式?</span>
+                            <span class="chevron-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>平台支持多种告警通知方式，包括电子邮件、短信、应用内通知和Webhook。您可以在"告警中心"的"通知设置"中配置您的偏好。</p>
+                            <p>对于关键告警，建议配置多种通知方式以确保及时响应。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="contact" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📧</span>
+                        联系我们
+                    </h2>
+                    <p>如果您的问题在文档中找不到答案，我们的支持团队随时为您提供帮助。</p>
+                    
+                    <div class="contact-methods" style="margin-top: 20px;">
+                        <div class="contact-card">
+                            <div class="contact-icon">✉️</div>
+                            <h3 class="contact-title">电子邮件支持</h3>
+                            <p class="contact-info">support@iiot-platform.com</p>
+                            <p class="contact-info">通常24小时内回复</p>
+                        </div>
+                        <div class="contact-card">
+                            <div class="contact-icon">📞</div>
+                            <h3 class="contact-title">电话支持</h3>
+                            <p class="contact-info">400-888-8888</p>
+                            <p class="contact-info">工作日 9:00-18:00</p>
+                        </div>
+                        <div class="contact-card">
+                            <div class="contact-icon">💬</div>
+                            <h3 class="contact-title">在线聊天</h3>
+                            <p class="contact-info">平台右下角聊天图标</p>
+                            <p class="contact-info">工作日 8:00-20:00</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tutorials" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🎬</span>
+                        视频教程
+                    </h2>
+                    <p>观看我们的视频教程，快速掌握平台核心功能。</p>
+                    
+                    <div class="video-tutorials" style="margin-top: 20px;">
+                        <div class="video-card">
+                            <div class="video-thumbnail">
+                                <div class="play-icon">▶</div>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title">设备添加与配置</h3>
+                                <p class="video-duration">8:32</p>
+                            </div>
+                        </div>
+                        <div class="video-card">
+                            <div class="video-thumbnail">
+                                <div class="play-icon">▶</div>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title">仪表盘自定义</h3>
+                                <p class="video-duration">12:15</p>
+                            </div>
+                        </div>
+                        <div class="video-card">
+                            <div class="video-thumbnail">
+                                <div class="play-icon">▶</div>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title">高级数据分析</h3>
+                                <p class="video-duration">15:40</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>产品</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="#">功能</a></li>
+                        <li class="footer-link"><a href="#">定价</a></li>
+                        <li class="footer-link"><a href="#">案例研究</a></li>
+                        <li class="footer-link"><a href="#">API</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>资源</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="#">文档</a></li>
+                        <li class="footer-link"><a href="#">博客</a></li>
+                        <li class="footer-link"><a href="#">网络研讨会</a></li>
+                        <li class="footer-link"><a href="#">状态</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>公司</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="#">关于我们</a></li>
+                        <li class="footer-link"><a href="#">职业</a></li>
+                        <li class="footer-link"><a href="#">合作伙伴</a></li>
+                        <li class="footer-link"><a href="#">联系我们</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>法律</h3>
+                    <ul class="footer-links">
+                        <li class="footer-link"><a href="#">隐私政策</a></li>
+                        <li class="footer-link"><a href="#">服务条款</a></li>
+                        <li class="footer-link"><a href="#">数据安全</a></li>
+                        <li class="footer-link"><a href="#">合规</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2024 工业物联网数据采集与分析平台. 版本 1.0 (2024年6月). 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // FAQ 展开/收起功能
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const answer = question.nextElementSibling;
+                    const chevron = question.querySelector('.chevron-icon');
+                    
+                    answer.classList.toggle('active');
+                    chevron.classList.toggle('rotate');
+                });
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                        
+                        // 更新侧边栏活动状态
+                        document.querySelectorAll('.sidebar-link').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            // 搜索功能
+            const searchInput = document.querySelector('.search-input');
+            const searchButton = document.querySelector('.search-button');
+            
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    alert(`搜索: ${query}\n\n在实际应用中，这里会显示搜索结果。`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

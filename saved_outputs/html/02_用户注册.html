@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业物联网数据采集与分析平台 | 用户注册</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-dark: #0062c4;
+            --primary-light: #e6f2ff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background: #f5f5f7;
+            --card-background: #ffffff;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --success-color: #34c759;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 113, 227, 0.05) 0%, rgba(0, 113, 227, 0.05) 90%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 2px 4px rgba(0, 113, 227, 0.2));
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: var(--border-radius);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: rgba(0, 113, 227, 0.02);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            background-color: var(--error-color);
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .form-footer {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: #d2d2d7;
+            margin: 0 10px;
+        }
+
+        .platform-info {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .platform-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .card {
+                padding: 24px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <svg class="logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="var(--primary-color)" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+            </svg>
+            <h1 class="title">工业物联网数据采集与分析平台</h1>
+            <p class="subtitle">v1.0 · 2024年6月</p>
+        </div>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 600;">创建新账户</h2>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username" class="form-label">用户名</label>
+                    <input type="text" id="username" class="form-control" placeholder="输入用户名" required>
+                    <div class="error-message" id="username-error">用户名必须为4-20个字符，只能包含字母、数字和下划线</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">电子邮箱 (可选)</label>
+                    <input type="email" id="email" class="form-control" placeholder="输入电子邮箱">
+                    <div class="error-message" id="email-error">请输入有效的电子邮箱地址</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone" class="form-label">手机号码 (可选)</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="输入手机号码">
+                    <div class="error-message" id="phone-error">请输入有效的手机号码</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">密码</label>
+                    <input type="password" id="password" class="form-control" placeholder="设置密码" required>
+                    <div class="password-strength">
+                        <div class="strength-meter" id="strength-meter"></div>
+                    </div>
+                    <div class="error-message" id="password-error">密码必须包含至少8个字符，包括大写字母、小写字母和数字</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">确认密码</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="再次输入密码" required>
+                    <div class="error-message" id="confirmPassword-error">两次输入的密码不一致</div>
+                </div>
+                
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary" id="registerBtn">
+                        <span id="registerText">注册账户</span>
+                        <div class="loading-spinner" id="loadingSpinner"></div>
+                    </button>
+                    
+                    <div class="divider">或</div>
+                    
+                    <button type="button" class="btn btn-secondary" id="loginBtn">已有账户？立即登录</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="platform-info pulse">
+            <p>连接全球超过10,000台工业设备</p>
+            <div class="platform-stats">
+                <div class="stat-item">
+                    <div class="stat-value">15.7K</div>
+                    <div class="stat-label">活跃设备</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2.4B</div>
+                    <div class="stat-label">日数据点</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">98.6%</div>
+                    <div class="stat-label">正常运行时间</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单元素
+            const registerForm = document.getElementById('registerForm');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const registerBtn = document.getElementById('registerBtn');
+            const registerText = document.getElementById('registerText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const loginBtn = document.getElementById('loginBtn');
+            const strengthMeter = document.getElementById('strength-meter');
+            
+            // 错误信息元素
+            const usernameError = document.getElementById('username-error');
+            const emailError = document.getElementById('email-error');
+            const phoneError = document.getElementById('phone-error');
+            const passwordError = document.getElementById('password-error');
+            const confirmPasswordError = document.getElementById('confirmPassword-error');
+            
+            // 密码强度检测
+            passwordInput.addEventListener('input', function() {
+                const password = passwordInput.value;
+                let strength = 0;
+                
+                if (password.length >= 8) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+                
+                let width = 0;
+                let color = '';
+                
+                switch(strength) {
+                    case 0:
+                    case 1:
+                        width = 20;
+                        color = 'var(--error-color)';
+                        break;
+                    case 2:
+                        width = 40;
+                        color = '#ff9500';
+                        break;
+                    case 3:
+                        width = 60;
+                        color = '#ffcc00';
+                        break;
+                    case 4:
+                        width = 80;
+                        color = 'var(--success-color)';
+                        break;
+                    case 5:
+                        width = 100;
+                        color = 'var(--success-color)';
+                        break;
+                }
+                
+                strengthMeter.style.width = `${width}%`;
+                strengthMeter.style.backgroundColor = color;
+            });
+            
+            // 表单验证
+            function validateUsername(username) {
+                const regex = /^[a-zA-Z0-9_]{4,20}$/;
+                return regex.test(username);
+            }
+            
+            function validateEmail(email) {
+                if (!email) return true; // 可选字段
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return regex.test(email);
+            }
+            
+            function validatePhone(phone) {
+                if (!phone) return true; // 可选字段
+                const regex = /^1[3-9]\d{9}$/;
+                return regex.test(phone);
+            }
+            
+            function validatePassword(password) {
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                return password.length >= 8 && hasUpperCase && hasLowerCase && hasNumber;
+            }
+            
+            function validateConfirmPassword(password, confirmPassword) {
+                return password === confirmPassword;
+            }
+            
+            // 输入实时验证
+            usernameInput.addEventListener('blur', function() {
+                if (!validateUsername(usernameInput.value)) {
+                    usernameError.style.display = 'block';
+                    usernameInput.style.borderColor = 'var(--error-color)';
+                } else {
+                    usernameError.style.display = 'none';
+                    usernameInput.style.borderColor = '#d2d2d7';
+                }
+            });
+            
+            emailInput.addEventListener('blur', function() {
+                if (!validateEmail(emailInput.value)) {
+                    emailError.style.display = 'block';
+                    emailInput.style.borderColor = 'var(--error-color)';
+                } else {
+                    emailError.style.display = 'none';
+                    emailInput.style.borderColor = '#d2d2d7';
+                }
+            });
+            
+            phoneInput.addEventListener('blur', function() {
+                if (!validatePhone(phoneInput.value)) {
+                    phoneError.style.display = 'block';
+                    phoneInput.style.borderColor = 'var(--error-color)';
+                } else {
+                    phoneError.style.display = 'none';
+                    phoneInput.style.borderColor = '#d2d2d7';
+                }
+            });
+            
+            passwordInput.addEventListener('blur', function() {
+                if (!validatePassword(passwordInput.value)) {
+                    passwordError.style.display = 'block';
+                    passwordInput.style.borderColor = 'var(--error-color)';
+                } else {
+                    passwordError.style.display = 'none';
+                    passwordInput.style.borderColor = '#d2d2d7';
+                }
+            });
+            
+            confirmPasswordInput.addEventListener('blur', function() {
+                if (!validateConfirmPassword(passwordInput.value, confirmPasswordInput.value)) {
+                    confirmPasswordError.style.display = 'block';
+                    confirmPasswordInput.style.borderColor = 'var(--error-color)';
+                } else {
+                    confirmPasswordError.style.display = 'none';
+                    confirmPasswordInput.style.borderColor = '#d2d2d7';
+                }
+            });
+            
+            // 表单提交
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = usernameInput.value;
+                const email = emailInput.value;
+                const phone = phoneInput.value;
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                // 验证所有字段
+                let isValid = true;
+                
+                if (!validateUsername(username)) {
+                    usernameError.style.display = 'block';
+                    usernameInput.style.borderColor = 'var(--error-color)';
+                    isValid = false;
+                }
+                
+                if (!validateEmail(email)) {
+                    emailError.style.display = 'block';
+                    emailInput.style.borderColor = 'var(--error-color)';
+                    isValid = false;
+                }
+                
+                if (!validatePhone(phone)) {
+                    phoneError.style.display = 'block';
+                    phoneInput.style.borderColor = 'var(--error-color)';
+                    isValid = false;
+                }
+                
+                if (!validatePassword(password)) {
+                    passwordError.style.display = 'block';
+                    passwordInput.style.borderColor = 'var(--error-color)';
+                    isValid = false;
+                }
+                
+                if (!validateConfirmPassword(password, confirmPassword)) {
+                    confirmPasswordError.style.display = 'block';
+                    confirmPasswordInput.style.borderColor = 'var(--error-color)';
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                // 显示加载状态
+                registerText.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+                registerBtn.disabled = true;
+                
+                // 模拟API请求延迟
+                setTimeout(function() {
+                    // 隐藏加载状态
+                    registerText.style.display = 'block';
+                    loadingSpinner.style.display = 'none';
+                    registerBtn.disabled = false;
+                    
+                    // 注册成功，跳转到登录页面
+                    window.location.href = 'login.html?registration=success';
+                }, 1500);
+            });
+            
+            // 跳转到登录页面
+            loginBtn.addEventListener('click', function() {
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+</html>

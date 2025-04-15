@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业物联网数据采集与分析平台 | 个人中心</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-dark: #0062c4;
+            --primary-light: #e6f1fa;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background: #f5f5f7;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary-dark);
+        }
+
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: var(--transition);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .edit-btn {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .edit-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .edit-btn i {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+
+        .info-group {
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .password-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .activity-card {
+            grid-column: span 2;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex-grow: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .activity-card {
+                grid-column: span 1;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-card {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .profile-card:nth-child(1) { animation-delay: 0.1s; }
+        .profile-card:nth-child(2) { animation-delay: 0.2s; }
+        .profile-card:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Password strength indicator */
+        .password-strength {
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            background-color: #ff3b30;
+            transition: var(--transition);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJzNC40NzcgMTAgMTAgMTAgMTAtNC40NzcgMTAtMTBTMTcuNTIzIDIgMTIgMnptMCAxOGE4IDggMCAxMTAtMTYgOCA4IDAgMDEwIDE2em0tLjM5LTYuNjA2YTEgMSAwIDAwLTEuMzI4LTEuNDk0bC0uMDk0LjA4My0yIDJhMSAxIDAgMDAwIDEuNDE0bDIgMmExIDEgMCAwMDEuNDk0LTEuMzJsLS4wODMtLjA5NEwxMS40MTUgMTNsMS4yOTItMS4yOTNhMSAxIDAgMDAuMjkzLS43MDd6bTMuMiAwYTEgMSAwIDAwLTEuNDk0LTEuMzJsLS4wODMuMDk0TDE2LjU4NSAxM2wtMS4yOTIgMS4yOTNhMSAxIDAgMDAxLjMyIDEuNDk0bC4wOTQtLjA4MyAyLTJhMSAxIDAgMDAwLTEuNDE0bC0yLTJ6Ii8+PC9zdmc+" alt="IIoT Logo">
+                <h1>工业物联网数据采集与分析平台</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+            </div>
+        </header>
+
+        <div class="nav-tabs">
+            <div class="nav-tab">仪表盘</div>
+            <div class="nav-tab">设备管理</div>
+            <div class="nav-tab">数据分析</div>
+            <div class="nav-tab">报警中心</div>
+            <div class="nav-tab active">个人中心</div>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-card">
+                <div class="card-header">
+                    <div class="card-title">个人信息</div>
+                    <button class="edit-btn" id="editProfileBtn">
+                        <i class="fas fa-pencil-alt"></i> 编辑
+                    </button>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">用户名</div>
+                    <div class="info-value">john.doe@industrial.com</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">姓名</div>
+                    <div class="info-value">John Doe</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">角色</div>
+                    <div class="info-value">系统管理员</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">部门</div>
+                    <div class="info-value">生产数据中心</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">最后登录</div>
+                    <div class="info-value">2024年6月15日 14:30 (UTC+8)</div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="card-header">
+                    <div class="card-title">安全设置</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">账户状态</div>
+                    <div class="info-value">
+                        <span style="color: #34c759;">
+                            <i class="fas fa-check-circle"></i> 已激活
+                        </span>
+                    </div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">双重认证</div>
+                    <div class="info-value">
+                        <span style="color: #34c759;">
+                            <i class="fas fa-check-circle"></i> 已启用
+                        </span>
+                    </div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">密码上次修改</div>
+                    <div class="info-value">2024年5月20日</div>
+                </div>
+
+                <form class="password-form" id="passwordForm">
+                    <div class="form-group">
+                        <label class="form-label" for="currentPassword">当前密码</label>
+                        <input type="password" class="form-input" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newPassword">新密码</label>
+                        <input type="password" class="form-input" id="newPassword" required>
+                        <div class="password-strength">
+                            <div class="strength-bar" id="strengthBar"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">确认新密码</label>
+                        <input type="password" class="form-input" id="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="submit-btn">更新密码</button>
+                </form>
+            </div>
+
+            <div class="profile-card activity-card">
+                <div class="card-header">
+                    <div class="card-title">最近活动</div>
+                </div>
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">登录系统</div>
+                            <div class="activity-time">2024年6月15日 14:30</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">导出生产数据报告</div>
+                            <div class="activity-time">2024年6月15日 11:45</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">处理报警 #A-2456</div>
+                            <div class="activity-time">2024年6月14日 16:20</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">更新设备配置</div>
+                            <div class="activity-time">2024年6月14日 10:15</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">修改密码</div>
+                            <div class="activity-time">2024年5月20日 09:30</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 密码强度检测
+            const newPasswordInput = document.getElementById('newPassword');
+            const strengthBar = document.getElementById('strengthBar');
+            
+            newPasswordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length >= 8) strength += 1;
+                if (password.match(/[a-z]/)) strength += 1;
+                if (password.match(/[A-Z]/)) strength += 1;
+                if (password.match(/[0-9]/)) strength += 1;
+                if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+                
+                let width = strength * 20;
+                let color = '#ff3b30';
+                
+                if (strength >= 4) color = '#34c759';
+                else if (strength >= 3) color = '#ffcc00';
+                
+                strengthBar.style.width = width + '%';
+                strengthBar.style.backgroundColor = color;
+            });
+            
+            // 密码表单提交
+            const passwordForm = document.getElementById('passwordForm');
+            
+            passwordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (newPassword !== confirmPassword) {
+                    alert('新密码与确认密码不匹配');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    alert('密码长度至少需要8个字符');
+                    return;
+                }
+                
+                // 显示成功消息
+                alert('密码已成功更新');
+                
+                // 重置表单
+                passwordForm.reset();
+                strengthBar.style.width = '0';
+            });
+            
+            // 编辑个人信息按钮
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            
+            editProfileBtn.addEventListener('click', function() {
+                alert('个人信息编辑功能将在下一版本中提供');
+            });
+            
+            // 添加微妙的交互效果
+            const cards = document.querySelectorAll('.profile-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mousemove', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const angleX = (y - centerY) / 20;
+                    const angleY = (centerX - x) / 20;
+                    
+                    this.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) translateY(-5px)`;
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(-5px)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

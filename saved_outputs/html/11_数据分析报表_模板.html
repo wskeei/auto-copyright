@@ -1,0 +1,1074 @@
+工业物联网数据采集与分析平台 - 数据分析报表
+
+我将为您创建一个符合苹果设计美学的蓝色科技风数据分析报表界面，采用纯前端实现。这个界面将包含预设的报表模板选择、数据可视化展示和交互功能。
+
+html
+复制
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业物联网数据采集与分析平台 | 数据分析报表</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #0071e3;
+            --dark-blue: #0062c4;
+            --light-blue: #e6f1fa;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success: #34c759;
+            --warning: #ff9500;
+            --danger: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #0a2540, #0062c4);
+            color: white;
+            padding: 24px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-blue);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .platform-name {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-weight: 500;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: white;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-left: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .report-controls {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .controls-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background-color: white;
+            appearance: none;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-blue);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-blue);
+        }
+
+        .report-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .report-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .report-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .action-btn:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover td {
+            background-color: var(--light-blue);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger);
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .kpi-change.up {
+            color: var(--success);
+        }
+
+        .kpi-change.down {
+            color: var(--danger);
+        }
+
+        .kpi-change svg {
+            margin-right: 4px;
+        }
+
+        .date-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-range-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .date-range-btn.active {
+            background-color: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .date-range-btn:hover:not(.active) {
+            background-color: var(--light-blue);
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 24px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .report-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                height: 100vh;
+            }
+            
+            .main-content {
+                padding: 24px 16px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 113, 227, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">IIoT</div>
+                    <span>工业物联网</span>
+                </div>
+                <div class="platform-name">数据采集与分析平台</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">🏭</span>
+                        <span>设备管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <span class="nav-icon">📈</span>
+                        <span>数据分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">🔔</span>
+                        <span>告警中心</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title">数据分析报表</h1>
+                <div class="user-profile">
+                    <span>2024年6月15日</span>
+                    <div class="user-avatar">JD</div>
+                </div>
+            </div>
+
+            <div class="report-controls animate-fade-in">
+                <h2 class="controls-title">报表配置</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">报表类型</label>
+                        <select class="form-select" id="report-type">
+                            <option value="oee">设备OEE(综合效率)报表</option>
+                            <option value="energy">能耗分析报表</option>
+                            <option value="production">产量统计报表</option>
+                            <option value="quality">质量分析报表</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">设备/分组</label>
+                        <select class="form-select" id="device-group">
+                            <option value="all">全部设备</option>
+                            <option value="group1">冲压车间</option>
+                            <option value="group2">焊接车间</option>
+                            <option value="group3">装配线</option>
+                            <option value="device1">CNC-001</option>
+                            <option value="device2">CNC-002</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">时间范围</label>
+                        <div class="date-range-selector">
+                            <button class="date-range-btn active">今日</button>
+                            <button class="date-range-btn">本周</button>
+                            <button class="date-range-btn">本月</button>
+                            <button class="date-range-btn">自定义</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">日期选择</label>
+                        <input type="date" class="form-input" id="start-date" value="2024-06-10">
+                        <span style="margin: 0 8px;">至</span>
+                        <input type="date" class="form-input" id="end-date" value="2024-06-15">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button class="btn btn-primary" id="generate-report">
+                        <span id="generate-text">生成报表</span>
+                        <span id="generate-spinner" class="spinner" style="display: none;"></span>
+                    </button>
+                    <button class="btn btn-secondary">导出PDF</button>
+                    <button class="btn btn-secondary">导出Excel</button>
+                </div>
+            </div>
+
+            <div class="kpi-container animate-fade-in delay-1">
+                <div class="kpi-card">
+                    <div class="kpi-title">设备综合效率 (OEE)</div>
+                    <div class="kpi-value">86.4%</div>
+                    <div class="kpi-change up">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 3L10 7M6 3L2 7M6 3V9" stroke="#34C759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        2.1% 较上周
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">平均能耗</div>
+                    <div class="kpi-value">1,245 kW·h</div>
+                    <div class="kpi-change down">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L2 5M6 9L10 5M6 9V3" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        3.5% 较上周
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">总产量</div>
+                    <div class="kpi-value">5,842 件</div>
+                    <div class="kpi-change up">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 3L10 7M6 3L2 7M6 3V9" stroke="#34C759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        5.2% 较上周
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">良品率</div>
+                    <div class="kpi-value">98.7%</div>
+                    <div class="kpi-change up">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 3L10 7M6 3L2 7M6 3V9" stroke="#34C759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        0.8% 较上周
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-container animate-fade-in delay-2">
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3 class="report-title">OEE趋势分析</h3>
+                        <div class="report-actions">
+                            <button class="action-btn tooltip">
+                                📊
+                                <span class="tooltip-text">切换图表类型</span>
+                            </button>
+                            <button class="action-btn tooltip">
+                                ⚙️
+                                <span class="tooltip-text">图表设置</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="oee-trend-chart"></div>
+                </div>
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3 class="report-title">设备OEE对比</h3>
+                        <div class="report-actions">
+                            <button class="action-btn tooltip">
+                                📊
+                                <span class="tooltip-text">切换图表类型</span>
+                            </button>
+                            <button class="action-btn tooltip">
+                                ⚙️
+                                <span class="tooltip-text">图表设置</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="oee-comparison-chart"></div>
+                </div>
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3 class="report-title">停机原因分析</h3>
+                        <div class="report-actions">
+                            <button class="action-btn tooltip">
+                                📊
+                                <span class="tooltip-text">切换图表类型</span>
+                            </button>
+                            <button class="action-btn tooltip">
+                                ⚙️
+                                <span class="tooltip-text">图表设置</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="downtime-chart"></div>
+                </div>
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3 class="report-title">设备状态分布</h3>
+                        <div class="report-actions">
+                            <button class="action-btn tooltip">
+                                📊
+                                <span class="tooltip-text">切换图表类型</span>
+                            </button>
+                            <button class="action-btn tooltip">
+                                ⚙️
+                                <span class="tooltip-text">图表设置</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="status-chart"></div>
+                </div>
+            </div>
+
+            <div class="full-width-card animate-fade-in delay-3">
+                <div class="report-header">
+                    <h3 class="report-title">详细数据</h3>
+                    <div class="report-actions">
+                        <button class="action-btn tooltip">
+                            🔍
+                            <span class="tooltip-text">筛选数据</span>
+                        </button>
+                        <button class="action-btn tooltip">
+                            ↻
+                            <span class="tooltip-text">刷新数据</span>
+                        </button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>设备编号</th>
+                            <th>设备名称</th>
+                            <th>OEE</th>
+                            <th>可用率</th>
+                            <th>性能率</th>
+                            <th>良品率</th>
+                            <th>运行时间</th>
+                            <th>停机时间</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CNC-001</td>
+                            <td>数控机床1号</td>
+                            <td>89.2%</td>
+                            <td>93.5%</td>
+                            <td>95.1%</td>
+                            <td>98.3%</td>
+                            <td>18.5小时</td>
+                            <td>1.2小时</td>
+                            <td><span class="badge badge-success">运行中</span></td>
+                        </tr>
+                        <tr>
+                            <td>CNC-002</td>
+                            <td>数控机床2号</td>
+                            <td>85.7%</td>
+                            <td>90.2%</td>
+                            <td>93.8%</td>
+                            <td>99.1%</td>
+                            <td>17.8小时</td>
+                            <td>1.8小时</td>
+                            <td><span class="badge badge-success">运行中</span></td>
+                        </tr>
+                        <tr>
+                            <td>WLD-001</td>
+                            <td>焊接机器人1号</td>
+                            <td>82.4%</td>
+                            <td>88.7%</td>
+                            <td>91.2%</td>
+                            <td>97.8%</td>
+                            <td>16.2小时</td>
+                            <td>2.3小时</td>
+                            <td><span class="badge badge-warning">待机中</span></td>
+                        </tr>
+                        <tr>
+                            <td>ASM-001</td>
+                            <td>装配线1号</td>
+                            <td>78.9%</td>
+                            <td>85.4%</td>
+                            <td>89.6%</td>
+                            <td>96.5%</td>
+                            <td>15.7小时</td>
+                            <td>3.1小时</td>
+                            <td><span class="badge badge-danger">故障中</span></td>
+                        </tr>
+                        <tr>
+                            <td>ASM-002</td>
+                            <td>装配线2号</td>
+                            <td>91.3%</td>
+                            <td>95.8%</td>
+                            <td>96.7%</td>
+                            <td>98.9%</td>
+                            <td>19.2小时</td>
+                            <td>0.8小时</td>
+                            <td><span class="badge badge-success">运行中</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            initCharts();
+            
+            // 生成报表按钮点击事件
+            document.getElementById('generate-report').addEventListener('click', function() {
+                const btn = this;
+                const text = document.getElementById('generate-text');
+                const spinner = document.getElementById('generate-spinner');
+                
+                text.style.display = 'none';
+                spinner.style.display = 'inline-block';
+                btn.disabled = true;
+                
+                // 模拟数据加载延迟
+                setTimeout(function() {
+                    spinner.style.display = 'none';
+                    text.style.display = 'inline';
+                    btn.disabled = false;
+                    
+                    // 更新图表数据
+                    updateCharts();
+                    
+                    // 添加动画效果
+                    document.querySelectorAll('.report-card, .kpi-card, .full-width-card').forEach(card => {
+                        card.style.animation = 'none';
+                        card.offsetHeight; // 触发重绘
+                        card.style.animation = 'fadeIn 0.4s ease forwards';
+                    });
+                }, 1500);
+            });
+            
+            // 日期范围按钮点击事件
+            document.querySelectorAll('.date-range-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.date-range-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 根据选择更新日期范围
+                    const today = new Date('2024-06-15');
+                    const startDate = document.getElementById('start-date');
+                    const endDate = document.getElementById('end-date');
+                    
+                    if (this.textContent === '今日') {
+                        startDate.value = formatDate(today);
+                        endDate.value = formatDate(today);
+                    } else if (this.textContent === '本周') {
+                        const day = today.getDay();
+                        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                        const monday = new Date(today.setDate(diff));
+                        startDate.value = formatDate(monday);
+                        endDate.value = formatDate(new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000));
+                    } else if (this.textContent === '本月') {
+                        startDate.value = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+                        endDate.value = formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+                    }
+                });
+            });
+        });
+        
+        function formatDate(date) {
+            const d = new Date(date);
+            let month = '' + (d.getMonth() + 1);
+            let day = '' + d.getDate();
+            const year = d.getFullYear();
+            
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+            
+            return [year, month, day].join('-');
+        }
+        
+        function initCharts() {
+            // OEE趋势图
+            const oeeTrendChart = echarts.init(document.getElementById('oee-trend-chart'));
+            oeeTrendChart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}<br/>{a0}: {c0}%<br/>{a1}: {c1}%<br/>{a2}: {c2}%<br/>{a3}: {c3}%'
+                },
+                legend: {
+                    data: ['OEE', '可用率', '性能率', '良品率'],
+                    right: 20,
+                    top: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['6/10', '6/11', '6/12', '6/13', '6/14', '6/15'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#d2d2d7'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#86868b'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 70,
+                    max: 100,
+                    axisLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                    axisLabel: {
+                        color: '#86868b',
+                        formatter: '{value}%'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'OEE',
+                        type: 'line',
+                        smooth: true,
+                        data: [82.3, 84.7, 83.9, 85.2, 86.8, 86.4],
+                        lineStyle: {
+                            width: 3,
+                            color: '#0071e3'
+                        },
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#0071e3'
+                        }
+                    },
+                    {
+                        name: '可用率',
+                        type: 'line',
+                        smooth: true,
+                        data: [88.5, 89.2, 87.8, 90.1, 91.3, 90.7],
+                        lineStyle: {
+                            width: 3,
+                            color: '#34c759'
+                        },
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#34c759'
+                        }
+                    },
+                    {
+                        name: '性能率',
+                        type: 'line',
+                        smooth: true,
+                        data: [91.2, 92.5, 90.8, 91.7, 93.4, 94.1],
+                        lineStyle: {
+                            width: 3,
+                            color: '#ff9500'
+                        },
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#ff9500'
+                        }
+                    },
+                    {
+                        name: '良品率',
+                        type: 'line',
+                        smooth: true,
+                        data: [97.8, 98.1, 97.5, 98.3, 98.7, 98.4],
+                        lineStyle: {
+                            width: 3,
+                            color: '#af52de'
+                        },
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#af52de'
+                        }
+                    }
+                ]
+            });
+            
+            // 设备OEE对比图
+            const oeeComparisonChart = echarts.init(document.getElementById('oee-comparison-chart'));
+            oeeComparisonChart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: '{b}<br/>{a}: {c}%'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    min: 70,
+                    max: 100,
+                    axisLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                    axisLabel: {
+                        color: '#86868b',
+                        formatter: '{value}%'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                },
+                yAxis: {
+                    type:
+运行 HTML

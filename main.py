@@ -60,7 +60,25 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         print("检测到复制按钮，AI 代码已生成。")
         # 保存 HTML 文件
         content_selector = 'div._8f60047 .ds-markdown.ds-markdown--block'
-        content = await page.inner_text(content_selector)
+        # 检查是否遇到服务器繁忙提示，若是则自动刷新重试
+        retry_busy = 0
+        while True:
+            content = await page.inner_text(content_selector)
+            if '服务器繁忙，请稍后再试' in content:
+                retry_busy += 1
+                if retry_busy > 5:
+                    raise Exception('连续多次服务器繁忙，自动重试失败！')
+                print('检测到“服务器繁忙”，自动点击刷新按钮重试...')
+                # 定位刷新按钮（svg 内含 id="重新生成"）
+                refresh_btn = page.locator('div.ds-icon-button svg[id="重新生成"]')
+                if await refresh_btn.count() > 0:
+                    await refresh_btn.first.evaluate('el => el.closest(".ds-icon-button").click()')
+                    await asyncio.sleep(2)
+                    await page.wait_for_selector(content_selector, timeout=60000)
+                    continue
+                else:
+                    raise Exception('未找到“重新生成”按钮，无法自动重试！')
+            break
         print("AI 代码内容已获取。")
         file_base = safe_filename(user_title)
         html_dir = os.path.join(save_dir, "html")
@@ -156,36 +174,53 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             print("页面已刷新并成功写入 02 AI 角色设定 prompt")
         except Exception as e:
             print(f"刷新页面或写入 prompt 时出错: {e}")
-        # 发送 02 AI 角色设定 prompt，生成说明
+        # 发送 02 AI 角色设定 prompt，生成说明（带服务器繁忙自动重试）
         print("发送 02 AI 角色设定 prompt...")
-        # 再次确认按钮可用
-        await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
-        btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
-        print(f"发送前按钮aria-disabled={btn_state}")
-        await page.click('div._7436101[role="button"][aria-disabled="false"]')
-        print("已点击发送按钮，等待按钮状态变化...")
-        # 严格等待按钮状态变化
-        found_enabled = False
-        for i in range(120):  # 最长2分钟
-            state = await page.get_attribute(send_btn_selector, "aria-disabled")
-            print(f"发送后第{i+1}秒，按钮aria-disabled={state}")
-            if state == "false":
-                found_enabled = True
-                break
-            await asyncio.sleep(1)
-        if not found_enabled:
-            print("发送后按钮未变为enabled，流程异常")
-        # 再等待生成结束（按钮变为disabled）
-        for i in range(600):  # 最长10分钟
-            state = await page.get_attribute(send_btn_selector, "aria-disabled")
-            print(f"生成中第{i+1}秒，按钮aria-disabled={state}")
-            if state == "true":
-                print("AI 说明生成完毕。")
-                break
-            await asyncio.sleep(1)
-        else:
-            print("AI 说明生成超时！")
-        doc_content = await page.inner_text(content_selector)
+        retry_busy = 0
+        while True:
+            # 再次确认按钮可用
+            await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
+            btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+            print(f"发送前按钮aria-disabled={btn_state}")
+            await page.click('div._7436101[role="button"][aria-disabled="false"]')
+            print("已点击发送按钮，等待按钮状态变化...")
+            # 严格等待按钮状态变化
+            found_enabled = False
+            for i in range(120):  # 最长2分钟
+                state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"发送后第{i+1}秒，按钮aria-disabled={state}")
+                if state == "false":
+                    found_enabled = True
+                    break
+                await asyncio.sleep(1)
+            if not found_enabled:
+                print("发送后按钮未变为enabled，流程异常")
+            # 再等待生成结束（按钮变为disabled）
+            for i in range(600):  # 最长10分钟
+                state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"生成中第{i+1}秒，按钮aria-disabled={state}")
+                if state == "true":
+                    print("AI 说明生成完毕。")
+                    break
+                await asyncio.sleep(1)
+            else:
+                print("AI 说明生成超时！")
+            doc_content = await page.inner_text(content_selector)
+            # 检查服务器繁忙
+            if '服务器繁忙，请稍后再试' in doc_content:
+                retry_busy += 1
+                if retry_busy > 5:
+                    raise Exception('说明生成遇到服务器繁忙，自动重试5次仍失败！')
+                print('说明生成遇到“服务器繁忙”，自动点击刷新按钮重试...')
+                refresh_btn = page.locator('div.ds-icon-button svg[id="重新生成"]')
+                if await refresh_btn.count() > 0:
+                    await refresh_btn.first.evaluate('el => el.closest(".ds-icon-button").click()')
+                    await asyncio.sleep(2)
+                    await page.wait_for_selector(content_selector, timeout=60000)
+                    continue
+                else:
+                    raise Exception('未找到“重新生成”按钮，无法自动重试！')
+            break
         doc_path = os.path.join(save_dir, "软件说明.md")
         with open(doc_path, "a", encoding="utf-8") as f:
             f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
