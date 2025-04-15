@@ -41,10 +41,41 @@ async def main():
         content = await page.inner_text(content_selector)
         print("AI 回复内容已获取。")
 
-        # 保存到本地 markdown 文件
-        with open("deepseek_reply.md", "w", encoding="utf-8") as f:
-            f.write(content)
-        print("AI 回复内容已保存到 deepseek_reply.md")
+        import os
+        import re
+        # 新建保存文件夹
+        save_dir = "saved_outputs"
+        os.makedirs(save_dir, exist_ok=True)
+        # 优先判断是否为完整代码（以 < 或 <!DOCTYPE 开头），如果是则全部保存
+        save_path = os.path.join(save_dir, "deepseek_reply.txt")
+        content_strip = content.lstrip()
+        if content_strip.startswith('<') or content_strip.lower().startswith('<!doctype'):
+            with open(save_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            print(f"AI 回复内容（完整代码）已原样保存到 {save_path}")
+        else:
+            # 否则尝试提取代码块（优先考虑 ``` 包裹，其次缩进块）
+            code_blocks = re.findall(r"```[\w]*\n([\s\S]*?)```", content)
+            if not code_blocks:
+                # 如果没有 markdown 代码块，尝试用缩进（4空格或tab）提取
+                code_lines = []
+                in_code = False
+                for line in content.splitlines():
+                    if line.strip() == '':
+                        if in_code:
+                            code_lines.append('')
+                        continue
+                    if (line.startswith('    ') or line.startswith('\t')):
+                        code_lines.append(line)
+                        in_code = True
+                    else:
+                        in_code = False
+                code_content = '\n'.join(code_lines).strip()
+            else:
+                code_content = '\n\n'.join(code_blocks).strip()
+            with open(save_path, "w", encoding="utf-8") as f:
+                f.write(code_content)
+            print(f"AI 回复内容（代码块）已保存到 {save_path}")
 
         # 检测并点击 "运行 HTML" 按钮
         run_html_selector = 'div.md-code-block-footer span:has-text("运行 HTML")'
@@ -67,7 +98,8 @@ async def main():
             # 等待 iframe 内特定的、代表核心内容的元素出现
             internal_element_selector = 'h2:has-text("用户登录")'
             screenshot_target_selector = 'body' # 仍然截图 body 以获取全貌
-            screenshot_path = 'rendered_html.png'
+            import shutil
+            screenshot_path = os.path.join(save_dir, 'rendered_html.png')
             try:
                 print(f"等待 iframe '{iframe_selector}' 出现...")
                 await page.wait_for_selector(iframe_selector, state="visible", timeout=10000)
@@ -75,7 +107,7 @@ async def main():
                 print(f"成功定位 iframe。等待 iframe 内特定元素 '{internal_element_selector}' 加载并可见...")
                 # 增加 iframe 内部等待时间，并等待特定元素
                 await frame.locator(internal_element_selector).wait_for(state="visible", timeout=45000)
-                print(f"iframe 内特定元素 '{internal_element_selector}' 已可见。")
+                print(f"iframe 内特定元素 '{internal_element_selector}' 已可见。");
                 # 等待片刻确保渲染稳定
                 await asyncio.sleep(1)
                 await frame.locator(screenshot_target_selector).screenshot(path=screenshot_path)
