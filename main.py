@@ -212,9 +212,11 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             print("页面已刷新并成功写入 02 AI 角色设定 prompt")
     except Exception as e:
         print(f"刷新页面或写入 prompt 时出错: {e}")
-        # 发送 02 AI 角色设定 prompt，生成说明（带服务器繁忙自动重试）
-        print("发送 02 AI 角色设定 prompt...")
-        retry_busy = 0
+    # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    # 重新整理第二次输入流程：点击发送按钮、等待生成、自动点击“继续生成”、保存说明
+    print("发送 02 AI 角色设定 prompt...")
+    retry_busy = 0
+    try:
         while True:
             # 再次确认按钮可用
             await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
