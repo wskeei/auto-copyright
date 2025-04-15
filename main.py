@@ -205,7 +205,12 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 await asyncio.sleep(1)
             else:
                 print("AI 说明生成超时！")
-            doc_content = await page.inner_text(content_selector)
+            # 获取所有说明节点，取最新一条（最后一条）内容
+            doc_nodes = await page.query_selector_all(content_selector)
+            if not doc_nodes:
+                doc_content = ""
+            else:
+                doc_content = await doc_nodes[-1].inner_text()
             # 检查服务器繁忙
             if '服务器繁忙，请稍后再试' in doc_content:
                 retry_busy += 1
