@@ -158,69 +158,54 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 print("'运行 HTML' 按钮未找到。")
         except Exception as e:
             print(f"检测或点击 '运行 HTML' 按钮时出错: {e}")
-        # 如果点击了运行按钮，则截图
+        # 如果点击了运行按钮，则刷新页面，重置状态（不再截图）
         if clicked_run_html:
-            iframe_selector = 'iframe[src="https://cdn.deepseek.com/usercontent/usercontent.html"]'
-            internal_element_selector = 'body'  # 截图整个 body
-            screenshots_dir = os.path.join(save_dir, "screenshots")
-        os.makedirs(screenshots_dir, exist_ok=True)
-        screenshot_path = os.path.join(screenshots_dir, f"{file_base}.png")
-        try:
-            print(f"等待 iframe '{iframe_selector}' 出现...")
-            await page.wait_for_selector(iframe_selector, state="visible", timeout=10000)
-            frame = page.frame_locator(iframe_selector)
-            print(f"成功定位 iframe。等待 iframe 内元素加载...")
-            await frame.locator(internal_element_selector).wait_for(state="visible", timeout=45000)
-            await random_human_delay()
-            await frame.locator(internal_element_selector).screenshot(path=screenshot_path)
-            print(f"已将 iframe 内 body 截图保存到 {screenshot_path}")
-        except Exception as e:
-            print(f"截图失败: {e}")
-        # 截图后刷新页面，规避关闭按钮问题
-        try:
-            print("截图后刷新页面，重置状态...")
-            await page.reload()
-            await page.wait_for_selector("#chat-input", timeout=60000)
-            await asyncio.sleep(1)
-            # 激活输入框，促使发送按钮enabled
-            await page.focus("#chat-input")
-            await page.type("#chat-input", "a")  # 输入一个字符
-            await asyncio.sleep(0.2)
-            await page.fill("#chat-input", "")  # 清空
-            await asyncio.sleep(0.2)
-            await page.type("#chat-input", ai_doc, delay=30)  # 模拟逐字输入 prompt
-            await asyncio.sleep(0.5)
-            # 手动触发 input 事件，确保按钮被激活
-            await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
-            send_btn_selector = 'div._7436101[role="button"]'
-            btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
-            print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
-            # 等待按钮可用
-            await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="false"]', timeout=60000)
-            print("发送按钮已可用，准备输入 02 AI 角色设定 prompt")
-            # 多次尝试填入内容并确认
-            # 修正：逐字符输入，遇到换行用 Shift+Enter，避免提前发送
-            await page.fill("#chat-input", "")  # 清空
-            await asyncio.sleep(0.2)
-            for c in ai_doc:
-                if c == '\n':
-                    await page.keyboard.down('Shift')
-                    await page.keyboard.press('Enter')
-                    await page.keyboard.up('Shift')
+            try:
+                print("点击 '运行 HTML' 后刷新页面，重置状态...")
+                await page.reload()
+                await page.wait_for_selector("#chat-input", timeout=60000)
+                await asyncio.sleep(1)
+                # 激活输入框，促使发送按钮enabled
+                await page.focus("#chat-input")
+                await page.type("#chat-input", "a")  # 输入一个字符
+                await asyncio.sleep(0.2)
+                await page.fill("#chat-input", "")  # 清空
+                await asyncio.sleep(0.2)
+                await page.type("#chat-input", ai_doc, delay=30)  # 模拟逐字输入 prompt
+                await asyncio.sleep(0.5)
+                # 手动触发 input 事件，确保按钮被激活
+                await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
+                send_btn_selector = 'div._7436101[role="button"]'
+                btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
+                # 等待按钮可用
+                await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="false"]', timeout=60000)
+                print("发送按钮已可用，准备输入 02 AI 角色设定 prompt")
+                # 多次尝试填入内容并确认
+                # 修正：逐字符输入，遇到换行用 Shift+Enter，避免提前发送
+                await page.fill("#chat-input", "")  # 清空
+                await asyncio.sleep(0.2)
+                for c in ai_doc:
+                    if c == '\n':
+                        await page.keyboard.down('Shift')
+                        await page.keyboard.press('Enter')
+                        await page.keyboard.up('Shift')
+                    else:
+                        await page.keyboard.type(c)
+                    await asyncio.sleep(0.01)
+                # 检查输入框内容，确保全部输入完毕
+                for _ in range(20):
+                    current_text = await page.input_value("#chat-input")
+                    print(f"输入后chat-input内容: '{current_text}'")
+                    if current_text.strip() == ai_doc.strip():
+                        print("写入成功")
+                        break
+                    await asyncio.sleep(0.1)
                 else:
-                    await page.keyboard.type(c)
-                await asyncio.sleep(0.01)
-            # 检查输入框内容，确保全部输入完毕
-            for _ in range(20):
-                current_text = await page.input_value("#chat-input")
-                print(f"输入后chat-input内容: '{current_text}'")
-                if current_text.strip() == ai_doc.strip():
-                    print("写入成功")
-                    break
-                await asyncio.sleep(0.1)
-            else:
-                raise Exception("无法写入 02 AI 角色设定 prompt 到输入框！")
-            await asyncio.sleep(0.3)
+                    raise Exception("无法写入 02 AI 角色设定 prompt 到输入框！")
+                await asyncio.sleep(0.3)
+            except Exception as e:
+                print(f"刷新页面后处理异常: {e}")
             # 手动触发 input 事件，确保按钮被激活
             await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
             await random_human_delay()
