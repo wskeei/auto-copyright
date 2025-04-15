@@ -63,7 +63,9 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         content = await page.inner_text(content_selector)
         print("AI 代码内容已获取。")
         file_base = safe_filename(user_title)
-        html_path = os.path.join(save_dir, f"{file_base}.html")
+        html_dir = os.path.join(save_dir, "html")
+        os.makedirs(html_dir, exist_ok=True)
+        html_path = os.path.join(html_dir, f"{file_base}.html")
         # 只保留 <!DOCTYPE html> ... </html> 部分
         html_match = re.search(r'(<!DOCTYPE html[\s\S]*?</html>)', content, re.IGNORECASE)
         with open(html_path, "w", encoding="utf-8") as f:
@@ -90,18 +92,20 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         if clicked_run_html:
             iframe_selector = 'iframe[src="https://cdn.deepseek.com/usercontent/usercontent.html"]'
             internal_element_selector = 'body'  # 截图整个 body
-            screenshot_path = os.path.join(save_dir, f"{file_base}.png")
-            try:
-                print(f"等待 iframe '{iframe_selector}' 出现...")
-                await page.wait_for_selector(iframe_selector, state="visible", timeout=10000)
-                frame = page.frame_locator(iframe_selector)
-                print(f"成功定位 iframe。等待 iframe 内元素加载...")
-                await frame.locator(internal_element_selector).wait_for(state="visible", timeout=45000)
-                await asyncio.sleep(1)
-                await frame.locator(internal_element_selector).screenshot(path=screenshot_path)
-                print(f"已将 iframe 内 body 截图保存到 {screenshot_path}")
-            except Exception as e:
-                print(f"截图失败: {e}")
+            screenshots_dir = os.path.join(save_dir, "screenshots")
+        os.makedirs(screenshots_dir, exist_ok=True)
+        screenshot_path = os.path.join(screenshots_dir, f"{file_base}.png")
+        try:
+            print(f"等待 iframe '{iframe_selector}' 出现...")
+            await page.wait_for_selector(iframe_selector, state="visible", timeout=10000)
+            frame = page.frame_locator(iframe_selector)
+            print(f"成功定位 iframe。等待 iframe 内元素加载...")
+            await frame.locator(internal_element_selector).wait_for(state="visible", timeout=45000)
+            await asyncio.sleep(1)
+            await frame.locator(internal_element_selector).screenshot(path=screenshot_path)
+            print(f"已将 iframe 内 body 截图保存到 {screenshot_path}")
+        except Exception as e:
+            print(f"截图失败: {e}")
         # 截图后刷新页面，规避关闭按钮问题
         try:
             print("截图后刷新页面，重置状态...")
