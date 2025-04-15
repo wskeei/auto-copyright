@@ -125,21 +125,30 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="false"]', timeout=60000)
             print("发送按钮已可用，准备输入 02 AI 角色设定 prompt")
             # 多次尝试填入内容并确认
-            retry_count = 0
-            while retry_count < 5:
-                await page.fill("#chat-input", "")
-                await asyncio.sleep(0.5)
-                await page.fill("#chat-input", ai_doc)
-                await asyncio.sleep(1)
+            # 修正：逐字符输入，遇到换行用 Shift+Enter，避免提前发送
+            await page.fill("#chat-input", "")  # 清空
+            await asyncio.sleep(0.2)
+            for c in ai_doc:
+                if c == '\n':
+                    await page.keyboard.down('Shift')
+                    await page.keyboard.press('Enter')
+                    await page.keyboard.up('Shift')
+                else:
+                    await page.keyboard.type(c)
+                await asyncio.sleep(0.01)
+            # 检查输入框内容，确保全部输入完毕
+            for _ in range(20):
                 current_text = await page.input_value("#chat-input")
-                print(f"第{retry_count+1}次写入后chat-input内容: '{current_text}'")
+                print(f"输入后chat-input内容: '{current_text}'")
                 if current_text.strip() == ai_doc.strip():
                     print("写入成功")
                     break
-                print(f"写入失败，重试...{retry_count+1}")
-                retry_count += 1
+                await asyncio.sleep(0.1)
             else:
                 raise Exception("无法写入 02 AI 角色设定 prompt 到输入框！")
+            await asyncio.sleep(0.3)
+            # 手动触发 input 事件，确保按钮被激活
+            await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
             print("页面已刷新并成功写入 02 AI 角色设定 prompt")
         except Exception as e:
             print(f"刷新页面或写入 prompt 时出错: {e}")
