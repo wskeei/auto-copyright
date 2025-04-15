@@ -210,8 +210,8 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
             await random_human_delay()
             print("页面已刷新并成功写入 02 AI 角色设定 prompt")
-        except Exception as e:
-            print(f"刷新页面或写入 prompt 时出错: {e}")
+    except Exception as e:
+        print(f"刷新页面或写入 prompt 时出错: {e}")
         # 发送 02 AI 角色设定 prompt，生成说明（带服务器繁忙自动重试）
         print("发送 02 AI 角色设定 prompt...")
         retry_busy = 0
