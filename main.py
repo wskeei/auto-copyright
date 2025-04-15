@@ -19,6 +19,24 @@ async def refresh_retry_click(page):
             return
     raise Exception('未找到“重新生成”按钮，无法自动重试！')
 
+# 工具函数：自动点击“继续生成”直到无按钮
+async def auto_continue_generate(page, max_loops=10):
+    """
+    检查并自动点击“继续生成”按钮，直到按钮消失或达到最大次数。
+    """
+    btn_selector = 'div[role="button"].ds-button--secondary:has-text("继续生成")'
+    for i in range(max_loops):
+        btns = await page.query_selector_all(btn_selector)
+        if btns:
+            print(f"检测到'继续生成'按钮，第{i+1}次点击...")
+            await btns[0].click()
+            await asyncio.sleep(2)  # 等待AI继续生成
+            # 可适当等待内容变化或按钮消失
+            await page.wait_for_timeout(2000)
+        else:
+            break
+    print("已无'继续生成'按钮，继续后续流程。")
+
 # 解析 AI_prompt.md，获取两个角色设定内容
 # 返回 (ai_role_content, ai_doc_content)
 def get_ai_prompts(ai_prompt_path):
@@ -109,6 +127,8 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 continue
             break
         await random_human_delay()
+        # 检查并自动点击“继续生成”按钮
+        await auto_continue_generate(page)
         print("AI 代码内容已获取。")
         file_base = safe_filename(user_title)
         html_dir = os.path.join(save_dir, "html")
@@ -245,6 +265,8 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 doc_content = ""
             else:
                 doc_content = await doc_nodes[-1].inner_text()
+            # 检查并自动点击“继续生成”按钮（说明部分）
+            await auto_continue_generate(page)
             # 检查服务器繁忙
             if '服务器繁忙，请稍后再试' in doc_content:
                 retry_busy += 1
