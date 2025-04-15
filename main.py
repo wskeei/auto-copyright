@@ -36,8 +36,13 @@ def safe_filename(title):
     name = name.strip("_")
     return name
 
-async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir):
+async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir, force_clean_user_data_dir=False):
     user_data_dir = "./user_data_chromium"
+    import shutil
+    if force_clean_user_data_dir and os.path.exists(user_data_dir):
+        print(f"检测到 user_data_dir {user_data_dir} 存在，正在自动清理...")
+        shutil.rmtree(user_data_dir)
+        print("user_data_dir 已清理。")
     context = await p.chromium.launch_persistent_context(user_data_dir, headless=False, args=["--disable-blink-features=AutomationControlled"])
     page = context.pages[0] if context.pages else await context.new_page()
     await page.goto("https://chat.deepseek.com/")
@@ -101,18 +106,37 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir)
         try:
             print("截图后刷新页面，重置状态...")
             await page.reload()
-            await page.wait_for_selector("textarea", timeout=30000)
-            # 确保textarea可编辑且内容为空
+            await page.wait_for_selector("#chat-input", timeout=30000)
             await asyncio.sleep(1)
-            await page.fill("textarea", "")
+            # 激活输入框，促使发送按钮enabled
+            await page.focus("#chat-input")
+            await page.type("#chat-input", "a")  # 输入一个字符
+            await asyncio.sleep(0.2)
+            await page.fill("#chat-input", "")  # 清空
+            await asyncio.sleep(0.2)
+            await page.type("#chat-input", ai_doc, delay=30)  # 模拟逐字输入 prompt
+            await asyncio.sleep(0.5)
+            # 手动触发 input 事件，确保按钮被激活
+            await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
+            send_btn_selector = 'div._7436101[role="button"]'
+            btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+            print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
+            # 等待按钮可用
+            await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="false"]', timeout=60000)
+            print("发送按钮已可用，准备输入 02 AI 角色设定 prompt")
+            # 多次尝试填入内容并确认
             retry_count = 0
-            while retry_count < 3:
-                await page.fill("textarea", ai_doc)
-                value = await page.input_value("textarea")
-                if value.strip() == ai_doc.strip():
-                    break
-                print(f"填写 02 AI 角色设定 prompt 失败，重试...{retry_count+1}")
+            while retry_count < 5:
+                await page.fill("#chat-input", "")
+                await asyncio.sleep(0.5)
+                await page.fill("#chat-input", ai_doc)
                 await asyncio.sleep(1)
+                current_text = await page.input_value("#chat-input")
+                print(f"第{retry_count+1}次写入后chat-input内容: '{current_text}'")
+                if current_text.strip() == ai_doc.strip():
+                    print("写入成功")
+                    break
+                print(f"写入失败，重试...{retry_count+1}")
                 retry_count += 1
             else:
                 raise Exception("无法写入 02 AI 角色设定 prompt 到输入框！")
@@ -121,21 +145,38 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir)
             print(f"刷新页面或写入 prompt 时出错: {e}")
         # 发送 02 AI 角色设定 prompt，生成说明
         print("发送 02 AI 角色设定 prompt...")
+        # 再次确认按钮可用
         await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
+        btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+        print(f"发送前按钮aria-disabled={btn_state}")
         await page.click('div._7436101[role="button"][aria-disabled="false"]')
-        print("等待 AI 说明回复生成...（检测发送按钮 aria-disabled=true）")
-        try:
-            # 等待发送按钮变为禁用，表示生成完成
-            send_btn_selector = 'div._7436101[role="button"]'
-            await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="true"]', timeout=600000)
-            print("发送按钮已禁用，AI 说明生成完毕。")
-            doc_content = await page.inner_text(content_selector)
-            doc_path = os.path.join(save_dir, "软件说明.md")
-            with open(doc_path, "a", encoding="utf-8") as f:
-                f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
-            print(f"AI 说明已追加到 {doc_path}")
-        except Exception as e:
-            print(f"AI 说明生成超时或出错: {e}")
+        print("已点击发送按钮，等待按钮状态变化...")
+        # 严格等待按钮状态变化
+        found_enabled = False
+        for i in range(120):  # 最长2分钟
+            state = await page.get_attribute(send_btn_selector, "aria-disabled")
+            print(f"发送后第{i+1}秒，按钮aria-disabled={state}")
+            if state == "false":
+                found_enabled = True
+                break
+            await asyncio.sleep(1)
+        if not found_enabled:
+            print("发送后按钮未变为enabled，流程异常")
+        # 再等待生成结束（按钮变为disabled）
+        for i in range(600):  # 最长10分钟
+            state = await page.get_attribute(send_btn_selector, "aria-disabled")
+            print(f"生成中第{i+1}秒，按钮aria-disabled={state}")
+            if state == "true":
+                print("AI 说明生成完毕。")
+                break
+            await asyncio.sleep(1)
+        else:
+            print("AI 说明生成超时！")
+        doc_content = await page.inner_text(content_selector)
+        doc_path = os.path.join(save_dir, "软件说明.md")
+        with open(doc_path, "a", encoding="utf-8") as f:
+            f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
+        print(f"AI 说明已追加到 {doc_path}")
     except Exception as e:
         print(f"等待复制按钮超时或出错: {e}")
     await context.close()
