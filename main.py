@@ -271,15 +271,8 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             if '服务器繁忙，请稍后再试' in doc_content:
                 retry_busy += 1
                 if retry_busy > 2:
-                    print('说明生成遇到服务器繁忙且刷新2次无效，自动切换账户...')
-                    await switch_user(headless=False)
-                    await page.context.close()
-                    async with p.chromium.launch_persistent_context('./user_data_chromium', headless=False) as context:
-                        page = context.pages[0] if context.pages else await context.new_page()
-                        await page.goto("https://chat.deepseek.com/")
-                        await asyncio.sleep(2)
-                        # 重新发送当前提示词
-                        continue
+                    print('说明生成遇到服务器繁忙且刷新2次无效，直接跳过本次说明生成，进入下一个prompt...')
+                    break
                 print('说明生成遇到“服务器繁忙”，自动点击刷新按钮重试...')
                 await refresh_retry_click(page)
                 await asyncio.sleep(2)
