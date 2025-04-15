@@ -284,6 +284,8 @@ async def main():
     user_prompts = get_user_prompts(user_prompt_path)
     async with async_playwright() as p:
         for user_title, user_content in user_prompts:
+            # 每次循环切换一次账户
+            await switch_user(headless=False)
             await process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir)
     print("全部处理完成！")
 

@@ -20,18 +20,23 @@ def load_user_pool(user_pool_path):
             # 去除序号前缀（如 '1. '）
             if '.' in line.split(',')[0]:
                 line = line[line.find('.')+1:].strip()
-            parts = line.split(',')
-            if len(parts) == 2:
-                # 新增 last_login 字段
-                parts.append('0')
+            parts = [x.strip() for x in line.split(',')]
+            # 账户,密码,备注,时间戳
+            while len(parts) < 4:
+                if len(parts) == 2:
+                    parts.append('')  # 备注
+                elif len(parts) == 3:
+                    parts.append('0')  # 时间戳
+                else:
+                    break
                 changed = True
-            if len(parts) < 3: continue
-            users.append({'username': parts[0].strip(), 'password': parts[1].strip(), 'last_login': float(parts[2].strip())})
+            if len(parts) < 4: continue
+            users.append({'username': parts[0], 'password': parts[1], 'note': parts[2], 'last_login': float(parts[3])})
     if changed:
-        # 写回带 last_login 的内容
+        # 写回带完整字段的内容
         with open(user_pool_path, 'w', encoding="utf-8") as f:
             for u in users:
-                f.write(f"{u['username']},{u['password']},{int(u['last_login'])}\n")
+                f.write(f"{u['username']},{u['password']},{u['note']},{int(u['last_login'])}\n")
     users.sort(key=lambda x: x['last_login'])
     return users
 
@@ -43,19 +48,32 @@ def update_user_login_time(user_pool_path, username):
     now = str(int(time.time()))
     with open(user_pool_path, encoding="utf-8") as f:
         for line in f:
-            parts = line.strip().split(',')
-            if len(parts) >= 2 and parts[0].strip() == username:
-                # 保证有三列
-                while len(parts) < 3:
+            # 忽略序号前缀
+            l = line.strip()
+            if '.' in l.split(',')[0]:
+                l = l[l.find('.')+1:].strip()
+            parts = [x.strip() for x in l.split(',')]
+            while len(parts) < 4:
+                if len(parts) == 2:
+                    parts.append('')
+                elif len(parts) == 3:
                     parts.append('0')
-                parts[2] = now
+                else:
+                    break
+            if len(parts) >= 4 and parts[0] == username:
+                parts[3] = now
                 line = ','.join(parts)
             lines.append(line.strip())
     with open(user_pool_path, 'w', encoding="utf-8") as f:
         for line in lines:
             f.write(line + '\n')
 
-async def test_switch_user():
+async def switch_user(headless=False):
+    """
+    切换到最久未用账户并完成登录。
+    :param headless: 是否无头运行
+    :return: None
+    """
     user_pool_path = 'user_pool.md'
     user_data_dir = './user_data_chromium'
     # 1. 清除用户登录信息
@@ -64,7 +82,7 @@ async def test_switch_user():
         shutil.rmtree(user_data_dir)
         print(f"已清理 {user_data_dir}")
     async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(user_data_dir, headless=False)
+        browser = await p.chromium.launch_persistent_context(user_data_dir, headless=headless)
         page = browser.pages[0] if browser.pages else await browser.new_page()
         await page.goto("https://chat.deepseek.com/")
         await asyncio.sleep(random.uniform(1,2))
@@ -111,5 +129,9 @@ async def test_switch_user():
         print(f"已更新 {user['username']} 的登录时间")
         await browser.close()
 
+# 兼容原有测试入口
+def test_switch_user():
+    asyncio.run(switch_user(headless=False))
+
 if __name__ == "__main__":
-    asyncio.run(test_switch_user())
+    test_switch_user()
