@@ -3,6 +3,7 @@ from playwright.async_api import async_playwright
 import os
 import re
 import random
+from test_user_switch import switch_user
 
 async def random_human_delay(min_sec=1, max_sec=3):
     await asyncio.sleep(random.uniform(min_sec, max_sec))
@@ -87,19 +88,25 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             content = await page.inner_text(content_selector)
             if '服务器繁忙，请稍后再试' in content:
                 retry_busy += 1
-                if retry_busy > 5:
-                    raise Exception('连续多次服务器繁忙，自动重试失败！')
+                if retry_busy > 2:
+                    print('检测到服务器繁忙且刷新2次无效，自动切换账户...')
+                    await switch_user(headless=False)
+                    # 切换账户后需重新打开浏览器和页面
+                    # 关闭当前context和browser
+                    await page.context.close()
+                    # 重新初始化 playwright browser/page/context
+                    async with p.chromium.launch_persistent_context('./user_data_chromium', headless=False) as context:
+                        page = context.pages[0] if context.pages else await context.new_page()
+                        await page.goto("https://chat.deepseek.com/")
+                        await asyncio.sleep(2)
+                        # 重新发送当前提示词（假设变量 user_title, user_content, ai_role, ai_doc, save_dir 仍可用）
+                        # 可将主循环包裹为 while/prompt_list 结构，当前提示词重试
+                        continue  # 重新进入 while True 循环
                 print('检测到“服务器繁忙”，自动点击刷新按钮重试...')
-                # 定位刷新按钮（svg 内含 id="重新生成"）
-                refresh_btn = page.locator('div.ds-icon-button svg[id="重新生成"]')
-                if await refresh_btn.count() > 0:
-                    await random_human_delay()
-                    await refresh_btn.first.evaluate('el => el.closest(".ds-icon-button").click()')
-                    await asyncio.sleep(2)
-                    await page.wait_for_selector(content_selector, timeout=60000)
-                    continue
-                else:
-                    raise Exception('未找到“重新生成”按钮，无法自动重试！')
+                await refresh_retry_click(page)
+                await asyncio.sleep(2)
+                await page.wait_for_selector(content_selector, timeout=60000)
+                continue
             break
         await random_human_delay()
         print("AI 代码内容已获取。")
@@ -153,7 +160,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         try:
             print("截图后刷新页面，重置状态...")
             await page.reload()
-            await page.wait_for_selector("#chat-input", timeout=30000)
+            await page.wait_for_selector("#chat-input", timeout=60000)
             await asyncio.sleep(1)
             # 激活输入框，促使发送按钮enabled
             await page.focus("#chat-input")
@@ -213,7 +220,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             print("已点击发送按钮，等待按钮状态变化...")
             # 严格等待按钮状态变化
             found_enabled = False
-            for i in range(120):  # 最长2分钟
+            for i in range(300):  # 最长5分钟
                 state = await page.get_attribute(send_btn_selector, "aria-disabled")
                 print(f"发送后第{i+1}秒，按钮aria-disabled={state}")
                 if state == "false":
@@ -241,8 +248,16 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             # 检查服务器繁忙
             if '服务器繁忙，请稍后再试' in doc_content:
                 retry_busy += 1
-                if retry_busy > 5:
-                    raise Exception('说明生成遇到服务器繁忙，自动重试5次仍失败！')
+                if retry_busy > 2:
+                    print('说明生成遇到服务器繁忙且刷新2次无效，自动切换账户...')
+                    await switch_user(headless=False)
+                    await page.context.close()
+                    async with p.chromium.launch_persistent_context('./user_data_chromium', headless=False) as context:
+                        page = context.pages[0] if context.pages else await context.new_page()
+                        await page.goto("https://chat.deepseek.com/")
+                        await asyncio.sleep(2)
+                        # 重新发送当前提示词
+                        continue
                 print('说明生成遇到“服务器繁忙”，自动点击刷新按钮重试...')
                 await refresh_retry_click(page)
                 await asyncio.sleep(2)
@@ -259,6 +274,8 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
 
 
 async def main():
+    # 每次执行都切换到最久未用账户
+    await switch_user(headless=False)
     ai_prompt_path = "AI_prompt.md"
     user_prompt_path = "uer_prompt.md"  # 注意你的实际文件名
     save_dir = "saved_outputs"
