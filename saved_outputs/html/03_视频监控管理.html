@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能交通监控与管理软件 - 视频监控管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0071e3;
+            --dark-blue: #0066cc;
+            --light-blue: #5ac8fa;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success: #34c759;
+            --warning: #ff9500;
+            --error: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1a2a6c, #0071e3);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            width: 36px;
+            height: 36px;
+            margin-right: 12px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .tree-view {
+            padding: 0 10px;
+        }
+
+        .tree-node {
+            margin-bottom: 4px;
+        }
+
+        .tree-node-header {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tree-node-header:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .tree-node-header.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tree-node-header i {
+            margin-right: 8px;
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .tree-node-header i.rotated {
+            transform: rotate(90deg);
+        }
+
+        .tree-node-children {
+            padding-left: 24px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .tree-node-children.open {
+            max-height: 1000px;
+        }
+
+        /* 主内容区样式 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background-color: var(--card-bg);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        /* 摄像头列表样式 */
+        .camera-list {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr;
+            padding: 16px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .table-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success);
+        }
+
+        .status-offline {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error);
+        }
+
+        .status-maintenance {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning);
+        }
+
+        /* 视频弹窗样式 */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .video-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .video-container {
+            width: 800px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .video-modal.active .video-container {
+            transform: translateY(0);
+        }
+
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .video-content {
+            position: relative;
+            height: 450px;
+            background-color: #000;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 16px;
+            background: linear-gradient(135deg, #1a2a6c, #0071e3);
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            margin: 0 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background-color: var(--dark-blue);
+            transform: scale(1.05);
+        }
+
+        .control-btn i {
+            font-size: 18px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover {
+            background-color: #f1f1f1;
+        }
+
+        .zoom-value {
+            margin: 0 12px;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+            }
+            .tree-view {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .tree-node {
+                flex: 1 0 calc(33.333% - 10px);
+            }
+            .tree-node-children {
+                padding-left: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .search-bar {
+                width: 100%;
+            }
+            .table-header, .table-row {
+                grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            }
+            .video-container {
+                width: 95%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAxLjVDNi4yIDEuNSAxLjUgNi4yIDEuNSAxMlM2LjIgMjIuNSAxMiAyMi41IDIyLjUgMTcuOCAyMi41IDEyIDE3LjggMS41IDEyIDEuNXptMCAxOWMtNS4yIDAtOS41LTQuMy05LjUtOS41UzYuOCAxLjUgMTIgMS41czkuNSA0LjMgOS41IDkuNS00LjMgOS41LTkuNSA5LjV6Ii8+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiA2Yy0zLjMgMC02IDIuNy02IDZzMi43IDYgNiA2IDYtMi43IDYtNi0yLjctNi02LTZ6bTAgMTBjLTIuMiAwLTQtMS44LTQtNHMxLjgtNCA0LTQgNCAxLjggNCA0LTEuOCA0LTQgNHoiLz48L3N2Zz4=" alt="Logo">
+                <h1>智能交通监控</h1>
+            </div>
+            <div class="tree-view">
+                <div class="tree-node">
+                    <div class="tree-node-header active">
+                        <i class="fas fa-chevron-right rotated"></i>
+                        <span>北京市</span>
+                    </div>
+                    <div class="tree-node-children open">
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>朝阳区</span>
+                            </div>
+                            <div class="tree-node-children">
+                                <div class="tree-node-header">CBD核心区</div>
+                                <div class="tree-node-header">望京地区</div>
+                                <div class="tree-node-header">奥运村地区</div>
+                            </div>
+                        </div>
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>海淀区</span>
+                            </div>
+                            <div class="tree-node-children">
+                                <div class="tree-node-header">中关村地区</div>
+                                <div class="tree-node-header">上地地区</div>
+                                <div class="tree-node-header">五道口地区</div>
+                            </div>
+                        </div>
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>西城区</span>
+                            </div>
+                            <div class="tree-node-children">
+                                <div class="tree-node-header">金融街地区</div>
+                                <div class="tree-node-header">西单地区</div>
+                                <div class="tree-node-header">宣武门地区</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-node">
+                    <div class="tree-node-header">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>上海市</span>
+                    </div>
+                    <div class="tree-node-children">
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>浦东新区</span>
+                            </div>
+                        </div>
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>徐汇区</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-node">
+                    <div class="tree-node-header">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>广州市</span>
+                    </div>
+                    <div class="tree-node-children">
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>天河区</span>
+                            </div>
+                        </div>
+                        <div class="tree-node">
+                            <div class="tree-node-header">
+                                <i class="fas fa-chevron-right"></i>
+                                <span>越秀区</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="header">
+                <h2>视频监控管理</h2>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索摄像头名称...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">状态筛选:</span>
+                <select class="filter-select">
+                    <option value="all">全部状态</option>
+                    <option value="online">在线</option>
+                    <option value="offline">离线</option>
+                    <option value="maintenance">维护中</option>
+                </select>
+                <span class="filter-label">区域:</span>
+                <select class="filter-select">
+                    <option value="all">全部区域</option>
+                    <option value="chaoyang">朝阳区</option>
+                    <option value="haidian">海淀区</option>
+                    <option value="xicheng">西城区</option>
+                </select>
+                <span class="filter-label">类型:</span>
+                <select class="filter-select">
+                    <option value="all">全部类型</option>
+                    <option value="highway">高速公路</option>
+                    <option value="intersection">十字路口</option>
+                    <option value="pedestrian">人行道</option>
+                </select>
+            </div>
+
+            <div class="camera-list">
+                <div class="table-header">
+                    <div>摄像头名称</div>
+                    <div>位置</div>
+                    <div>IP地址</div>
+                    <div>状态</div>
+                </div>
+                <div class="table-row" data-camera-id="cam-001">
+                    <div>朝阳北路-东大桥路口</div>
+                    <div>朝阳区朝阳北路与东大桥路交叉口</div>
+                    <div>192.168.1.101</div>
+                    <div><span class="status-indicator status-online">在线</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-002">
+                    <div>中关村大街-海淀黄庄</div>
+                    <div>海淀区中关村大街与海淀黄庄交叉口</div>
+                    <div>192.168.1.102</div>
+                    <div><span class="status-indicator status-online">在线</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-003">
+                    <div>金融街-复兴门内大街</div>
+                    <div>西城区金融街复兴门内大街</div>
+                    <div>192.168.1.103</div>
+                    <div><span class="status-indicator status-maintenance">维护中</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-004">
+                    <div>望京SOHO-阜通东大街</div>
+                    <div>朝阳区望京SOHO阜通东大街</div>
+                    <div>192.168.1.104</div>
+                    <div><span class="status-indicator status-online">在线</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-005">
+                    <div>五道口-成府路</div>
+                    <div>海淀区五道口成府路</div>
+                    <div>192.168.1.105</div>
+                    <div><span class="status-indicator status-offline">离线</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-006">
+                    <div>西单北大街</div>
+                    <div>西城区西单北大街</div>
+                    <div>192.168.1.106</div>
+                    <div><span class="status-indicator status-online">在线</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-007">
+                    <div>上地十街-信息路</div>
+                    <div>海淀区上地十街与信息路交叉口</div>
+                    <div>192.168.1.107</div>
+                    <div><span class="status-indicator status-online">在线</span></div>
+                </div>
+                <div class="table-row" data-camera-id="cam-008">
+                    <div>国贸三期-建国门外大街</div>
+                    <div>朝阳区国贸三期建国门外大街</div>
+                    <div>192.168.1.108</div>
+                    <div><span class="status-indicator status-maintenance">维护中</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视频弹窗 -->
+    <div class="video-modal">
+        <div class="video-container">
+            <div class="video-header">
+                <div class="video-title">摄像头实时画面</div>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="video-content">
+                <div class="video-placeholder">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 10px;">朝阳北路-东大桥路口</div>
+                        <div>实时交通监控画面</div>
+                        <div style="margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">IP: 192.168.1.101</div>
+                    </div>
+                </div>
+            </div>
+            <div class="video-controls">
+                <button class="control-btn" id="ptz-up"><i class="fas fa-arrow-up"></i></button>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <button class="control-btn" id="ptz-left"><i class="fas fa-arrow-left"></i></button>
+                    <div style="display: flex; margin-top: 8px;">
+                        <button class="control-btn" id="ptz-down"><i class="fas fa-arrow-down"></i></button>
+                        <button class="control-btn" id="ptz-right" style="margin-left: 8px;"><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-out"><i class="fas fa-search-minus"></i></button>
+                    <div class="zoom-value">1x</div>
+                    <button class="zoom-btn" id="zoom-in"><i class="fas fa-search-plus"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 树形目录展开/折叠功能
+            const treeNodeHeaders = document.querySelectorAll('.tree-node-header');
+            treeNodeHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('rotated');
+                        const children = this.parentElement.querySelector('.tree-node-children');
+                        if (children) {
+                            children.classList.toggle('open');
+                        }
+                    }
+                    this.classList.toggle('active');
+                });
+            });
+
+            // 摄像头列表双击打开视频弹窗
+            const cameraRows = document.querySelectorAll('.table-row');
+            const videoModal = document.querySelector('.video-modal');
+            const closeBtn = document.querySelector('.close-btn');
+            const videoTitle = document.querySelector('.video-title');
+            const videoPlaceholder = document.querySelector('.video-placeholder');
+
+            cameraRows.forEach(row => {
+                row.addEventListener('dblclick', function() {
+                    const cameraId = this.getAttribute('data-camera-id');
+                    const cameraName = this.querySelector('div:first-child').textContent;
+                    const cameraIp = this.querySelector('div:nth-child(3)').textContent;
+                    
+                    videoTitle.textContent = cameraName;
+                    videoPlaceholder.innerHTML = `
+                        <div>
+                            <div style="font-size: 24px; margin-bottom: 10px;">${cameraName}</div>
+                            <div>实时交通监控画面</div>
+                            <div style="margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">IP: ${cameraIp}</div>
+                        </div>
+                    `;
+                    
+                    videoModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // 关闭视频弹窗
+            closeBtn.addEventListener('click', function() {
+                videoModal.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            // 云台控制按钮
+            const ptzUp = document.getElementById('ptz-up');
+            const ptzDown = document.getElementById('ptz-down');
+            const ptzLeft = document.getElementById('ptz-left');
+            const ptzRight = document.getElementById('ptz-right');
+            const zoomIn = document.getElementById('zoom-in');
+            const zoomOut = document.getElementById('zoom-out');
+            const zoomValue = document.querySelector('.zoom-value');
+
+            let zoomLevel = 1;
+
+            [ptzUp, ptzDown, ptzLeft, ptzRight].forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+
+            zoomIn.addEventListener('click', function() {
+                if (zoomLevel < 5) {
+                    zoomLevel += 0.5;
+                    zoomValue.textContent = zoomLevel + 'x';
+                }
+            });
+
+            zoomOut.addEventListener('click', function() {
+                if (zoomLevel > 0.5) {
+                    zoomLevel -= 0.5;
+                    zoomValue.textContent = zoomLevel + 'x';
+                }
+            });
+
+            // 搜索功能
+            const searchInput = document.querySelector('.search-bar input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                cameraRows.forEach(row => {
+                    const cameraName = row.querySelector('div:first-child').textContent.toLowerCase();
+                    if (cameraName.includes(searchTerm)) {
+                        row.style.display = 'grid';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // 状态筛选
+            const statusFilter = document.querySelector('.filter-select');
+            statusFilter.addEventListener('change', function() {
+                const status = this.value;
+                cameraRows.forEach(row => {
+                    const statusElement = row.querySelector('.status-indicator');
+                    if (status === 'all' || 
+                        (status === 'online' && statusElement.classList.contains('status-online')) ||
+                        (status === 'offline' && statusElement.classList.contains('status-offline')) ||
+                        (status === 'maintenance' && statusElement.classList.contains('status-maintenance'))) {
+                        row.style.display = 'grid';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

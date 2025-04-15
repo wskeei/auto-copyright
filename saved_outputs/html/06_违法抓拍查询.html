@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能交通监控系统 - 违法抓拍查询</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-dark: #0062c4;
+            --primary-light: #e6f1fa;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background: #f5f5f7;
+            --card-bg: #ffffff;
+            --border-color: #d2d2d7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo img {
+            height: 32px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .search-section {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-title i {
+            font-size: 20px;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background-color: var(--background);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--background);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+        }
+        
+        .data-section {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .data-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-title i {
+            font-size: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            background-color: var(--background);
+            position: sticky;
+            top: 0;
+        }
+        
+        td {
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        
+        .license-plate {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .violation-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .violation-red {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .violation-orange {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .violation-blue {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .page-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .page-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .page-btn:hover:not(.active) {
+            background-color: var(--background);
+        }
+        
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 113, 227, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-active {
+            background-color: #4caf50;
+        }
+        
+        .status-inactive {
+            background-color: #f44336;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .slide-down {
+            animation: slideDown 0.4s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJzNC40NzcgMTAgMTAgMTAgMTAtNC40NzcgMTAtMTBTMTcuNTIzIDIgMTIgMnptMCAyYzQuNDE4IDAgOCAzLjU4MiA4IDggMCA0LjQxOC0zLjU4MiA4LTggOHMtOC0zLjU4Mi04LThjMC00LjQxOCAzLjU4Mi04IDgtOHoiLz48cGF0aCBmaWxsPSIjMDA3MWUzIiBkPSJNMTIgMTFjLjU1MiAwIDEgLjQ0OCAxIDF2N2MwIC41NTItLjQ0OCAxLTEgMXMtMS0uNDQ4LTEtMXYtN2MwLS41NTIuNDQ4LTEgMS0xem0wLTNjLjU1MiAwIDEgLjQ0OCAxIDF2MWMwIC41NTItLjQ0OCAxLTEgMXMtMS0uNDQ4LTEtMXYtMWMwLS41NTIuNDQ4LTEgMS0xeiIvPjwvc3ZnPg==" alt="Logo">
+                <h1>智能交通监控系统</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">AD</div>
+                <span>管理员</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </header>
+        
+        <div class="search-section slide-down">
+            <div class="search-title">
+                <i class="fas fa-search"></i>
+                <span>违法抓拍查询</span>
+            </div>
+            <form class="search-form">
+                <div class="form-group">
+                    <label for="start-date">开始日期</label>
+                    <input type="date" id="start-date" class="form-control" value="2024-06-01">
+                </div>
+                <div class="form-group">
+                    <label for="end-date">结束日期</label>
+                    <input type="date" id="end-date" class="form-control" value="2024-06-30">
+                </div>
+                <div class="form-group">
+                    <label for="license-plate">车牌号码</label>
+                    <input type="text" id="license-plate" class="form-control" placeholder="输入车牌号">
+                </div>
+                <div class="form-group">
+                    <label for="violation-type">违法类型</label>
+                    <select id="violation-type" class="form-control">
+                        <option value="">全部类型</option>
+                        <option value="1">闯红灯</option>
+                        <option value="2">超速行驶</option>
+                        <option value="3">不按导向车道行驶</option>
+                        <option value="4">违法停车</option>
+                        <option value="5">逆行</option>
+                        <option value="6">违反禁令标志</option>
+                        <option value="7">未系安全带</option>
+                        <option value="8">开车使用手机</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="location">抓拍地点</label>
+                    <select id="location" class="form-control">
+                        <option value="">全部地点</option>
+                        <option value="1">中山路-人民路路口</option>
+                        <option value="2">解放大道-建设路路口</option>
+                        <option value="3">长江路-黄河路路口</option>
+                        <option value="4">北京路-上海路路口</option>
+                        <option value="5">广州路-深圳路路口</option>
+                        <option value="6">南京路-杭州路路口</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status">处理状态</label>
+                    <select id="status" class="form-control">
+                        <option value="">全部状态</option>
+                        <option value="1">未处理</option>
+                        <option value="2">已处理</option>
+                        <option value="3">申诉中</option>
+                    </select>
+                </div>
+            </form>
+            <div class="actions">
+                <button class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    <span>查询</span>
+                </button>
+                <button class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>重置</span>
+                </button>
+                <button class="btn btn-outline">
+                    <i class="fas fa-download"></i>
+                    <span>导出Excel</span>
+                </button>
+                <button class="btn btn-outline">
+                    <i class="fas fa-print"></i>
+                    <span>打印</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="data-section fade-in">
+            <div class="data-header">
+                <div class="data-title">
+                    <i class="fas fa-list"></i>
+                    <span>违法抓拍记录</span>
+                    <span class="badge">共 128 条记录</span>
+                </div>
+                <div>
+                    <select class="form-control" style="width: 120px;">
+                        <option>10条/页</option>
+                        <option>20条/页</option>
+                        <option>50条/页</option>
+                        <option>100条/页</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>抓拍时间</th>
+                            <th>地点</th>
+                            <th>车牌号码</th>
+                            <th>违法类型</th>
+                            <th>处理状态</th>
+                            <th>抓拍照片</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-06-15 08:23:45</td>
+                            <td>中山路-人民路路口</td>
+                            <td><span class="license-plate">京A·12345</span></td>
+                            <td><span class="violation-type violation-red">闯红灯</span></td>
+                            <td>
+                                <span class="status-indicator status-active"></span>
+                                <span>未处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo1" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-15 09:12:33</td>
+                            <td>解放大道-建设路路口</td>
+                            <td><span class="license-plate">沪B·67890</span></td>
+                            <td><span class="violation-type violation-orange">超速行驶</span></td>
+                            <td>
+                                <span class="status-indicator status-inactive"></span>
+                                <span>已处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo2" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-14 14:45:21</td>
+                            <td>长江路-黄河路路口</td>
+                            <td><span class="license-plate">粤C·45678</span></td>
+                            <td><span class="violation-type violation-blue">违法停车</span></td>
+                            <td>
+                                <span class="status-indicator status-active"></span>
+                                <span>未处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo3" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-14 17:30:15</td>
+                            <td>北京路-上海路路口</td>
+                            <td><span class="license-plate">苏D·98765</span></td>
+                            <td><span class="violation-type violation-red">闯红灯</span></td>
+                            <td>
+                                <span class="status-indicator status-active"></span>
+                                <span>申诉中</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo4" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-13 10:05:42</td>
+                            <td>广州路-深圳路路口</td>
+                            <td><span class="license-plate">浙E·34567</span></td>
+                            <td><span class="violation-type violation-orange">不按导向车道行驶</span></td>
+                            <td>
+                                <span class="status-indicator status-inactive"></span>
+                                <span>已处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo5" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-12 16:22:18</td>
+                            <td>南京路-杭州路路口</td>
+                            <td><span class="license-plate">鲁F·23456</span></td>
+                            <td><span class="violation-type violation-blue">未系安全带</span></td>
+                            <td>
+                                <span class="status-indicator status-active"></span>
+                                <span>未处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo6" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-11 11:45:30</td>
+                            <td>中山路-人民路路口</td>
+                            <td><span class="license-plate">京A·54321</span></td>
+                            <td><span class="violation-type violation-red">逆行</span></td>
+                            <td>
+                                <span class="status-indicator status-inactive"></span>
+                                <span>已处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo7" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-10 13:15:22</td>
+                            <td>解放大道-建设路路口</td>
+                            <td><span class="license-plate">沪B·09876</span></td>
+                            <td><span class="violation-type violation-orange">开车使用手机</span></td>
+                            <td>
+                                <span class="status-indicator status-active"></span>
+                                <span>申诉中</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo8" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-09 18:40:55</td>
+                            <td>长江路-黄河路路口</td>
+                            <td><span class="license-plate">粤C·76543</span></td>
+                            <td><span class="violation-type violation-blue">违反禁令标志</span></td>
+                            <td>
+                                <span class="status-indicator status-inactive"></span>
+                                <span>已处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo9" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-06-08 07:55:10</td>
+                            <td>北京路-上海路路口</td>
+                            <td><span class="license-plate">苏D·12389</span></td>
+                            <td><span class="violation-type violation-red">闯红灯</span></td>
+                            <td>
+                                <span class="status-indicator status-active"></span>
+                                <span>未处理</span>
+                            </td>
+                            <td>
+                                <img src="https://via.placeholder.com/80x60/0071e3/ffffff?text=Photo10" class="thumbnail" alt="抓拍照片" onclick="showImage(this.src)">
+                            </td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;">
+                                    <i class="fas fa-eye"></i>
+                                    <span>查看</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <div class="page-info">显示 1 到 10，共 128 条</div>
+                <button class="page-btn disabled">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">5</button>
+                <button class="page-btn">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <button class="page-btn">13</button>
+                <button class="page-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="image-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modal-image" class="modal-img" src="" alt="违法抓拍照片">
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟数据加载效果
+            const searchBtn = document.querySelector('.btn-primary');
+            searchBtn.addEventListener('click', function() {
+                searchBtn.innerHTML = '<span class="loading"></span> 查询中...';
+                setTimeout(function() {
+                    searchBtn.innerHTML = '<i class="fas fa-search"></i> <span>查询</span>';
+                    document.querySelector('.data-section').classList.add('fade-in');
+                }, 800);
+            });
+            
+            // 分页按钮点击事件
+            const pageBtns = document.querySelectorAll('.page-btn:not(.disabled)');
+            pageBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('active')) return;
+                    
+                    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 模拟加载效果
+                    document.querySelector('.data-section').classList.remove('fade-in');
+                    setTimeout(() => {
+                        document.querySelector('.data-section').classList.add('fade-in');
+                    }, 300);
+                });
+            });
+            
+            // 表格行悬停效果
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'var(--primary-light)';
+                });
+                row.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+        });
+        
+        function showImage(src) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            
+            // 模拟加载高清图片
+            modalImg.src = src.replace('80x60', '800x600');
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('image-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
