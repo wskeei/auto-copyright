@@ -37,19 +37,6 @@ async def auto_continue_generate(page, max_loops=10):
             break
     print("已无'继续生成'按钮，继续后续流程。")
 
-# 工具函数：删除 HTML 和代码注释
-import re
-
-def remove_comments_from_html(html: str) -> str:
-    # 去除 HTML 注释 <!-- ... -->
-    html = re.sub(r'<!--.*?-->', '', html, flags=re.DOTALL)
-    # 去除 Python/JS/C/C++ 单行注释（# ...、// ...）
-    html = re.sub(r'(^|\s)#.*?$', '', html, flags=re.MULTILINE)
-    html = re.sub(r'(^|\s)//.*?$', '', html, flags=re.MULTILINE)
-    # 去除 C/JS 多行注释 /* ... */
-    html = re.sub(r'/\*.*?\*/', '', html, flags=re.DOTALL)
-    return html
-
 # 解析 AI_prompt.md，获取两个角色设定内容
 # 返回 (ai_role_content, ai_doc_content)
 def get_ai_prompts(ai_prompt_path):
@@ -143,13 +130,20 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         # 检查并自动点击“继续生成”按钮
         await auto_continue_generate(page)
         print("AI 代码内容已获取。")
-        # 保存 HTML 文件时先去除注释
-        html_path = os.path.join(save_dir, safe_filename(user_title) + ".html")
-        html_content = await page.content()
-        html_content_no_comments = remove_comments_from_html(html_content)
+        file_base = safe_filename(user_title)
+        html_dir = os.path.join(save_dir, "html")
+        os.makedirs(html_dir, exist_ok=True)
+        await random_human_delay()
+        html_path = os.path.join(html_dir, f"{file_base}.html")
+        # 只保留 <!DOCTYPE html> ... </html> 部分
+        html_match = re.search(r'(<!DOCTYPE html[\s\S]*?</html>)', content, re.IGNORECASE)
         with open(html_path, "w", encoding="utf-8") as f:
-            f.write(html_content_no_comments)
-        print(f"已保存去除注释的 HTML 到 {html_path}")
+            if html_match:
+                f.write(html_match.group(1))
+            else:
+                f.write(content)
+        await random_human_delay()
+        print(f"AI 代码已保存到 {html_path}")
         # 检测并点击 "运行 HTML" 按钮
         run_html_selector = 'div.md-code-block-footer span:has-text("运行 HTML")'
         clicked_run_html = False
@@ -286,10 +280,10 @@ async def main():
     import time
     # 日志：开始批量处理
     print("[LOG] 扫描所有 user_prompt.md 文件...")
-    # 查找所有形如 '?? xxx.md' 的文件，按数字顺序排列
+    # 查找所有形如 '?? user_prompt.md' 的文件，按数字顺序排列
     user_prompt_dir = "user_prompt.md"
     user_prompt_files = sorted(
-        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] *.md")),
+        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] user_prompt.md")),
         key=lambda x: int(os.path.basename(x).split()[0])
     )
     print(f"[LOG] 共找到 {len(user_prompt_files)} 个 user_prompt.md 文件: {user_prompt_files}")
@@ -301,9 +295,8 @@ async def main():
     ai_role, ai_doc = get_ai_prompts(ai_prompt_path)
     async with async_playwright() as p:
         for idx, user_prompt_path in enumerate(user_prompt_files):
-            # 取去掉扩展名的完整文件名作为父目录名
-            basename_no_ext = os.path.splitext(os.path.basename(user_prompt_path))[0]
-            save_dir = os.path.join("saved_outputs", basename_no_ext)
+            prefix = os.path.splitext(os.path.basename(user_prompt_path))[0].split()[0]
+            save_dir = os.path.join("saved_outputs", prefix)
             os.makedirs(save_dir, exist_ok=True)
             print(f"\n[LOG] 开始处理 {user_prompt_path}，输出目录：{save_dir}")
             try:
