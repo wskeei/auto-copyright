@@ -286,10 +286,10 @@ async def main():
     import time
     # 日志：开始批量处理
     print("[LOG] 扫描所有 user_prompt.md 文件...")
-    # 查找所有形如 '?? user_prompt.md' 的文件，按数字顺序排列
+    # 查找所有形如 '?? xxx.md' 的文件，按数字顺序排列
     user_prompt_dir = "user_prompt.md"
     user_prompt_files = sorted(
-        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] user_prompt.md")),
+        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] *.md")),
         key=lambda x: int(os.path.basename(x).split()[0])
     )
     print(f"[LOG] 共找到 {len(user_prompt_files)} 个 user_prompt.md 文件: {user_prompt_files}")
@@ -301,8 +301,9 @@ async def main():
     ai_role, ai_doc = get_ai_prompts(ai_prompt_path)
     async with async_playwright() as p:
         for idx, user_prompt_path in enumerate(user_prompt_files):
-            prefix = os.path.splitext(os.path.basename(user_prompt_path))[0].split()[0]
-            save_dir = os.path.join("saved_outputs", prefix)
+            # 取去掉扩展名的完整文件名作为父目录名
+            basename_no_ext = os.path.splitext(os.path.basename(user_prompt_path))[0]
+            save_dir = os.path.join("saved_outputs", basename_no_ext)
             os.makedirs(save_dir, exist_ok=True)
             print(f"\n[LOG] 开始处理 {user_prompt_path}，输出目录：{save_dir}")
             try:
