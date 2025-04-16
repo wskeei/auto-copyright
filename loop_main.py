@@ -37,6 +37,19 @@ async def auto_continue_generate(page, max_loops=10):
             break
     print("已无'继续生成'按钮，继续后续流程。")
 
+# 工具函数：删除 HTML 和代码注释
+import re
+
+def remove_comments_from_html(html: str) -> str:
+    # 去除 HTML 注释 <!-- ... -->
+    html = re.sub(r'<!--.*?-->', '', html, flags=re.DOTALL)
+    # 去除 Python/JS/C/C++ 单行注释（# ...、// ...）
+    html = re.sub(r'(^|\s)#.*?$', '', html, flags=re.MULTILINE)
+    html = re.sub(r'(^|\s)//.*?$', '', html, flags=re.MULTILINE)
+    # 去除 C/JS 多行注释 /* ... */
+    html = re.sub(r'/\*.*?\*/', '', html, flags=re.DOTALL)
+    return html
+
 # 解析 AI_prompt.md，获取两个角色设定内容
 # 返回 (ai_role_content, ai_doc_content)
 def get_ai_prompts(ai_prompt_path):
@@ -130,20 +143,13 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         # 检查并自动点击“继续生成”按钮
         await auto_continue_generate(page)
         print("AI 代码内容已获取。")
-        file_base = safe_filename(user_title)
-        html_dir = os.path.join(save_dir, "html")
-        os.makedirs(html_dir, exist_ok=True)
-        await random_human_delay()
-        html_path = os.path.join(html_dir, f"{file_base}.html")
-        # 只保留 <!DOCTYPE html> ... </html> 部分
-        html_match = re.search(r'(<!DOCTYPE html[\s\S]*?</html>)', content, re.IGNORECASE)
+        # 保存 HTML 文件时先去除注释
+        html_path = os.path.join(save_dir, safe_filename(user_title) + ".html")
+        html_content = await page.content()
+        html_content_no_comments = remove_comments_from_html(html_content)
         with open(html_path, "w", encoding="utf-8") as f:
-            if html_match:
-                f.write(html_match.group(1))
-            else:
-                f.write(content)
-        await random_human_delay()
-        print(f"AI 代码已保存到 {html_path}")
+            f.write(html_content_no_comments)
+        print(f"已保存去除注释的 HTML 到 {html_path}")
         # 检测并点击 "运行 HTML" 按钮
         run_html_selector = 'div.md-code-block-footer span:has-text("运行 HTML")'
         clicked_run_html = False
