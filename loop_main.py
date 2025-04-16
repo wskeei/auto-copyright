@@ -8,7 +8,7 @@ from test_user_switch import switch_user
 async def random_human_delay(min_sec=1, max_sec=3):
     await asyncio.sleep(random.uniform(min_sec, max_sec))
 
-# 工具函数：自动查找并点击“重新生成”按钮
+# 工具函数：自动查找并点击"重新生成"按钮
 async def refresh_retry_click(page):
     btns = await page.query_selector_all('.ds-icon-button')
     for btn in btns:
@@ -17,12 +17,12 @@ async def refresh_retry_click(page):
             print("找到带有 id=重新生成 的 rect，点击父按钮！")
             await btn.click()
             return
-    raise Exception('未找到“重新生成”按钮，无法自动重试！')
+    raise Exception('未找到"重新生成"按钮，无法自动重试！')
 
-# 工具函数：自动点击“继续生成”直到无按钮
+# 工具函数：自动点击"继续生成"直到无按钮
 async def auto_continue_generate(page, max_loops=10):
     """
-    检查并自动点击“继续生成”按钮，直到按钮消失或达到最大次数。
+    检查并自动点击"继续生成"按钮，直到按钮消失或达到最大次数。
     """
     btn_selector = 'div[role="button"].ds-button--secondary:has-text("继续生成")'
     for i in range(max_loops):
@@ -120,14 +120,14 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                         # 重新发送当前提示词（假设变量 user_title, user_content, ai_role, ai_doc, save_dir 仍可用）
                         # 可将主循环包裹为 while/prompt_list 结构，当前提示词重试
                         continue  # 重新进入 while True 循环
-                print('检测到“服务器繁忙”，自动点击刷新按钮重试...')
+                print('检测到"服务器繁忙"，自动点击刷新按钮重试...')
                 await refresh_retry_click(page)
                 await asyncio.sleep(2)
                 await page.wait_for_selector(content_selector, timeout=60000)
                 continue
             break
         await random_human_delay()
-        # 检查并自动点击“继续生成”按钮
+        # 检查并自动点击"继续生成"按钮
         await auto_continue_generate(page)
         print("AI 代码内容已获取。")
         file_base = safe_filename(user_title)
@@ -213,7 +213,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
     except Exception as e:
         print(f"刷新页面或写入 prompt 时出错: {e}")
     # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-    # 重新整理第二次输入流程：点击发送按钮、等待生成、自动点击“继续生成”、保存说明
+    # 重新整理第二次输入流程：点击发送按钮、等待生成、自动点击"继续生成"、保存说明
     print("发送 02 AI 角色设定 prompt...")
     retry_busy = 0
     try:
@@ -252,7 +252,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 doc_content = ""
             else:
                 doc_content = await doc_nodes[-1].inner_text()
-            # 检查并自动点击“继续生成”按钮（说明部分）
+            # 检查并自动点击"继续生成"按钮（说明部分）
             await auto_continue_generate(page)
             # 检查服务器繁忙
             if '服务器繁忙，请稍后再试' in doc_content:
@@ -260,7 +260,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 if retry_busy > 2:
                     print('说明生成遇到服务器繁忙且刷新2次无效，直接跳过本次说明生成，进入下一个prompt...')
                     break
-                print('说明生成遇到“服务器繁忙”，自动点击刷新按钮重试...')
+                print('说明生成遇到"服务器繁忙"，自动点击刷新按钮重试...')
                 await refresh_retry_click(page)
                 await asyncio.sleep(2)
                 await page.wait_for_selector(content_selector, timeout=60000)
@@ -280,10 +280,10 @@ async def main():
     import time
     # 日志：开始批量处理
     print("[LOG] 扫描所有 user_prompt.md 文件...")
-    # 查找所有形如 '?? user_prompt.md' 的文件，按数字顺序排列
+    # 查找所有形如 '?? xxx.md' 的文件，按数字顺序排列
     user_prompt_dir = "user_prompt.md"
     user_prompt_files = sorted(
-        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] user_prompt.md")),
+        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] *.md")),
         key=lambda x: int(os.path.basename(x).split()[0])
     )
     print(f"[LOG] 共找到 {len(user_prompt_files)} 个 user_prompt.md 文件: {user_prompt_files}")
@@ -295,25 +295,30 @@ async def main():
     ai_role, ai_doc = get_ai_prompts(ai_prompt_path)
     async with async_playwright() as p:
         for idx, user_prompt_path in enumerate(user_prompt_files):
-            prefix = os.path.splitext(os.path.basename(user_prompt_path))[0].split()[0]
-            save_dir = os.path.join("saved_outputs", prefix)
+            # 取去掉扩展名的完整文件名作为父目录名
+            basename_no_ext = os.path.splitext(os.path.basename(user_prompt_path))[0]
+            save_dir = os.path.join("saved_outputs", basename_no_ext)
             os.makedirs(save_dir, exist_ok=True)
             print(f"\n[LOG] 开始处理 {user_prompt_path}，输出目录：{save_dir}")
             try:
                 # 切换账户
                 await switch_user(headless=False)
                 user_prompts = get_user_prompts(user_prompt_path)
+                # 动态替换软件名称
+                software_name = basename_no_ext
+                ai_role_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_role)
+                ai_doc_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_doc)
                 for user_title, user_content in user_prompts:
                     print(f"[LOG] 处理一级标题：{user_title}")
                     await switch_user(headless=False)
-                    await process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir)
+                    await process_prompt(p, ai_role_dynamic, ai_doc_dynamic, user_title, user_content, save_dir)
                 print(f"[LOG] {user_prompt_path} 处理完成。")
             except Exception as e:
                 print(f"[ERROR] 处理 {user_prompt_path} 出错: {e}")
             # 如果不是最后一个，等待1小时
             if idx < len(user_prompt_files) - 1:
                 print("[LOG] 等待1小时后继续处理下一个 user_prompt.md ...")
-                for remain in range(3600, 0, -60):
+                for remain in range(60, 0, -60):
                     print(f"[LOG] 剩余等待时间: {remain//60} 分钟...")
                     await asyncio.sleep(60)
     print("[LOG] 全部 user_prompt.md 文件处理完成！")
