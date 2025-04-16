@@ -290,14 +290,6 @@ async def main():
             await switch_user(headless=False)
             await process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir)
     print("全部处理完成！")
-    # 处理完毕后合并 HTML 文件
-    import subprocess
-    script_path = os.path.join(os.path.dirname(__file__), 'all_html_merger.py')
-    try:
-        subprocess.run(['python3', script_path], check=True)
-        print("ALL.html 已生成于 saved_outputs/html 文件夹下。")
-    except Exception as e:
-        print(f"ALL.html 生成失败: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
