@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备多协议兼容管理系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f5f7;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: var(--card-color);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: rgba(0, 113, 227, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+            color: var(--text-secondary);
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .stat-card {
+            grid-column: span 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .trend-up {
+            color: var(--success-color);
+        }
+
+        .trend-down {
+            color: var(--danger-color);
+        }
+
+        .chart-card {
+            grid-column: span 6;
+            height: 300px;
+        }
+
+        .device-list-card {
+            grid-column: span 6;
+        }
+
+        .alert-card {
+            grid-column: span 6;
+        }
+
+        .protocol-card {
+            grid-column: span 4;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-offline {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .status-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .alert-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .alert-critical {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .alert-info {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .alert-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+
+        .protocol-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .protocol-name {
+            display: flex;
+            align-items: center;
+        }
+
+        .protocol-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 12px;
+        }
+
+        .protocol-count {
+            font-weight: 500;
+        }
+
+        .chart-container {
+            height: 240px;
+            width: 100%;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 300px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 4px;
+        }
+
+        .search-icon {
+            color: var(--text-secondary);
+            margin-right: 8px;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+            z-index: 100;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">🌐</span>
+            <span>设备管理系统</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span>主控面板</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-icon">📱</span>
+                <span>设备管理</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-icon">🔌</span>
+                <span>协议配置</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-icon">🚨</span>
+                <span>告警中心</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span>数据分析</span>
+            </li>
+            <li class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span>系统设置</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">主控面板</h1>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="搜索设备、协议或告警...">
+                </div>
+                <div class="dropdown">
+                    <div class="dropdown-toggle" id="filterDropdown">
+                        <span>全部设备</span>
+                        <span style="margin-left: 8px;">▼</span>
+                    </div>
+                    <div class="dropdown-menu" id="filterMenu">
+                        <div class="dropdown-item">全部设备</div>
+                        <div class="dropdown-item">在线设备</div>
+                        <div class="dropdown-item">离线设备</div>
+                        <div class="dropdown-item">最近添加</div>
+                        <div class="dropdown-item">高优先级</div>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <span>管理员</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card stat-card">
+                <div class="card-header">
+                    <div class="card-title">设备总数</div>
+                </div>
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">已连接设备</div>
+                <div class="stat-trend trend-up">
+                    <span>▲ 5.2%</span>
+                    <span style="margin-left: 8px;">较上月</span>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="card-header">
+                    <div class="card-title">在线设备</div>
+                </div>
+                <div class="stat-value">1,124</div>
+                <div class="stat-label">正常运行</div>
+                <div class="stat-trend trend-up">
+                    <span>▲ 2.1%</span>
+                    <span style="margin-left: 8px;">较上月</span>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="card-header">
+                    <div class="card-title">离线设备</div>
+                </div>
+                <div class="stat-value">124</div>
+                <div class="stat-label">需要关注</div>
+                <div class="stat-trend trend-down">
+                    <span>▼ 1.3%</span>
+                    <span style="margin-left: 8px;">较上月</span>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="card-header">
+                    <div class="card-title">今日告警</div>
+                </div>
+                <div class="stat-value">18</div>
+                <div class="stat-label">需要处理</div>
+                <div class="stat-trend trend-down">
+                    <span>▼ 0.8%</span>
+                    <span style="margin-left: 8px;">较昨日</span>
+                </div>
+            </div>
+
+            <div class="card chart-card">
+                <div class="card-header">
+                    <div class="card-title">设备状态趋势</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">日</button>
+                        <button class="btn btn-outline">周</button>
+                        <button class="btn btn-primary">月</button>
+                        <button class="btn btn-outline">年</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">设备状态趋势图表区域</div>
+                </div>
+            </div>
+
+            <div class="card chart-card">
+                <div class="card-header">
+                    <div class="card-title">设备类型分布</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">按数量</button>
+                        <button class="btn btn-primary">按协议</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">设备类型分布图表区域</div>
+                </div>
+            </div>
+
+            <div class="card alert-card">
+                <div class="card-header">
+                    <div class="card-title">最新告警</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">查看全部</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="alert-item">
+                        <div class="alert-icon alert-critical">!</div>
+                        <div class="alert-content">
+                            <div class="alert-title">传感器节点 #A203 离线</div>
+                            <div class="alert-description">温度传感器节点已离线超过2小时</div>
+                        </div>
+                        <div class="alert-time">10分钟前</div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-icon alert-warning">!</div>
+                        <div class="alert-content">
+                            <div class="alert-title">网关 #G512 高负载</div>
+                            <div class="alert-description">CPU使用率达到95%持续15分钟</div>
+                        </div>
+                        <div class="alert-time">25分钟前</div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-icon alert-info">i</div>
+                        <div class="alert-content">
+                            <div class="alert-title">协议转换异常</div>
+                            <div class="alert-description">MQTT到CoAP协议转换失败3次</div>
+                        </div>
+                        <div class="alert-time">1小时前</div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-icon alert-warning">!</div>
+                        <div class="alert-content">
+                            <div class="alert-title">设备 #D887 高温警告</div>
+                            <div class="alert-description">温度达到68°C超过阈值</div>
+                        </div>
+                        <div class="alert-time">2小时前</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card device-list-card">
+                <div class="card-header">
+                    <div class="card-title">最近添加的设备</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">导出列表</button>
+                        <button class="btn btn-primary">添加设备</button>
+                    </div>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>设备ID</th>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>协议</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#D1024</td>
+                            <td>智能温控器</td>
+                            <td>控制器</td>
+                            <td>MQTT</td>
+                            <td><span class="status-badge status-online">在线</span></td>
+                        </tr>
+                        <tr>
+                            <td>#D1023</td>
+                            <td>环境传感器</td>
+                            <td>传感器</td>
+                            <td>CoAP</td>
+                            <td><span class="status-badge status-online">在线</span></td>
+                        </tr>
+                        <tr>
+                            <td>#D1022</td>
+                            <td>门禁控制器</td>
+                            <td>安全</td>
+                            <td>HTTP</td>
+                            <td><span class="status-badge status-offline">离线</span></td>
+                        </tr>
+                        <tr>
+                            <td>#D1021</td>
+                            <td>能源监测器</td>
+                            <td>计量</td>
+                            <td>Modbus</td>
+                            <td><span class="status-badge status-online">在线</span></td>
+                        </tr>
+                        <tr>
+                            <td>#D1020</td>
+                            <td>智能照明</td>
+                            <td>照明</td>
+                            <td>Zigbee</td>
+                            <td><span class="status-badge status-warning">不稳定</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card protocol-card">
+                <div class="card-header">
+                    <div class="card-title">协议分布</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">刷新</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">
+                            <div class="protocol-icon">M</div>
+                            <span>MQTT</span>
+                        </div>
+                        <div class="protocol-count">428</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">
+                            <div class="protocol-icon">H</div>
+                            <span>HTTP</span>
+                        </div>
+                        <div class="protocol-count">312</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">
+                            <div class="protocol-icon">C</div>
+                            <span>CoAP</span>
+                        </div>
+                        <div class="protocol-count">198</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">
+                            <div class="protocol-icon">Z</div>
+                            <span>Zigbee</span>
+                        </div>
+                        <div class="protocol-count">156</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">
+                            <div class="protocol-icon">B</div>
+                            <span>BLE</span>
+                        </div>
+                        <div class="protocol-count">112</div>
+                    </div>
+                    <div class="protocol-item">
+                        <div class="protocol-name">
+                            <div class="protocol-icon">O</div>
+                            <span>OPC UA</span>
+                        </div>
+                        <div class="protocol-count">42</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card protocol-card">
+                <div class="card-header">
+                    <div class="card-title">区域分布</div>
+                    <div class="card-actions">
+                        <div class="dropdown">
+                            <div class="dropdown-toggle" id="regionDropdown">
+                                <span>全部区域</span>
+                                <span style="margin-left: 8px;">▼</span>
+                            </div>
+                            <div class="dropdown-menu" id="regionMenu">
+                                <div class="dropdown-item">全部区域</div>
+                                <div class="dropdown-item">华北</div>
+                                <div class="dropdown-item">华东</div>
+                                <div class="dropdown-item">华南</div>
+                                <div class="dropdown-item">西部</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">区域分布图表区域</div>
+                </div>
+            </div>
+
+            <div class="card protocol-card">
+                <div class="card-header">
+                    <div class="card-title">系统健康度</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">系统健康度图表区域</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterDropdown = document.getElementById('filterDropdown');
+            const filterMenu = document.getElementById('filterMenu');
+            const regionDropdown = document.getElementById('regionDropdown');
+            const regionMenu = document.getElementById('regionMenu');
+
+            filterDropdown.addEventListener('click', function() {
+                filterMenu.classList.toggle('show');
+                regionMenu.classList.remove('show');
+            });
+
+            regionDropdown.addEventListener('click', function() {
+                regionMenu.classList.toggle('show');
+                filterMenu.classList.remove('show');
+            });
+
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const dropdownToggle = this.closest('.dropdown-menu').previousElementSibling;
+                    dropdownToggle.querySelector('span:first-child').textContent = this.textContent;
+                    this.closest('.dropdown-menu').classList.remove('show');
+                });
+            });
+
+            window.addEventListener('click', function(event) {
+                if (!event.target.matches('.dropdown-toggle') && !event.target.closest('.dropdown-toggle')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(navItem => {
+                        navItem.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
