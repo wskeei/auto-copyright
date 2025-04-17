@@ -304,8 +304,9 @@ async def main():
                 # 切换账户
                 await switch_user(headless=False)
                 user_prompts = get_user_prompts(user_prompt_path)
-                # 动态替换软件名称
-                software_name = basename_no_ext
+                # 动态替换软件名称（去除前缀数字和空格）
+                match = re.match(r"\d+\s*(.*)", basename_no_ext)
+                software_name = match.group(1) if match else basename_no_ext
                 ai_role_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_role)
                 ai_doc_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_doc)
                 for user_title, user_content in user_prompts:
@@ -317,8 +318,8 @@ async def main():
                 print(f"[ERROR] 处理 {user_prompt_path} 出错: {e}")
             # 如果不是最后一个，等待1小时
             if idx < len(user_prompt_files) - 1:
-                print("[LOG] 等待1小时后继续处理下一个 user_prompt.md ...")
-                for remain in range(60, 0, -60):
+                print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
+                for remain in range(1800, 0, -60):
                     print(f"[LOG] 剩余等待时间: {remain//60} 分钟...")
                     await asyncio.sleep(60)
     print("[LOG] 全部 user_prompt.md 文件处理完成！")
