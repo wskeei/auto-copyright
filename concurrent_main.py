@@ -70,9 +70,18 @@ def safe_filename(title):
     name = name.strip("_")
     return name
 
+# 辅助函数：从标题提取序号
+def get_title_index(title):
+    match = re.match(r"(\d+)", title)
+    return int(match.group(1)) if match else -1 # 如果没有序号返回 -1
+
 # 修改后的 process_prompt，只负责核心交互逻辑，接收 page 对象
 async def process_prompt(page, ai_role, ai_doc, user_title, user_content, save_dir):
-    """处理单个 prompt 的核心交互逻辑"""
+    """
+    处理单个 prompt 的核心交互逻辑。
+    成功时返回 (user_title, doc_content)，失败或无说明时返回 (user_title, None)。
+    """
+    doc_content = None # 初始化说明内容
     await random_human_delay()
     await page.goto("https://chat.deepseek.com/")
     print(f"已打开 https://chat.deepseek.com/，处理：{user_title}")
@@ -252,20 +261,27 @@ async def process_prompt(page, ai_role, ai_doc, user_title, user_content, save_d
                 await page.wait_for_selector(content_selector, timeout=60000)
                 continue
             break
-        doc_path = os.path.join(save_dir, "软件说明.md")
-        with open(doc_path, "a", encoding="utf-8") as f:
-            f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
-        print(f"AI 说明已追加到 {doc_path}")
+        # 不再直接写入文件，而是准备返回内容
+        # doc_path = os.path.join(save_dir, "软件说明.md")
+        # with open(doc_path, "a", encoding="utf-8") as f:
+        #     f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
+        # print(f"AI 说明已获取，准备返回")
+        pass # doc_content 已在前面获取或为 None
     except Exception as e:
         print(f"处理 AI 说明时出错: {e}")
-        return False # 表示处理失败
-    # 如果所有步骤都成功
-    return True # 表示处理成功
+        # 即使出错，也返回 title 和 None，让上层知道哪个 title 失败了
+        return (user_title, None) # 返回标题和 None 表示失败
 
-# 新增：并发工作流函数
-async def run_single_prompt_workflow(semaphore, ai_role, ai_doc, user_title, user_content, save_dir, worker_id):
+    # 返回获取到的标题和说明内容（可能为 None）
+    return (user_title, doc_content)
+
+# 新增：并发工作流函数（带顺序写入控制）
+async def run_single_prompt_workflow(
+    semaphore, ai_role, ai_doc, user_title, user_content, save_dir, worker_id,
+    write_condition, expected_write_index, prompt_index
+):
     """
-    管理单个 prompt 的完整并发工作流：获取信号量 -> 切换用户 -> 运行 process_prompt -> 释放信号量
+    管理单个 prompt 的完整并发工作流，并按 prompt_index 顺序写入结果。
     """
     user_data_dir = f"./user_data_chromium_{worker_id}" # 每个 worker 使用独立的目录
     context = None # 初始化 context 为 None
@@ -315,15 +331,54 @@ async def run_single_prompt_workflow(semaphore, ai_role, ai_doc, user_title, use
 
                 page = context.pages[0] if context.pages else await context.new_page()
                 print(f"{log_prefix} 开始执行 process_prompt: {user_title}")
-                # 注意：process_prompt 内部的 print 语句不会自动添加用户名，如果需要，需将 log_prefix 传递下去
-                success = await process_prompt(page, ai_role, ai_doc, user_title, user_content, save_dir)
-                if success:
-                    print(f"{log_prefix} process_prompt 处理成功: {user_title}")
+                # 注意：process_prompt 内部的 print 语句不会自动添加用户名
+                res_title, res_content = await process_prompt(page, ai_role, ai_doc, user_title, user_content, save_dir)
+
+                if res_content is not None:
+                    print(f"{log_prefix} process_prompt 处理成功，获取到说明: {res_title}")
+                    # --- 按顺序写入文件 ---
+                    doc_path = os.path.join(save_dir, "软件说明.md")
+                    async with write_condition: # 获取条件变量的锁
+                        while expected_write_index[0] != prompt_index:
+                            print(f"{log_prefix} 标题 '{res_title}' (序号 {prompt_index}) 等待写入，期望序号: {expected_write_index[0]}")
+                            await write_condition.wait() # 等待通知
+
+                        # 轮到自己写入
+                        print(f"{log_prefix} 标题 '{res_title}' (序号 {prompt_index}) 开始写入文件: {doc_path}")
+                        try:
+                            # 使用追加模式写入
+                            with open(doc_path, "a", encoding="utf-8") as f:
+                                f.write(f"\n# {res_title}\n\n{res_content.strip()}\n")
+                            print(f"{log_prefix} 标题 '{res_title}' 写入成功")
+                            # 更新期望序号并通知其他等待者
+                            expected_write_index[0] += 1
+                            write_condition.notify_all()
+                        except IOError as io_err:
+                             print(f"{log_prefix} [ERROR] 写入文件 {doc_path} 时出错: {io_err}")
+                             # 即使写入失败，也要尝试推进序号并通知，防止死锁
+                             expected_write_index[0] += 1
+                             write_condition.notify_all()
+
+                    # --- 写入结束 ---
                 else:
-                    print(f"{log_prefix} [WARNING] process_prompt 处理失败: {user_title}") # 改为 Warning
+                     print(f"{log_prefix} [WARNING] process_prompt 处理完成但未获取到说明: {res_title}")
+                     # 如果未获取到内容，也需要检查是否轮到自己推进序号
+                     async with write_condition:
+                         if expected_write_index[0] == prompt_index:
+                             print(f"{log_prefix} 任务 {prompt_index} 未获取内容，推进期望序号并通知")
+                             expected_write_index[0] += 1
+                             write_condition.notify_all()
+
 
         except Exception as e:
-            print(f"{log_prefix} [ERROR] 处理 {user_title} 时发生意外错误: {e}")
+            print(f"{log_prefix} [ERROR] 处理 {user_title} (序号 {prompt_index}) 时发生意外错误: {e}")
+            # 发生意外错误时，同样需要尝试推进序号以防死锁
+            async with write_condition:
+                 if expected_write_index[0] == prompt_index:
+                     print(f"{log_prefix} [ERROR] 任务 {prompt_index} 出错，尝试推进期望序号并通知")
+                     expected_write_index[0] += 1
+                     write_condition.notify_all()
+
         finally:
             if context:
                 try:
@@ -332,6 +387,7 @@ async def run_single_prompt_workflow(semaphore, ai_role, ai_doc, user_title, use
                 except Exception as close_err:
                     print(f"{log_prefix} [ERROR] 关闭浏览器上下文时出错: {close_err}")
             print(f"{log_prefix} 释放信号量，完成处理: {user_title}")
+    # 这个函数现在不返回任何有意义的值，因为写入在内部完成
 
 
 async def main():
@@ -363,8 +419,23 @@ async def main():
         os.makedirs(save_dir, exist_ok=True)
         print(f"\n[LOG] 开始处理文件 {user_prompt_path}，输出目录：{save_dir}")
 
+        # 为当前文件初始化写入控制变量
+        file_lock = asyncio.Lock() # 虽然 Condition 内部有锁，但明确创建可能更清晰
+        write_condition = asyncio.Condition(lock=file_lock)
+        expected_write_index = [1] # 下一个期望写入的序号，从1开始
+        doc_path = os.path.join(save_dir, "软件说明.md")
+
+        # 清空之前的说明文件内容
         try:
-            user_prompts = get_user_prompts(user_prompt_path)
+            with open(doc_path, "w", encoding="utf-8") as f:
+                f.write("") # 写入空字符串以清空
+            print(f"[LOG] 已清空说明文件: {doc_path}")
+        except IOError as e:
+            print(f"[ERROR] 清空文件 {doc_path} 时出错: {e}")
+            continue # 如果无法清空，跳过此文件处理
+
+        try:
+            user_prompts = get_user_prompts(user_prompt_path) # [(title, content), ...]
             match = re.match(r"\d+\s*(.*)", basename_no_ext)
             software_name = match.group(1) if match else basename_no_ext
             ai_role_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_role)
@@ -372,12 +443,16 @@ async def main():
 
             tasks = []
             # 为当前文件的所有 prompt 创建并发任务
-            for prompt_idx, (user_title, user_content) in enumerate(user_prompts):
-                # 使用 prompt_idx 作为 worker_id 的一部分，确保每个任务有唯一目录
-                # 注意：如果不同文件处理并行，worker_id 需要更全局唯一的设计
-                # 但目前是文件串行，内部 prompt 并行，所以 prompt_idx 足够区分
-                worker_id = prompt_idx % CONCURRENCY_LIMIT # 循环使用 worker ID 0 和 1
-                print(f"[LOG] 创建任务 Worker {worker_id} 处理一级标题：{user_title}")
+            tasks = []
+            for list_idx, (user_title, user_content) in enumerate(user_prompts):
+                prompt_index = get_title_index(user_title) # 获取标题中的序号
+                if prompt_index == -1:
+                    print(f"[WARNING] 标题 '{user_title}' 无法提取序号，将跳过此 prompt 的顺序写入")
+                    # 可以选择跳过，或者分配一个特殊序号
+                    continue # 跳过这个 prompt
+
+                worker_id = list_idx % CONCURRENCY_LIMIT # 循环使用 worker ID 0 和 1
+                print(f"[LOG] 创建任务 Worker {worker_id} 处理一级标题：'{user_title}' (序号: {prompt_index})")
                 task = asyncio.create_task(run_single_prompt_workflow(
                     semaphore,
                     ai_role_dynamic,
@@ -385,14 +460,17 @@ async def main():
                     user_title,
                     user_content,
                     save_dir,
-                    worker_id
+                    worker_id,
+                    write_condition, # 传递条件变量
+                    expected_write_index, # 传递期望序号列表
+                    prompt_index # 传递当前 prompt 的序号
                 ))
                 tasks.append(task)
 
-            # 等待当前文件的所有 prompt 处理完成
-            print(f"[LOG] 开始并发处理 {len(tasks)} 个 prompts (限制 {CONCURRENCY_LIMIT})...")
+            # 等待所有任务完成（写入操作在任务内部按顺序进行）
+            print(f"[LOG] 开始并发处理 {len(tasks)} 个 prompts (限制 {CONCURRENCY_LIMIT})... 写入将按序号进行")
             await asyncio.gather(*tasks)
-            print(f"[LOG] 文件 {user_prompt_path} 处理完成。")
+            print(f"[LOG] 文件 {user_prompt_path} 的所有并发任务完成，说明已按序写入。")
 
         except Exception as e:
             print(f"[ERROR] 处理文件 {user_prompt_path} 时的主循环出错: {e}")
