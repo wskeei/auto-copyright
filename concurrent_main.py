@@ -269,16 +269,26 @@ async def run_single_prompt_workflow(semaphore, ai_role, ai_doc, user_title, use
     """
     user_data_dir = f"./user_data_chromium_{worker_id}" # 每个 worker 使用独立的目录
     context = None # 初始化 context 为 None
+    username = None # 初始化用户名
+    log_prefix = f"[Worker {worker_id}]" # 默认日志前缀
+
     async with semaphore:
-        print(f"[Worker {worker_id}] 获取信号量，开始处理: {user_title}")
+        print(f"{log_prefix} 获取信号量，开始处理: {user_title}")
         try:
             # 1. 切换用户（清理并登录）
-            print(f"[Worker {worker_id}] 正在切换用户并准备环境: {user_data_dir}")
-            await switch_user(user_data_dir, headless=False) # 使用独立的 user_data_dir
+            print(f"{log_prefix} 正在切换用户并准备环境: {user_data_dir}")
+            username = await switch_user(user_data_dir, headless=False) # 使用独立的 user_data_dir 并获取用户名
+
+            if username:
+                log_prefix = f"[{username}][Worker {worker_id}]" # 更新日志前缀
+                print(f"{log_prefix} 用户切换成功")
+            else:
+                print(f"{log_prefix} [ERROR] 用户切换失败，无法获取用户名，跳过处理: {user_title}")
+                return # 切换失败则退出
 
             # 2. 启动浏览器并处理
             async with async_playwright() as p:
-                print(f"[Worker {worker_id}] 启动浏览器上下文: {user_data_dir}")
+                print(f"{log_prefix} 启动浏览器上下文: {user_data_dir}")
                 # 增加超时和重试机制
                 for attempt in range(3):
                     try:
@@ -290,31 +300,38 @@ async def run_single_prompt_workflow(semaphore, ai_role, ai_doc, user_title, use
                         )
                         break # 成功则跳出循环
                     except Exception as launch_err:
-                        print(f"[Worker {worker_id}] 启动浏览器上下文失败 (尝试 {attempt+1}/3): {launch_err}")
+                        print(f"{log_prefix} 启动浏览器上下文失败 (尝试 {attempt+1}/3): {launch_err}")
                         if attempt == 2:
-                            print(f"[Worker {worker_id}] 无法启动浏览器，放弃处理: {user_title}")
+                            print(f"{log_prefix} [ERROR] 无法启动浏览器，放弃处理: {user_title}")
+                            # 确保在异常退出前关闭可能已部分启动的 context
+                            if context:
+                                try: await context.close()
+                                except: pass
                             return # 放弃此任务
                         await asyncio.sleep(5) # 等待后重试
-                if not context: return # 如果 context 未成功创建
+                if not context:
+                    print(f"{log_prefix} [ERROR] context 未成功创建，退出任务")
+                    return # 如果 context 未成功创建
 
                 page = context.pages[0] if context.pages else await context.new_page()
-                print(f"[Worker {worker_id}] 开始执行 process_prompt: {user_title}")
+                print(f"{log_prefix} 开始执行 process_prompt: {user_title}")
+                # 注意：process_prompt 内部的 print 语句不会自动添加用户名，如果需要，需将 log_prefix 传递下去
                 success = await process_prompt(page, ai_role, ai_doc, user_title, user_content, save_dir)
                 if success:
-                    print(f"[Worker {worker_id}] process_prompt 处理成功: {user_title}")
+                    print(f"{log_prefix} process_prompt 处理成功: {user_title}")
                 else:
-                    print(f"[Worker {worker_id}] process_prompt 处理失败: {user_title}")
+                    print(f"{log_prefix} [WARNING] process_prompt 处理失败: {user_title}") # 改为 Warning
 
         except Exception as e:
-            print(f"[Worker {worker_id}] 处理 {user_title} 时发生意外错误: {e}")
+            print(f"{log_prefix} [ERROR] 处理 {user_title} 时发生意外错误: {e}")
         finally:
             if context:
                 try:
                     await context.close()
-                    print(f"[Worker {worker_id}] 浏览器上下文已关闭: {user_data_dir}")
+                    print(f"{log_prefix} 浏览器上下文已关闭: {user_data_dir}")
                 except Exception as close_err:
-                    print(f"[Worker {worker_id}] 关闭浏览器上下文时出错: {close_err}")
-            print(f"[Worker {worker_id}] 释放信号量，完成处理: {user_title}")
+                    print(f"{log_prefix} [ERROR] 关闭浏览器上下文时出错: {close_err}")
+            print(f"{log_prefix} 释放信号量，完成处理: {user_title}")
 
 
 async def main():
@@ -383,10 +400,10 @@ async def main():
         # 文件间等待逻辑保持不变
         if idx < len(user_prompt_files) - 1:
             print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
-            wait_seconds = 20 # 30 minutes
+            wait_seconds = 1800 # 30 minutes
             for remaining in range(wait_seconds, 0, -60):
                 print(f"[LOG] 剩余等待时间: {remaining // 60} 分钟...")
-                await asyncio.sleep(20)
+                await asyncio.sleep(60)
 
     print("[LOG] 全部 user_prompt.md 文件处理完成！")
 

@@ -111,8 +111,13 @@ async def switch_user(user_data_dir, headless=False):
         await asyncio.sleep(random.uniform(1,2))
         # 3. 选取最久未登录的账户
         users = load_user_pool(user_pool_path)
+        if not users:
+             print(f"[ERROR] 账户池 {user_pool_path} 为空或无法加载！")
+             await browser.close()
+             return None
         user = users[0]
-        print(f"使用账户: {user['username']}")
+        selected_username = user['username'] # 记录选择的用户名
+        print(f"尝试使用账户: {selected_username}")
         # 4. 输入账户
         inputs = await page.query_selector_all('input.ds-input__input[type="text"]')
         if not inputs:
@@ -139,15 +144,21 @@ async def switch_user(user_data_dir, headless=False):
         print('已点击登录')
         await asyncio.sleep(5)
         # 7. 更新登录时间
-        update_user_login_time(user_pool_path, user['username'])
-        print(f"已更新 {user['username']} 的登录时间")
+        update_user_login_time(user_pool_path, selected_username)
+        print(f"已更新 {selected_username} 的登录时间")
         await browser.close()
+        print(f"账户 {selected_username} 登录成功。")
+        return selected_username # 返回成功登录的用户名
 
 # 兼容原有测试入口
 def test_switch_user():
     # 测试时使用一个临时的目录
     test_dir = "./user_data_chromium_test_switch"
-    asyncio.run(switch_user(test_dir, headless=False))
+    username = asyncio.run(switch_user(test_dir, headless=False))
+    if username:
+        print(f"测试登录成功，用户: {username}")
+    else:
+        print("测试登录失败。")
 
 if __name__ == "__main__":
     test_switch_user()
