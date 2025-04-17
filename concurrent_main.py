@@ -353,8 +353,16 @@ async def main():
     # 检查账户数量是否足够支持并发 (load_user_pool 现在只需要 file_lock)
     user_pool_path = 'user_pool.md'
     try:
-        # 临时加载一次检查数量
-        users = await load_user_pool(user_pool_path, file_lock) # load_user_pool 现在只需要 file_lock
+        # 临时加载一次检查数量 (load_user_pool 是同步函数，不再需要锁参数)
+        # 需要在 asyncio 事件循环中运行同步函数，或者在外部调用
+        # Easiest fix: Call it synchronously before starting the async part,
+        # but this blocks startup. Better: run_in_executor or make main sync initially.
+        # Let's try run_in_executor within main's async context.
+        loop = asyncio.get_running_loop()
+        # We need file_lock here to ensure consistency if load_user_pool needs to write back
+        async with file_lock:
+             users = await loop.run_in_executor(None, load_user_pool, user_pool_path)
+        # users = load_user_pool(user_pool_path) # Incorrect: calling sync directly in async
         if len(users) < CONCURRENCY_LIMIT:
             print(f"[WARNING] 账户池中的账户数量 ({len(users)}) 少于并发限制 ({CONCURRENCY_LIMIT})，可能导致任务等待或失败。")
     except Exception as e:

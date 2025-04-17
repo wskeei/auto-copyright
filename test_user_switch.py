@@ -137,7 +137,7 @@ async def switch_user(user_data_dir: str, file_lock: asyncio.Lock, active_users_
     selected_user = None
     users = [] # Define users list in the broader scope
 
-    # --- Select User ---
+    # --- Select User & Update Timestamp Immediately ---
     async with file_lock: # Acquire file_lock (Lock A)
         # Load users synchronously while holding the lock
         users = load_user_pool(user_pool_path) # Synchronous call
@@ -152,16 +152,21 @@ async def switch_user(user_data_dir: str, file_lock: asyncio.Lock, active_users_
                     selected_user = user_candidate
                     active_users.add(selected_user['username']) # Mark as active
                     print(f"[账户选择] 选中账户: {selected_user['username']} (上次登录: {selected_user['last_login']})")
-                    break
+
+                    # --- Update Login Time Immediately (while holding locks) ---
+                    print(f"立即更新账户 {selected_user['username']} 的登录时间...")
+                    update_user_login_time(user_pool_path, users, selected_user['username']) # Synchronous call
+                    # --- Login Time Updated ---
+                    break # Found user, updated time, break loop
         # Release active_users_lock (Lock B) implicitly
     # Release file_lock (Lock A) implicitly
 
     if selected_user is None:
         # No lock held here, safe to raise
         raise Exception(f"无法找到可用账户，当前活跃账户: {active_users}")
-    # --- User Selected ---
+    # --- User Selected and Timestamp Updated ---
 
-    # --- Browser Login ---
+    # --- Browser Login (Timestamp already updated in file) ---
     # 1. 清除指定的用户登录信息目录 (Do this *after* selecting user and releasing file lock)
     if os.path.exists(user_data_dir):
         import shutil
@@ -224,17 +229,13 @@ async def switch_user(user_data_dir: str, file_lock: asyncio.Lock, active_users_
             await asyncio.sleep(5) # Wait for login to potentially complete
             # --- Login Attempted ---
 
-            # --- Update Login Time (Only after successful login attempt phase) ---
-            async with file_lock: # Acquire file_lock again (Lock C)
-                # Update time and write back synchronously while holding the lock
-                # Pass the 'users' list loaded earlier
-                update_user_login_time(user_pool_path, users, selected_user['username']) # Synchronous call
-            # Release file_lock (Lock C) implicitly
-            # --- Login Time Updated ---
+            # --- Timestamp Update Moved Earlier ---
+            # No need to update timestamp here again
 
             await browser.close() # Close browser *before* returning success
             browser = None # Mark as closed
-            return selected_user['username'] # Return username only on successful login & timestamp update
+            print(f"用户 {selected_user['username']} 登录流程完成。")
+            return selected_user['username'] # Return username
 
     except Exception as login_err:
          print(f"Login process failed for user {selected_user['username']}: {login_err}")
