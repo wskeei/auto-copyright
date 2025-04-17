@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备添加向导 - 物联网设备多协议兼容管理系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #147ce5;
+            --background: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .wizard-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .wizard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .wizard-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .wizard-steps {
+            display: flex;
+            gap: 10px;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .step.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .wizard-content {
+            display: none;
+        }
+
+        .wizard-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .protocol-config {
+            background-color: rgba(0, 113, 227, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 113, 227, 0.1);
+        }
+
+        .protocol-config h4 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .confirmation-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .confirmation-label {
+            width: 200px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .confirmation-value {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .success-text {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .wizard-container {
+                padding: 20px;
+            }
+            
+            .confirmation-item {
+                flex-direction: column;
+            }
+            
+            .confirmation-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">物联网设备管理系统</div>
+            <div class="nav-links">
+                <a href="#">仪表盘</a>
+                <a href="#">设备管理</a>
+                <a href="#">协议配置</a>
+                <a href="#">系统设置</a>
+            </div>
+        </header>
+
+        <div class="wizard-container">
+            <div class="wizard-header">
+                <h2 class="wizard-title">设备添加向导</h2>
+                <div class="wizard-steps">
+                    <div class="step active" id="step1-indicator">1</div>
+                    <div class="step" id="step2-indicator">2</div>
+                    <div class="step" id="step3-indicator">3</div>
+                </div>
+            </div>
+
+            <!-- 步骤一：基本信息 -->
+            <div class="wizard-content active" id="step1">
+                <div class="form-group">
+                    <label for="device-name">设备名称</label>
+                    <input type="text" id="device-name" placeholder="例如: 客厅主灯">
+                </div>
+                <div class="form-group">
+                    <label for="device-type">设备类型</label>
+                    <select id="device-type">
+                        <option value="">请选择设备类型</option>
+                        <option value="light">智能灯</option>
+                        <option value="switch">智能开关</option>
+                        <option value="sensor">传感器</option>
+                        <option value="thermostat">恒温器</option>
+                        <option value="camera">摄像头</option>
+                        <option value="lock">智能锁</option>
+                        <option value="other">其他设备</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device-location">设备位置</label>
+                    <input type="text" id="device-location" placeholder="例如: 客厅、卧室、办公室">
+                </div>
+                <div class="form-group">
+                    <label for="device-description">设备描述 (可选)</label>
+                    <input type="text" id="device-description" placeholder="添加设备描述信息">
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="cancel-btn">取消</button>
+                    <button class="btn btn-primary" id="step1-next">下一步</button>
+                </div>
+            </div>
+
+            <!-- 步骤二：协议与连接信息 -->
+            <div class="wizard-content" id="step2">
+                <div class="form-group">
+                    <label for="protocol-type">通信协议</label>
+                    <select id="protocol-type">
+                        <option value="">请选择通信协议</option>
+                        <option value="mqtt">MQTT</option>
+                        <option value="coap">CoAP</option>
+                        <option value="http">HTTP</option>
+                        <option value="lora">LoRaWAN</option>
+                        <option value="nbiot">NB-IoT</option>
+                        <option value="zigbee">Zigbee</option>
+                        <option value="ble">Bluetooth Low Energy</option>
+                    </select>
+                </div>
+
+                <!-- MQTT 配置 -->
+                <div class="protocol-config" id="mqtt-config">
+                    <h4>MQTT 配置</h4>
+                    <div class="form-group">
+                        <label for="mqtt-broker">Broker 地址</label>
+                        <input type="text" id="mqtt-broker" placeholder="例如: mqtt.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="mqtt-port">端口</label>
+                        <input type="number" id="mqtt-port" placeholder="例如: 1883" value="1883">
+                    </div>
+                    <div class="form-group">
+                        <label for="mqtt-topic">Topic</label>
+                        <input type="text" id="mqtt-topic" placeholder="例如: home/livingroom/light">
+                    </div>
+                    <div class="form-group">
+                        <label for="mqtt-username">用户名 (可选)</label>
+                        <input type="text" id="mqtt-username">
+                    </div>
+                    <div class="form-group">
+                        <label for="mqtt-password">密码 (可选)</label>
+                        <input type="password" id="mqtt-password">
+                    </div>
+                </div>
+
+                <!-- CoAP 配置 -->
+                <div class="protocol-config" id="coap-config">
+                    <h4>CoAP 配置</h4>
+                    <div class="form-group">
+                        <label for="coap-server">服务器地址</label>
+                        <input type="text" id="coap-server" placeholder="例如: coap://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="coap-port">端口</label>
+                        <input type="number" id="coap-port" placeholder="例如: 5683" value="5683">
+                    </div>
+                    <div class="form-group">
+                        <label for="coap-path">资源路径</label>
+                        <input type="text" id="coap-path" placeholder="例如: /sensor/temperature">
+                    </div>
+                </div>
+
+                <!-- HTTP 配置 -->
+                <div class="protocol-config" id="http-config">
+                    <h4>HTTP 配置</h4>
+                    <div class="form-group">
+                        <label for="http-endpoint">API 端点</label>
+                        <input type="text" id="http-endpoint" placeholder="例如: https://api.example.com/device">
+                    </div>
+                    <div class="form-group">
+                        <label for="http-method">请求方法</label>
+                        <select id="http-method">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="http-headers">请求头 (JSON 格式, 可选)</label>
+                        <input type="text" id="http-headers" placeholder='例如: {"Content-Type": "application/json"}'>
+                    </div>
+                </div>
+
+                <!-- LoRaWAN 配置 -->
+                <div class="protocol-config" id="lora-config">
+                    <h4>LoRaWAN 配置</h4>
+                    <div class="form-group">
+                        <label for="lora-device-eui">Device EUI</label>
+                        <input type="text" id="lora-device-eui" placeholder="例如: 00-80-00-00-04-00-00-01">
+                    </div>
+                    <div class="form-group">
+                        <label for="lora-app-eui">Application EUI</label>
+                        <input type="text" id="lora-app-eui" placeholder="例如: 70-B3-D5-7E-F0-00-00-01">
+                    </div>
+                    <div class="form-group">
+                        <label for="lora-app-key">Application Key</label>
+                        <input type="text" id="lora-app-key" placeholder="例如: 2B7E151628AED2A6ABF7158809CF4F3C">
+                    </div>
+                    <div class="form-group">
+                        <label for="lora-gateway">网关地址</label>
+                        <input type="text" id="lora-gateway" placeholder="例如: 192.168.1.100">
+                    </div>
+                </div>
+
+                <!-- NB-IoT 配置 -->
+                <div class="protocol-config" id="nbiot-config">
+                    <h4>NB-IoT 配置</h4>
+                    <div class="form-group">
+                        <label for="nbiot-imsi">IMSI</label>
+                        <input type="text" id="nbiot-imsi" placeholder="例如: 460001234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="nbiot-imei">IMEI</label>
+                        <input type="text" id="nbiot-imei" placeholder="例如: 123456789012345">
+                    </div>
+                    <div class="form-group">
+                        <label for="nbiot-server">服务器地址</label>
+                        <input type="text" id="nbiot-server" placeholder="例如: nbiot.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="nbiot-port">端口</label>
+                        <input type="number" id="nbiot-port" placeholder="例如: 5683" value="5683">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="step2-back">上一步</button>
+                    <button class="btn btn-primary" id="step2-next">下一步</button>
+                </div>
+            </div>
+
+            <!-- 步骤三：确认与完成 -->
+            <div class="wizard-content" id="step3">
+                <div class="confirmation-item">
+                    <div class="confirmation-label">设备名称</div>
+                    <div class="confirmation-value" id="confirm-device-name"></div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">设备类型</div>
+                    <div class="confirmation-value" id="confirm-device-type"></div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">设备位置</div>
+                    <div class="confirmation-value" id="confirm-device-location"></div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">设备描述</div>
+                    <div class="confirmation-value" id="confirm-device-description"></div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">通信协议</div>
+                    <div class="confirmation-value" id="confirm-protocol-type"></div>
+                </div>
+                <div id="protocol-confirmation"></div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="step3-back">上一步</button>
+                    <button class="btn btn-primary" id="complete-btn">完成添加</button>
+                </div>
+            </div>
+
+            <!-- 完成状态 -->
+            <div class="wizard-content" id="step4">
+                <div class="success-message">
+                    <div class="success-icon">✓</div>
+                    <h3 class="success-title">设备添加成功</h3>
+                    <p class="success-text">新设备已成功添加到系统中，您现在可以开始配置设备规则和自动化。</p>
+                    <button class="btn btn-primary" id="finish-btn">返回设备列表</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>物联网设备多协议兼容管理系统 &copy; 版本 1.0</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 隐藏所有协议配置区域
+            document.querySelectorAll('.protocol-config').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // 步骤导航
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+            const step4 = document.getElementById('step4');
+            const step1Indicator = document.getElementById('step1-indicator');
+            const step2Indicator = document.getElementById('step2-indicator');
+            const step3Indicator = document.getElementById('step3-indicator');
+
+            // 按钮事件
+            document.getElementById('step1-next').addEventListener('click', goToStep2);
+            document.getElementById('step2-back').addEventListener('click', goToStep1);
+            document.getElementById('step2-next').addEventListener('click', goToStep3);
+            document.getElementById('step3-back').addEventListener('click', goToStep2);
+            document.getElementById('complete-btn').addEventListener('click', completeSetup);
+            document.getElementById('finish-btn').addEventListener('click', finishSetup);
+            document.getElementById('cancel-btn').addEventListener('click', cancelSetup);
+
+            // 协议选择变化
+            document.getElementById('protocol-type').addEventListener('change', function() {
+                const protocol = this.value;
+                document.querySelectorAll('.protocol-config').forEach(el => {
+                    el.style.display = 'none';
+                });
+                
+                if (protocol) {
+                    document.getElementById(`${protocol}-config`).style.display = 'block';
+                }
+            });
+
+            function goToStep1() {
+                step1.classList.add('active');
+                step2.classList.remove('active');
+                step1Indicator.classList.add('active');
+                step2Indicator.classList.remove('active');
+            }
+
+            function goToStep2() {
+                const deviceName = document.getElementById('device-name').value;
+                const deviceType = document.getElementById('device-type').value;
+                const deviceLocation = document.getElementById('device-location').value;
+
+                if (!deviceName || !deviceType || !deviceLocation) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+
+                step1.classList.remove('active');
+                step2.classList.add('active');
+                step1Indicator.classList.remove('active');
+                step1Indicator.classList.add('completed');
+                step2Indicator.classList.add('active');
+            }
+
+            function goToStep3() {
+                const protocolType = document.getElementById('protocol-type').value;
+                if (!protocolType) {
+                    alert('请选择通信协议');
+                    return;
+                }
+
+                // 验证协议特定字段
+                let isValid = true;
+                const protocolConfig = document.getElementById(`${protocolType}-config`);
+                const requiredInputs = protocolConfig.querySelectorAll('input[required]');
+                
+                requiredInputs.forEach(input => {
+                    if (!input.value) {
+                        isValid = false;
+                        input.style.borderColor = 'red';
+                    } else {
+                        input.style.borderColor = '';
+                    }
+                });
+
+                if (!isValid) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+
+                // 更新确认信息
+                document.getElementById('confirm-device-name').textContent = document.getElementById('device-name').value;
+                
+                const deviceTypeSelect = document.getElementById('device-type');
+                document.getElementById('confirm-device-type').textContent = deviceTypeSelect.options[deviceTypeSelect.selectedIndex].text;
+                
+                document.getElementById('confirm-device-location').textContent = document.getElementById('device-location').value;
+                document.getElementById('confirm-device-description').textContent = document.getElementById('device-description').value || '无';
+                
+                const protocolSelect = document.getElementById('protocol-type');
+                document.getElementById('confirm-protocol-type').textContent = protocolSelect.options[protocolSelect.selectedIndex].text;
+
+                // 显示协议特定确认信息
+                const protocolConfirmation = document.getElementById('protocol-confirmation');
+                protocolConfirmation.innerHTML = '';
+
+                const protocolInputs = protocolConfig.querySelectorAll('input, select');
+                protocolInputs.forEach(input => {
+                    if (input.value) {
+                        const item = document.createElement('div');
+                        item.className = 'confirmation-item';
+                        
+                        const label = document.createElement('div');
+                        label.className = 'confirmation-label';
+                        label.textContent = input.labels[0].textContent;
+                        
+                        const value = document.createElement('div');
+                        value.className = 'confirmation-value';
+                        value.textContent = input.value;
+                        
+                        item.appendChild(label);
+                        item.appendChild(value);
+                        protocolConfirmation.appendChild(item);
+                    }
+                });
+
+                step2.classList.remove('active');
+                step3.classList.add('active');
+                step2Indicator.classList.remove('active');
+                step2Indicator.classList.add('completed');
+                step3Indicator.classList.add('active');
+            }
+
+            function completeSetup() {
+                const device = {
+                    id: Date.now().toString(),
+                    name: document.getElementById('device-name').value,
+                    type: document.getElementById('device-type').value,
+                    typeLabel: document.getElementById('device-type').options[document.getElementById('device-type').selectedIndex].text,
+                    location: document.getElementById('device-location').value,
+                    description: document.getElementById('device-description').value,
+                    protocol: document.getElementById('protocol-type').value,
+                    protocolLabel: document.getElementById('protocol-type').options[document.getElementById('protocol-type').selectedIndex].text,
+                    config: {}
+                };
+
+                const protocol = device.protocol;
+                const protocolConfig = document.getElementById(`${protocol}-config`);
+                const inputs = protocolConfig.querySelectorAll('input, select');
+                
+                inputs.forEach(input => {
+                    if (input.value) {
+                        device.config[input.id] = input.value;
+                    }
+                });
+
+                let devices = JSON.parse(localStorage.getItem('iot-devices') || '[]');
+                devices.push(device);
+                localStorage.setItem('iot-devices', JSON.stringify(devices));
+
+                step3.classList.remove('active');
+                step4.classList.add('active');
+                step3Indicator.classList.remove('active');
+                step3Indicator.classList.add('completed');
+            }
+
+            function finishSetup() {
+                window.location.href = '#';
+            }
+
+            function cancelSetup() {
+                if (confirm('确定要取消添加设备吗？所有输入的信息将丢失。')) {
+                    window.location.href = '#';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
