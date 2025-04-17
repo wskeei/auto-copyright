@@ -183,6 +183,9 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                             print("'运行 HTML' 按钮未找到。")
                     except Exception as e:
                         print(f"检测或点击 '运行 HTML' 按钮时出错: {e}")
+                    # 定义发送按钮选择器，确保后续代码可用
+                    send_btn_selector = 'div._7436101[role="button"]'
+
                     # 如果点击了运行按钮，则刷新页面，重置状态（不再截图）
                     if clicked_run_html:
                         try: # 内部 try 处理刷新和输入第二个 prompt
@@ -196,11 +199,12 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                             await asyncio.sleep(0.2)
                             await page.fill("#chat-input", "")  # 清空
                             await asyncio.sleep(0.2)
-                            await page.type("#chat-input", ai_doc, delay=30)  # 模拟逐字输入 prompt
+                            # 还原回 ai_doc (它在此作用域内持有动态内容)
+                            await page.type("#chat-input", ai_doc, delay=30)
                             await asyncio.sleep(0.5)
                             # 手动触发 input 事件，确保按钮被激活
                             await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
-                            send_btn_selector = 'div._7436101[role="button"]'
+                            # send_btn_selector 定义已移到外部
                             btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
                             print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
                             # 等待按钮可用
@@ -210,6 +214,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                             # 修正：逐字符输入，遇到换行用 Shift+Enter，避免提前发送
                             await page.fill("#chat-input", "")  # 清空
                             await asyncio.sleep(0.2)
+                            # 还原回 ai_doc
                             for c in ai_doc:
                                 if c == '\n':
                                     await page.keyboard.down('Shift')
@@ -222,6 +227,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                             for _ in range(20):
                                 current_text = await page.input_value("#chat-input")
                                 print(f"输入后chat-input内容: '{current_text}'")
+                                # 还原回 ai_doc 进行验证
                                 if current_text.strip() == ai_doc.strip():
                                     print("写入成功")
                                     break
@@ -282,15 +288,9 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                         await auto_continue_generate(page)
                         # 检查服务器繁忙
                         if '服务器繁忙，请稍后再试' in doc_content:
-                            retry_busy += 1
-                            if retry_busy > 2:
-                                print('说明生成遇到服务器繁忙且刷新2次无效，直接跳过本次说明生成。')
-                                break # 跳出 while True, 不再重试说明生成
-                            print('说明生成遇到"服务器繁忙"，自动点击刷新按钮重试...')
-                            await refresh_retry_click(page)
-                            await asyncio.sleep(2)
-                            await page.wait_for_selector(content_selector, timeout=60000)
-                            continue # 继续 while True 循环重试说明生成
+                            print('说明生成遇到"服务器繁忙"，直接跳过本次说明生成。')
+                            # 注意：这里不再需要 retry_busy 计数器和刷新逻辑
+                            break # 跳出 while True, 不再重试说明生成
                         break # 说明生成成功，跳出 while True
                     # 只有在成功生成说明后才写入文件
                     if '服务器繁忙，请稍后再试' not in doc_content:
