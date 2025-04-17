@@ -9,6 +9,7 @@ build/
 
 # Playwright user data
 user_data_chromium/
+user_data_concurrent/
 
 # VSCode
 .vscode/
