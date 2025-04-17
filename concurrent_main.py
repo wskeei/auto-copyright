@@ -1,0 +1,400 @@
+import asyncio
+from playwright.async_api import async_playwright
+import os
+import re
+import random
+from test_user_switch import switch_user
+
+async def random_human_delay(min_sec=1, max_sec=3):
+    await asyncio.sleep(random.uniform(min_sec, max_sec))
+
+# 工具函数：自动查找并点击"重新生成"按钮
+async def refresh_retry_click(page):
+    btns = await page.query_selector_all('.ds-icon-button')
+    for btn in btns:
+        rect = await btn.query_selector('rect[id="重新生成"]')
+        if rect is not None:
+            print("找到带有 id=重新生成 的 rect，点击父按钮！")
+            await btn.click()
+            return
+    raise Exception('未找到"重新生成"按钮，无法自动重试！')
+
+# 工具函数：自动点击"继续生成"直到无按钮
+async def auto_continue_generate(page, max_loops=10):
+    """
+    检查并自动点击"继续生成"按钮，直到按钮消失或达到最大次数。
+    """
+    btn_selector = 'div[role="button"].ds-button--secondary:has-text("继续生成")'
+    for i in range(max_loops):
+        btns = await page.query_selector_all(btn_selector)
+        if btns:
+            print(f"检测到'继续生成'按钮，第{i+1}次点击...")
+            await btns[0].click()
+            await asyncio.sleep(2)  # 等待AI继续生成
+            # 可适当等待内容变化或按钮消失
+            await page.wait_for_timeout(2000)
+        else:
+            break
+    print("已无'继续生成'按钮，继续后续流程。")
+
+# 解析 AI_prompt.md，获取两个角色设定内容
+# 返回 (ai_role_content, ai_doc_content)
+def get_ai_prompts(ai_prompt_path):
+    with open(ai_prompt_path, encoding="utf-8") as f:
+        text = f.read()
+    # AI角色设定
+    match1 = re.search(r"# AI角色设定[\s\n]+([\s\S]+?)(?=^#|\Z)", text, re.MULTILINE)
+    ai_role = match1.group(1).strip() if match1 else ""
+    # 02 AI 角色设定
+    match2 = re.search(r"# 02 AI 角色设定[\s\n]+([\s\S]+?)(?=^#|\Z)", text, re.MULTILINE)
+    ai_doc = match2.group(1).strip() if match2 else ""
+    return ai_role, ai_doc
+
+# 解析 user_prompt.md（实际为 uer_prompt.md），获取所有一级标题和内容
+# 返回 [(标题, 内容), ...]
+def get_user_prompts(user_prompt_path):
+    with open(user_prompt_path, encoding="utf-8") as f:
+        text = f.read()
+    blocks = re.split(r"^# +", text, flags=re.MULTILINE)
+    prompts = []
+    for block in blocks[1:]:  # 第一个为空
+        lines = block.splitlines()
+        title = lines[0].strip()
+        content = "\n".join(lines[1:]).strip()
+        prompts.append((title, content))
+    return prompts
+
+# 文件名安全处理
+def safe_filename(title):
+    name = re.sub(r"[^\u4e00-\u9fa5\w]+", "_", title)  # 只保留中英文、数字、下划线
+    name = name.strip("_")
+    return name
+
+# 修改后的 process_prompt，只负责核心交互逻辑，接收 page 对象
+async def process_prompt(page, ai_role, ai_doc, user_title, user_content, save_dir):
+    """处理单个 prompt 的核心交互逻辑"""
+    await random_human_delay()
+    await page.goto("https://chat.deepseek.com/")
+    print(f"已打开 https://chat.deepseek.com/，处理：{user_title}")
+    await random_human_delay()
+    await page.wait_for_selector("textarea")
+    # 1. 组合第一个 prompt，生成代码
+    prompt_code = f"# AI角色设定\n{ai_role}\n\n# {user_title}\n{user_content}"
+    await random_human_delay()
+    await page.fill("textarea", prompt_code)
+    await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
+    await random_human_delay()
+    await page.click('div._7436101[role="button"][aria-disabled="false"]')
+    copy_button_selector = 'div._8f60047 div.ds-flex._965abe9 div.ds-icon-button:first-child'
+    print("等待 AI 代码回复生成完毕...")
+    try:
+        await page.wait_for_selector(copy_button_selector, timeout=600000)
+        await random_human_delay()
+        print("检测到复制按钮，AI 代码已生成。")
+        # 保存 HTML 文件
+        content_selector = 'div._8f60047 .ds-markdown.ds-markdown--block'
+        # 检查是否遇到服务器繁忙提示，若是则自动刷新重试
+        retry_busy = 0
+        while True:
+            await random_human_delay()
+            content = await page.inner_text(content_selector)
+            if '服务器繁忙，请稍后再试' in content:
+                retry_busy += 1
+                if retry_busy > 2:
+                    # 并发模式下，遇到严重错误直接记录并退出当前任务，而不是切换账户
+                    print('检测到服务器繁忙且刷新2次无效，放弃当前 prompt 处理...')
+                    # 可以选择抛出异常让上层处理，或者直接返回 False 表示失败
+                    # raise Exception("服务器持续繁忙，无法处理")
+                    return False # 表示处理失败
+                print('检测到"服务器繁忙"，自动点击刷新按钮重试...')
+                await refresh_retry_click(page)
+                await asyncio.sleep(2)
+                await page.wait_for_selector(content_selector, timeout=60000)
+                continue
+            break
+        await random_human_delay()
+        # 检查并自动点击"继续生成"按钮
+        await auto_continue_generate(page)
+        print("AI 代码内容已获取。")
+        file_base = safe_filename(user_title)
+        html_dir = os.path.join(save_dir, "html")
+        os.makedirs(html_dir, exist_ok=True)
+        await random_human_delay()
+        html_path = os.path.join(html_dir, f"{file_base}.html")
+        # 只保留 <!DOCTYPE html> ... </html> 部分
+        html_match = re.search(r'(<!DOCTYPE html[\s\S]*?</html>)', content, re.IGNORECASE)
+        with open(html_path, "w", encoding="utf-8") as f:
+            if html_match:
+                f.write(html_match.group(1))
+            else:
+                f.write(content)
+        await random_human_delay()
+        print(f"AI 代码已保存到 {html_path}")
+        # 检测并点击 "运行 HTML" 按钮
+        run_html_selector = 'div.md-code-block-footer span:has-text("运行 HTML")'
+        clicked_run_html = False
+        try:
+            print("检测是否存在 '运行 HTML' 按钮...")
+            if await page.locator(run_html_selector).count() > 0:
+                await page.wait_for_selector(run_html_selector, state="visible", timeout=5000)
+                await page.click(run_html_selector)
+                print("已点击 '运行 HTML' 按钮。")
+                clicked_run_html = True
+            else:
+                print("'运行 HTML' 按钮未找到。")
+        except Exception as e:
+            print(f"检测或点击 '运行 HTML' 按钮时出错: {e}")
+        # 如果点击了运行按钮，则刷新页面，重置状态（不再截图）
+        if clicked_run_html:
+            try:
+                print("点击 '运行 HTML' 后刷新页面，重置状态...")
+                await page.reload()
+                await page.wait_for_selector("#chat-input", timeout=60000)
+                await asyncio.sleep(1)
+                # 激活输入框，促使发送按钮enabled
+                await page.focus("#chat-input")
+                await page.type("#chat-input", "a")  # 输入一个字符
+                await asyncio.sleep(0.2)
+                await page.fill("#chat-input", "")  # 清空
+                await asyncio.sleep(0.2)
+                await page.type("#chat-input", ai_doc, delay=30)  # 模拟逐字输入 prompt
+                await asyncio.sleep(0.5)
+                # 手动触发 input 事件，确保按钮被激活
+                await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
+                send_btn_selector = 'div._7436101[role="button"]'
+                btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
+                # 等待按钮可用
+                await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="false"]', timeout=60000)
+                print("发送按钮已可用，准备输入 02 AI 角色设定 prompt")
+                # 多次尝试填入内容并确认
+                # 修正：逐字符输入，遇到换行用 Shift+Enter，避免提前发送
+                await page.fill("#chat-input", "")  # 清空
+                await asyncio.sleep(0.2)
+                for c in ai_doc:
+                    if c == '\n':
+                        await page.keyboard.down('Shift')
+                        await page.keyboard.press('Enter')
+                        await page.keyboard.up('Shift')
+                    else:
+                        await page.keyboard.type(c)
+                    await asyncio.sleep(0.01)
+                # 检查输入框内容，确保全部输入完毕
+                for _ in range(20):
+                    current_text = await page.input_value("#chat-input")
+                    print(f"输入后chat-input内容: '{current_text}'")
+                    if current_text.strip() == ai_doc.strip():
+                        print("写入成功")
+                        break
+                    await asyncio.sleep(0.1)
+                else:
+                    raise Exception("无法写入 02 AI 角色设定 prompt 到输入框！")
+                await asyncio.sleep(0.3)
+            except Exception as e:
+                print(f"刷新页面后处理异常: {e}")
+            # 手动触发 input 事件，确保按钮被激活
+            await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
+            await random_human_delay()
+            print("页面已刷新并成功写入 02 AI 角色设定 prompt")
+    except Exception as e:
+        print(f"刷新页面或写入 prompt 时出错: {e}")
+    # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    # 重新整理第二次输入流程：点击发送按钮、等待生成、自动点击"继续生成"、保存说明
+    print("发送 02 AI 角色设定 prompt...")
+    retry_busy = 0
+    try:
+        while True:
+            # 再次确认按钮可用
+            await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
+            btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+            print(f"发送前按钮aria-disabled={btn_state}")
+            await random_human_delay()
+            await page.click('div._7436101[role="button"][aria-disabled="false"]')
+            print("已点击发送按钮，等待按钮状态变化...")
+            # 严格等待按钮状态变化
+            found_enabled = False
+            for i in range(300):  # 最长5分钟
+                state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"发送后第{i+1}秒，按钮aria-disabled={state}")
+                if state == "false":
+                    found_enabled = True
+                    break
+                await asyncio.sleep(1)
+            if not found_enabled:
+                print("发送后按钮未变为enabled，流程异常")
+            # 再等待生成结束（按钮变为disabled）
+            for i in range(600):  # 最长10分钟
+                state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"生成中第{i+1}秒，按钮aria-disabled={state}")
+                if state == "true":
+                    print("AI 说明生成完毕。")
+                    break
+                await asyncio.sleep(1)
+            else:
+                print("AI 说明生成超时！")
+            # 获取所有说明节点，取最新一条（最后一条）内容
+            doc_nodes = await page.query_selector_all(content_selector)
+            if not doc_nodes:
+                doc_content = ""
+            else:
+                doc_content = await doc_nodes[-1].inner_text()
+            # 检查并自动点击"继续生成"按钮（说明部分）
+            await auto_continue_generate(page)
+            # 检查服务器繁忙
+            if '服务器繁忙，请稍后再试' in doc_content:
+                retry_busy += 1
+                if retry_busy > 2:
+                    print('说明生成遇到服务器繁忙且刷新2次无效，直接跳过本次说明生成，进入下一个prompt...')
+                    break
+                print('说明生成遇到"服务器繁忙"，自动点击刷新按钮重试...')
+                await refresh_retry_click(page)
+                await asyncio.sleep(2)
+                await page.wait_for_selector(content_selector, timeout=60000)
+                continue
+            break
+        doc_path = os.path.join(save_dir, "软件说明.md")
+        with open(doc_path, "a", encoding="utf-8") as f:
+            f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
+        print(f"AI 说明已追加到 {doc_path}")
+    except Exception as e:
+        print(f"处理 AI 说明时出错: {e}")
+        return False # 表示处理失败
+    # 如果所有步骤都成功
+    return True # 表示处理成功
+
+# 新增：并发工作流函数
+async def run_single_prompt_workflow(semaphore, ai_role, ai_doc, user_title, user_content, save_dir, worker_id):
+    """
+    管理单个 prompt 的完整并发工作流：获取信号量 -> 切换用户 -> 运行 process_prompt -> 释放信号量
+    """
+    user_data_dir = f"./user_data_chromium_{worker_id}" # 每个 worker 使用独立的目录
+    context = None # 初始化 context 为 None
+    async with semaphore:
+        print(f"[Worker {worker_id}] 获取信号量，开始处理: {user_title}")
+        try:
+            # 1. 切换用户（清理并登录）
+            print(f"[Worker {worker_id}] 正在切换用户并准备环境: {user_data_dir}")
+            await switch_user(user_data_dir, headless=False) # 使用独立的 user_data_dir
+
+            # 2. 启动浏览器并处理
+            async with async_playwright() as p:
+                print(f"[Worker {worker_id}] 启动浏览器上下文: {user_data_dir}")
+                # 增加超时和重试机制
+                for attempt in range(3):
+                    try:
+                        context = await p.chromium.launch_persistent_context(
+                            user_data_dir,
+                            headless=False,
+                            args=["--disable-blink-features=AutomationControlled"],
+                            slow_mo=50 # 稍微降低速度，可能有助于稳定性
+                        )
+                        break # 成功则跳出循环
+                    except Exception as launch_err:
+                        print(f"[Worker {worker_id}] 启动浏览器上下文失败 (尝试 {attempt+1}/3): {launch_err}")
+                        if attempt == 2:
+                            print(f"[Worker {worker_id}] 无法启动浏览器，放弃处理: {user_title}")
+                            return # 放弃此任务
+                        await asyncio.sleep(5) # 等待后重试
+                if not context: return # 如果 context 未成功创建
+
+                page = context.pages[0] if context.pages else await context.new_page()
+                print(f"[Worker {worker_id}] 开始执行 process_prompt: {user_title}")
+                success = await process_prompt(page, ai_role, ai_doc, user_title, user_content, save_dir)
+                if success:
+                    print(f"[Worker {worker_id}] process_prompt 处理成功: {user_title}")
+                else:
+                    print(f"[Worker {worker_id}] process_prompt 处理失败: {user_title}")
+
+        except Exception as e:
+            print(f"[Worker {worker_id}] 处理 {user_title} 时发生意外错误: {e}")
+        finally:
+            if context:
+                try:
+                    await context.close()
+                    print(f"[Worker {worker_id}] 浏览器上下文已关闭: {user_data_dir}")
+                except Exception as close_err:
+                    print(f"[Worker {worker_id}] 关闭浏览器上下文时出错: {close_err}")
+            print(f"[Worker {worker_id}] 释放信号量，完成处理: {user_title}")
+
+
+async def main():
+    import glob
+    import time
+
+    CONCURRENCY_LIMIT = 2 # 设置并发限制
+    semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
+
+    print("[LOG] 扫描所有 user_prompt.md 文件...")
+    user_prompt_dir = "user_prompt.md"
+    user_prompt_files = sorted(
+        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] *.md")),
+        key=lambda x: int(os.path.basename(x).split()[0])
+    )
+    print(f"[LOG] 共找到 {len(user_prompt_files)} 个 user_prompt.md 文件: {user_prompt_files}")
+
+    ai_prompt_path = "AI_prompt.md"
+    if not os.path.exists(ai_prompt_path):
+        print(f"[ERROR] {ai_prompt_path} 文件不存在，退出！")
+        return
+    ai_role, ai_doc = get_ai_prompts(ai_prompt_path)
+
+    # Playwright 实例不再需要在 main 函数中创建
+
+    for idx, user_prompt_path in enumerate(user_prompt_files):
+        basename_no_ext = os.path.splitext(os.path.basename(user_prompt_path))[0]
+        save_dir = os.path.join("saved_outputs", basename_no_ext)
+        os.makedirs(save_dir, exist_ok=True)
+        print(f"\n[LOG] 开始处理文件 {user_prompt_path}，输出目录：{save_dir}")
+
+        try:
+            user_prompts = get_user_prompts(user_prompt_path)
+            match = re.match(r"\d+\s*(.*)", basename_no_ext)
+            software_name = match.group(1) if match else basename_no_ext
+            ai_role_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_role)
+            ai_doc_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_doc)
+
+            tasks = []
+            # 为当前文件的所有 prompt 创建并发任务
+            for prompt_idx, (user_title, user_content) in enumerate(user_prompts):
+                # 使用 prompt_idx 作为 worker_id 的一部分，确保每个任务有唯一目录
+                # 注意：如果不同文件处理并行，worker_id 需要更全局唯一的设计
+                # 但目前是文件串行，内部 prompt 并行，所以 prompt_idx 足够区分
+                worker_id = prompt_idx % CONCURRENCY_LIMIT # 循环使用 worker ID 0 和 1
+                print(f"[LOG] 创建任务 Worker {worker_id} 处理一级标题：{user_title}")
+                task = asyncio.create_task(run_single_prompt_workflow(
+                    semaphore,
+                    ai_role_dynamic,
+                    ai_doc_dynamic,
+                    user_title,
+                    user_content,
+                    save_dir,
+                    worker_id
+                ))
+                tasks.append(task)
+
+            # 等待当前文件的所有 prompt 处理完成
+            print(f"[LOG] 开始并发处理 {len(tasks)} 个 prompts (限制 {CONCURRENCY_LIMIT})...")
+            await asyncio.gather(*tasks)
+            print(f"[LOG] 文件 {user_prompt_path} 处理完成。")
+
+        except Exception as e:
+            print(f"[ERROR] 处理文件 {user_prompt_path} 时的主循环出错: {e}")
+
+        # 文件间等待逻辑保持不变
+        if idx < len(user_prompt_files) - 1:
+            print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
+            wait_seconds = 20 # 30 minutes
+            for remaining in range(wait_seconds, 0, -60):
+                print(f"[LOG] 剩余等待时间: {remaining // 60} 分钟...")
+                await asyncio.sleep(20)
+
+    print("[LOG] 全部 user_prompt.md 文件处理完成！")
+
+if __name__ == "__main__":
+    # 增加健壮性：捕获 asyncio.run() 可能的异常
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n[LOG] 检测到手动中断，程序退出。")
+    except Exception as main_err:
+        print(f"[FATAL] 程序运行出错: {main_err}")

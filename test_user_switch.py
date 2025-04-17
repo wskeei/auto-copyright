@@ -68,21 +68,35 @@ def update_user_login_time(user_pool_path, username):
         for line in lines:
             f.write(line + '\n')
 
-async def switch_user(headless=False):
+async def switch_user(user_data_dir, headless=False):
     """
-    切换到最久未用账户并完成登录。
+    使用指定的 user_data_dir 切换到最久未用账户并完成登录。
+    会先清理指定的 user_data_dir。
+    :param user_data_dir: 要使用的用户数据目录
     :param headless: 是否无头运行
     :return: None
     """
     user_pool_path = 'user_pool.md'
-    user_data_dir = './user_data_chromium'
-    # 1. 清除用户登录信息
+    # 1. 清除指定的用户登录信息
     if os.path.exists(user_data_dir):
         import shutil
-        shutil.rmtree(user_data_dir)
-        print(f"已清理 {user_data_dir}")
+        try:
+            shutil.rmtree(user_data_dir)
+            print(f"已清理 {user_data_dir}")
+        except OSError as e:
+            print(f"清理目录 {user_data_dir} 时出错: {e}，可能被占用，继续尝试...")
+            await asyncio.sleep(1) # 短暂等待
+            try:
+                shutil.rmtree(user_data_dir)
+                print(f"再次尝试清理 {user_data_dir} 成功")
+            except OSError as e2:
+                 print(f"再次清理目录 {user_data_dir} 失败: {e2}，登录可能受影响")
+
+    # 确保目录存在，playwright 需要
+    os.makedirs(user_data_dir, exist_ok=True)
+
     async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(user_data_dir, headless=headless)
+        browser = await p.chromium.launch_persistent_context(user_data_dir, headless=headless, args=["--disable-blink-features=AutomationControlled"]) # 添加 args
         page = browser.pages[0] if browser.pages else await browser.new_page()
         await page.goto("https://chat.deepseek.com/")
         await asyncio.sleep(random.uniform(1,2))
@@ -131,7 +145,9 @@ async def switch_user(headless=False):
 
 # 兼容原有测试入口
 def test_switch_user():
-    asyncio.run(switch_user(headless=False))
+    # 测试时使用一个临时的目录
+    test_dir = "./user_data_chromium_test_switch"
+    asyncio.run(switch_user(test_dir, headless=False))
 
 if __name__ == "__main__":
     test_switch_user()
