@@ -3,7 +3,7 @@ from playwright.async_api import async_playwright
 import os
 import re
 import random
-from test_user_switch import switch_user, load_user_pool # 导入 load_user_pool 用于检查账户数量
+from concurrent_test_user_switch import switch_user, load_user_pool # 导入 load_user_pool 用于检查账户数量
 
 async def random_human_delay(min_sec=1, max_sec=3):
     await asyncio.sleep(random.uniform(min_sec, max_sec))
@@ -340,7 +340,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
 async def main():
     import glob
     import time
-    CONCURRENCY_LIMIT = 2 # 设置并发限制为 2
+    CONCURRENCY_LIMIT = 3 # 设置并发限制为 2
     print(f"[LOG] 开始批量处理，并发限制: {CONCURRENCY_LIMIT}")
     # 创建文件锁，用于保护 user_pool.md 文件读写
     file_lock = asyncio.Lock()
@@ -418,7 +418,7 @@ async def main():
             # 如果不是最后一个，等待半小时，这里逻辑有问题
             if idx < len(user_prompt_files) - 1:
                 print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
-                for remain in range(1500, 0, -60):
+                for remain in range(300, 0, -60):
                     print(f"[LOG] 剩余等待时间: {remain//60} 分钟...")
                     await asyncio.sleep(60)
     print("[LOG] 全部 user_prompt.md 文件处理完成！")
