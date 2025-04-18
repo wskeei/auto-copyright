@@ -319,7 +319,7 @@ async def main():
             # 如果不是最后一个，等待1小时
             if idx < len(user_prompt_files) - 1:
                 print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
-                for remain in range(1800, 0, -60):
+                for remain in range(300, 0, -60):
                     print(f"[LOG] 剩余等待时间: {remain//60} 分钟...")
                     await asyncio.sleep(60)
     print("[LOG] 全部 user_prompt.md 文件处理完成！")
