@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能睡眠节律调节优化系统 | 注册</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --error-color: #ff3b30;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .error-message {
+            font-size: 13px;
+            color: var(--error-color);
+            margin-top: 6px;
+            display: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-group input {
+            margin-right: 12px;
+            margin-top: 3px;
+        }
+
+        .checkbox-group label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .checkbox-group a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-disabled {
+            background-color: #e0e0e0;
+            color: #a0a0a0;
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(52, 199, 89, 0.3);
+        }
+
+        .alert-error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <h1>智能睡眠节律调节优化系统</h1>
+                <p>创建您的账户以开始优化睡眠</p>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" class="form-control" placeholder="设置您的用户名" required>
+                    <div class="error-message" id="usernameError">用户名已存在</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">电子邮箱</label>
+                    <input type="email" id="email" class="form-control" placeholder="输入您的邮箱" required>
+                    <div class="error-message" id="emailError">请输入有效的邮箱地址</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" class="form-control" placeholder="设置您的密码" required>
+                    <div class="password-strength">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="error-message" id="passwordError">密码必须包含至少8个字符，包括字母和数字</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="再次输入密码" required>
+                    <div class="error-message" id="confirmPasswordError">两次输入的密码不一致</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sleepTime">通常入睡时间</label>
+                    <select id="sleepTime" class="form-control">
+                        <option value="21:00">21:00</option>
+                        <option value="21:30">21:30</option>
+                        <option value="22:00">22:00</option>
+                        <option value="22:30">22:30</option>
+                        <option value="23:00" selected>23:00</option>
+                        <option value="23:30">23:30</option>
+                        <option value="00:00">00:00</option>
+                        <option value="00:30">00:30</option>
+                        <option value="01:00">01:00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="wakeTime">通常起床时间</label>
+                    <select id="wakeTime" class="form-control">
+                        <option value="05:00">05:00</option>
+                        <option value="05:30">05:30</option>
+                        <option value="06:00">06:00</option>
+                        <option value="06:30">06:30</option>
+                        <option value="07:00" selected>07:00</option>
+                        <option value="07:30">07:30</option>
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">我已阅读并同意 <a href="#">服务条款</a> 和 <a href="#">隐私政策</a></label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newsletter">
+                    <label for="newsletter">接收睡眠优化建议和系统更新通知</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="registerBtn">注册</button>
+            </form>
+
+            <div class="login-link">
+                已有账户？ <a href="login.html">立即登录</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const strengthBar = document.getElementById('strengthBar');
+            const registerBtn = document.getElementById('registerBtn');
+            const alertBox = document.getElementById('alertBox');
+
+            function checkUsernameAvailability(username) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                return !users.some(user => user.username === username);
+            }
+
+            function checkEmailAvailability(email) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                return !users.some(user => user.email === email);
+            }
+
+            function validatePassword(password) {
+                const minLength = 8;
+                const hasLetter = /[a-zA-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                return password.length >= minLength && hasLetter && hasNumber;
+            }
+
+            function updatePasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength += 1;
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+
+                const width = (strength / 5) * 100;
+                strengthBar.style.width = width + '%';
+
+                if (strength <= 2) {
+                    strengthBar.style.backgroundColor = '#ff3b30';
+                } else if (strength === 3) {
+                    strengthBar.style.backgroundColor = '#ff9500';
+                } else {
+                    strengthBar.style.backgroundColor = '#34c759';
+                }
+            }
+
+            function showError(element, message) {
+                const errorElement = document.getElementById(element.id + 'Error');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                element.style.borderColor = '#ff3b30';
+            }
+
+            function hideError(element) {
+                const errorElement = document.getElementById(element.id + 'Error');
+                errorElement.style.display = 'none';
+                element.style.borderColor = '#d2d2d7';
+            }
+
+            function showAlert(message, type) {
+                alertBox.innerHTML = '';
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+                alertBox.appendChild(alert);
+                alertBox.style.display = 'block';
+
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 5000);
+            }
+
+            usernameInput.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    showError(this, '请输入用户名');
+                } else if (!checkUsernameAvailability(this.value.trim())) {
+                    showError(this, '用户名已存在');
+                } else {
+                    hideError(this);
+                }
+            });
+
+            emailInput.addEventListener('blur', function() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!this.value.trim()) {
+                    showError(this, '请输入邮箱地址');
+                } else if (!emailRegex.test(this.value.trim())) {
+                    showError(this, '请输入有效的邮箱地址');
+                } else if (!checkEmailAvailability(this.value.trim())) {
+                    showError(this, '邮箱已被注册');
+                } else {
+                    hideError(this);
+                }
+            });
+
+            passwordInput.addEventListener('input', function() {
+                updatePasswordStrength(this.value);
+                if (!validatePassword(this.value)) {
+                    showError(this, '密码必须包含至少8个字符，包括字母和数字');
+                } else {
+                    hideError(this);
+                }
+            });
+
+            confirmPasswordInput.addEventListener('blur', function() {
+                if (this.value !== passwordInput.value) {
+                    showError(this, '两次输入的密码不一致');
+                } else {
+                    hideError(this);
+                }
+            });
+
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let isValid = true;
+
+                if (!usernameInput.value.trim()) {
+                    showError(usernameInput, '请输入用户名');
+                    isValid = false;
+                } else if (!checkUsernameAvailability(usernameInput.value.trim())) {
+                    showError(usernameInput, '用户名已存在');
+                    isValid = false;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailInput.value.trim()) {
+                    showError(emailInput, '请输入邮箱地址');
+                    isValid = false;
+                } else if (!emailRegex.test(emailInput.value.trim())) {
+                    showError(emailInput, '请输入有效的邮箱地址');
+                    isValid = false;
+                } else if (!checkEmailAvailability(emailInput.value.trim())) {
+                    showError(emailInput, '邮箱已被注册');
+                    isValid = false;
+                }
+
+                if (!validatePassword(passwordInput.value)) {
+                    showError(passwordInput, '密码必须包含至少8个字符，包括字母和数字');
+                    isValid = false;
+                }
+
+                if (confirmPasswordInput.value !== passwordInput.value) {
+                    showError(confirmPasswordInput, '两次输入的密码不一致');
+                    isValid = false;
+                }
+
+                if (!document.getElementById('terms').checked) {
+                    showAlert('请同意服务条款和隐私政策', 'error');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    registerBtn.disabled = true;
+                    registerBtn.classList.add('btn-disabled');
+
+                    const user = {
+                        username: usernameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        password: btoa(passwordInput.value),
+                        sleepTime: document.getElementById('sleepTime').value,
+                        wakeTime: document.getElementById('wakeTime').value,
+                        newsletter: document.getElementById('newsletter').checked,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    let users = JSON.parse(localStorage.getItem('users') || '[]');
+                    users.push(user);
+                    localStorage.setItem('users', JSON.stringify(users));
+
+                    showAlert('注册成功！正在跳转到登录页面...', 'success');
+
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
