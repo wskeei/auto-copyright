@@ -2,7 +2,7 @@ import asyncio
 import os
 import time
 import random
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, Browser # Import Browser type hint
 
 def load_user_pool(user_pool_path):
     """
@@ -68,120 +68,127 @@ def update_user_login_time(user_pool_path, username):
         for line in lines:
             f.write(line + '\n')
 
-async def switch_user(headless=False):
+async def switch_user(browser: Browser, headless=False): # Accept Browser instance
     """
-    切换到最久未用账户并完成登录。
-    如果打开页面后已是登录状态，则直接更新时间并退出。
-    :param headless: 是否无头运行
-    :return: None
+    使用给定的 Browser 实例创建一个新的、干净的上下文，并切换到最久未用账户完成登录。
+    :param browser: Playwright Browser 实例
+    :param headless: (此参数在此模型下可能不再直接需要，因为 browser 已启动)
+    :return: tuple(BrowserContext, Page) 登录成功后的上下文和页面
     """
     user_pool_path = 'user_pool.md'
-    user_data_dir = './user_data_chromium'
-    # 1. 清除用户登录信息 (保持不变)
-    if os.path.exists(user_data_dir):
-        import shutil
-        shutil.rmtree(user_data_dir)
-        print(f"已清理 {user_data_dir}")
+    context = None # Initialize context variable
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(user_data_dir, headless=headless)
-        page = browser.pages[0] if browser.pages else await browser.new_page()
+    try:
+        # Create a new isolated context for each login attempt
+        print("[LOG] 创建新的浏览器上下文...")
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36", # Example User Agent
+            java_script_enabled=True,
+            accept_downloads=True,
+            # viewport={'width': 1920, 'height': 1080} # Optional: set viewport
+        )
+        page = await context.new_page()
+        print("[LOG] 新上下文和页面已创建。")
+
         await page.goto("https://chat.deepseek.com/")
-        await asyncio.sleep(random.uniform(2, 4)) # 增加等待时间确保页面加载
+        await asyncio.sleep(random.uniform(2, 4)) # Wait for page load
 
-        # 检查是否已经登录 (例如，检查聊天输入框是否存在且可见)
-        is_logged_in = False
+        # --- Start login process in the new context ---
+        # 2. Attempt to switch to password login tab if needed
         try:
-            # 使用一个明确的登录后元素，比如聊天输入框 textarea
-            await page.wait_for_selector("textarea", timeout=5000, state="visible")
-            print("检测到已登录状态 (找到 textarea)。")
-            is_logged_in = True
-        except Exception:
-            print("未检测到登录状态，尝试进行登录流程。")
-            is_logged_in = False
+            password_tab_locator = page.locator('div.ds-tab:has-text("密码登录")')
+            # Wait briefly for the tab to potentially appear
+            await password_tab_locator.wait_for(state="visible", timeout=5000)
 
-        if is_logged_in:
-            # 如果已登录，直接选取用户并更新时间
-            users = load_user_pool(user_pool_path)
-            if not users:
-                 print("[WARN] user_pool.md 为空或无法加载，无法更新登录时间。")
-                 await browser.close()
-                 return
-            user = users[0] # 仍然选择最久未用的，即使是自动登录的
-            print(f"已自动登录，用户视为: {user['username']}")
-            update_user_login_time(user_pool_path, user['username'])
-            print(f"已更新 {user['username']} 的登录时间")
-        else:
-            # 如果未登录，执行原有的登录流程
-            try:
-                # 2. 点击“切换到密码登录”
-                # 等待登录表单容器出现
-                login_form_selector = 'div.login_form_wrapper' # 假设登录表单有一个特定的父容器
-                await page.wait_for_selector(login_form_selector, timeout=20000)
-                # 在登录表单内查找密码登录tab
-                password_tab_selector = f'{login_form_selector} div.ds-tab__content:has-text("密码登录")'
-                password_tab = page.locator(password_tab_selector)
-                if await password_tab.count() > 0:
-                    await password_tab.click()
-                    print("已点击'密码登录'标签页。")
-                else:
-                     print("[WARN] 未找到'密码登录'按钮，可能页面结构已改变或已在密码登录页。")
-                     # 可以选择抛出异常或尝试其他登录方式
-                     # raise Exception("未找到'密码登录'按钮") # 或者记录日志并继续
+            is_active = await password_tab_locator.evaluate("node => node.classList.contains('ds-tab--active')")
 
-                await asyncio.sleep(random.uniform(1,2))
+            if not is_active:
+                print("检测到'密码登录'标签页非激活状态，尝试点击...")
+                await password_tab_locator.click()
+                print("已点击'密码登录'标签页。")
+                await asyncio.sleep(random.uniform(1, 2)) # Wait for potential page changes
+            else:
+                print("[INFO] '密码登录'标签页已激活，无需点击。")
 
-                # 3. 选取最久未登录的账户
-                users = load_user_pool(user_pool_path)
-                if not users:
-                    raise Exception("user_pool.md 为空或无法加载。")
-                user = users[0]
-                print(f"使用账户: {user['username']}")
+        except Exception as e:
+            # Handles timeout (element not found) or other errors during check/click
+            print(f"[INFO] 查找或点击'密码登录'标签页时出错或超时 (可能已在密码登录页): {e}。继续登录流程。")
 
-                # 4. 输入账户
-                # 使用更精确的定位器，例如 placeholder 或 name 属性
-                username_input = page.locator('input[placeholder="手机号/邮箱"], input[name="account"]') # 尝试两种可能的定位器
-                await username_input.wait_for(state="visible", timeout=10000)
-                await username_input.fill(user['username'])
-                await asyncio.sleep(random.uniform(0.5, 1)) # 减少一点随机等待
+        # 3. Select the least recently used account
+        users = load_user_pool(user_pool_path)
+        if not users:
+            if context: await context.close() # Close context before raising
+            raise Exception("user_pool.md 为空或无法加载。")
+        user = users[0]
+        print(f"使用账户: {user['username']}")
 
-                # 5. 输入密码
-                password_input = page.locator('input[placeholder="密码"], input[name="password"]') # 尝试两种可能的定位器
-                await password_input.wait_for(state="visible", timeout=10000)
-                await password_input.fill(user['password'])
-                await asyncio.sleep(random.uniform(0.5, 1))
+        # 4. Input account
+        # Use the exact placeholder text from the HTML
+        username_input = page.locator('input[placeholder="请输入手机号/邮箱地址"]')
+        await username_input.wait_for(state="visible", timeout=10000)
+        await username_input.fill(user['username'])
+        await asyncio.sleep(random.uniform(0.5, 1))
 
-                # 6. 点击登录按钮
-                # 使用更精确的定位器
-                login_button = page.locator('div[role="button"].ds-button--primary:has-text("登录")')
-                await login_button.wait_for(state="visible", timeout=10000)
-                await login_button.click()
-                print('已点击登录')
-                # 等待登录成功后的页面特征，而不是固定等待时间
-                # 例如等待聊天输入框再次出现
-                await page.wait_for_selector("textarea", timeout=30000, state="visible")
-                print("登录成功，已跳转到聊天页面。")
+        # 5. Input password
+        # Use the exact placeholder text from the HTML
+        password_input = page.locator('input[placeholder="请输入密码"]')
+        await password_input.wait_for(state="visible", timeout=10000)
+        await password_input.fill(user['password'])
+        await asyncio.sleep(random.uniform(0.5, 1))
 
-                # 7. 更新登录时间
-                update_user_login_time(user_pool_path, user['username'])
-                print(f"已更新 {user['username']} 的登录时间")
+        # 6. Click login button
+        login_button = page.locator('div[role="button"].ds-button--primary:has-text("登录")')
+        await login_button.wait_for(state="visible", timeout=10000)
+        await login_button.click()
+        print('已点击登录')
 
-            except Exception as e:
-                print(f"登录过程中发生错误: {e}")
-                # 可以在这里添加截图等调试信息
-                try:
-                    await page.screenshot(path="login_error.png")
-                    print("已保存登录错误截图: login_error.png")
-                except Exception as screenshot_e:
-                    print(f"保存截图失败: {screenshot_e}")
-                await browser.close() # 确保出错时关闭浏览器
-                raise e # 将异常抛出，让上层知道出错了
+        # 7. Wait for successful login
+        await page.wait_for_selector("textarea", timeout=30000, state="visible")
+        print("登录成功，已跳转到聊天页面。")
 
-        await browser.close() # 无论登录与否，最后都关闭浏览器
+        # 8. Update login time
+        update_user_login_time(user_pool_path, user['username'])
+        print(f"已更新 {user['username']} 的登录时间")
 
-# 兼容原有测试入口
+    except Exception as e:
+        print(f"登录过程中发生错误: {e}")
+        # Attempt screenshot
+        if 'page' in locals() and page and not page.is_closed():
+             try:
+                 await page.screenshot(path="login_error.png")
+                 print("已保存登录错误截图: login_error.png")
+             except Exception as screenshot_e:
+                 print(f"保存截图失败: {screenshot_e}")
+        # Close context if it was created before raising
+        if context:
+            await context.close()
+        # Re-raise the exception for the caller
+        raise e
+
+    # If the try block succeeded, return context and page
+    if context is None:
+        raise Exception("未能成功创建浏览器上下文。")
+
+    # Do NOT close context here, let the caller manage it
+    return context, page
+
+# Compatibility entry point (Needs modification to work)
 def test_switch_user():
-    asyncio.run(switch_user(headless=False))
+    print("警告：test_switch_user() 现在需要一个运行中的 Browser 实例来测试。")
+    # Example of how to test if needed:
+    # async def run_test():
+    #     async with async_playwright() as p:
+    #         browser = await p.chromium.launch(headless=False)
+    #         try:
+    #             context, page = await switch_user(browser, headless=False)
+    #             print("Test switch_user successful.")
+    #             # Add assertions or further interactions here if needed
+    #         except Exception as e:
+    #             print(f"Test switch_user failed: {e}")
+    #         finally:
+    #             if 'context' in locals() and context: await context.close()
+    #             if browser: await browser.close()
+    # asyncio.run(run_test())
 
 if __name__ == "__main__":
     test_switch_user()
