@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能环境应急资源调度系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-color);
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo svg {
+            margin-right: 8px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        .panel {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--card-color);
+            color: var(--text-primary);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .resource-list, .event-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .resource-item, .event-item {
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .resource-item:hover, .event-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.1);
+        }
+
+        .resource-item.assigned {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .resource-item-title, .event-item-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .resource-item-details, .event-item-details {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-dispatched {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-urgent {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .secondary-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .secondary-btn:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .danger-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .danger-btn:hover {
+            background-color: #ff1a0d;
+        }
+
+        .selected {
+            background-color: rgba(0, 113, 227, 0.05);
+            border-color: var(--primary-color);
+        }
+
+        .map-container {
+            height: 300px;
+            background-color: #e8e8ed;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .event-marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: var(--danger-color);
+            border-radius: 50%;
+            border: 2px solid white;
+            transform: translate(-50%, -50%);
+        }
+
+        .event-marker::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(255, 59, 48, 0.3);
+            border-radius: 50%;
+            top: -6px;
+            left: -6px;
+            z-index: -1;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-results svg {
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#0071E3"/>
+                <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#0071E3"/>
+                <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="#0071E3"/>
+            </svg>
+            智能环境应急资源调度系统
+        </div>
+        <div class="user-info">
+            <span>资源调度控制台</span>
+            <div class="user-avatar">AD</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">可用资源</div>
+                <div class="filter-controls">
+                    <select id="resource-type-filter">
+                        <option value="all">所有类型</option>
+                        <option value="equipment">设备</option>
+                        <option value="personnel">人员</option>
+                        <option value="vehicle">车辆</option>
+                        <option value="material">物资</option>
+                    </select>
+                    <select id="resource-status-filter">
+                        <option value="all">所有状态</option>
+                        <option value="available">可用</option>
+                        <option value="dispatched">已调度</option>
+                    </select>
+                    <input type="text" id="resource-search" placeholder="搜索资源...">
+                </div>
+            </div>
+            <div class="resource-list" id="resource-list">
+                <!-- 资源列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">应急事件</div>
+                <div class="filter-controls">
+                    <select id="event-priority-filter">
+                        <option value="all">所有优先级</option>
+                        <option value="high">高优先级</option>
+                        <option value="medium">中优先级</option>
+                        <option value="low">低优先级</option>
+                    </select>
+                    <select id="event-status-filter">
+                        <option value="all">所有状态</option>
+                        <option value="pending">待处理</option>
+                        <option value="processing">处理中</option>
+                        <option value="resolved">已解决</option>
+                    </select>
+                    <input type="text" id="event-search" placeholder="搜索事件...">
+                </div>
+            </div>
+            <div class="map-container" id="map-container">
+                <div class="map-placeholder">地图视图 (模拟)</div>
+                <!-- 事件标记将通过JavaScript动态生成 -->
+            </div>
+            <div class="event-list" id="event-list">
+                <!-- 事件列表将通过JavaScript动态生成 -->
+            </div>
+            <div class="action-buttons">
+                <button class="secondary-btn" id="clear-selection">清除选择</button>
+                <button class="primary-btn" id="dispatch-btn">调度资源</button>
+                <button class="danger-btn" id="release-btn">解除调度</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化数据
+            const resources = [
+                { id: 'r1', name: '水质检测仪 X-200', type: 'equipment', status: 'available', location: '仓库A', capacity: '高精度', distance: '5km' },
+                { id: 'r2', name: '应急照明系统', type: 'equipment', status: 'available', location: '仓库B', capacity: '10小时', distance: '8km' },
+                { id: 'r3', name: '环境应急小组', type: 'personnel', status: 'available', location: '基地', capacity: '5人', distance: '3km' },
+                { id: 'r4', name: '化学吸附材料', type: 'material', status: 'available', location: '仓库C', capacity: '100kg', distance: '12km' },
+                { id: 'r5', name: '应急监测车', type: 'vehicle', status: 'dispatched', location: '现场', capacity: '移动实验室', distance: 'N/A' },
+                { id: 'r6', name: '防护服套装', type: 'material', status: 'available', location: '仓库A', capacity: '20套', distance: '5km' },
+                { id: 'r7', name: '无人机监测系统', type: 'equipment', status: 'available', location: '基地', capacity: '5km范围', distance: '3km' },
+                { id: 'r8', name: '应急指挥车', type: 'vehicle', status: 'available', location: '仓库B', capacity: '通讯中心', distance: '8km' },
+                { id: 'r9', name: '化学专家团队', type: 'personnel', status: 'dispatched', location: '现场', capacity: '3人', distance: 'N/A' },
+                { id: 'r10', name: '便携式气体检测仪', type: 'equipment', status: 'available', location: '仓库C', capacity: '多气体', distance: '12km' }
+            ];
+
+            const events = [
+                { id: 'e1', title: '化工厂泄漏事件', priority: 'high', status: 'pending', location: { x: 30, y: 40 }, description: '化工厂原料泄漏，需要紧急处理', assignedResources: ['r5', 'r9'] },
+                { id: 'e2', title: '河流污染报告', priority: 'medium', status: 'pending', location: { x: 60, y: 70 }, description: '下游居民报告水质异常', assignedResources: [] },
+                { id: 'e3', title: '危险废物非法倾倒', priority: 'high', status: 'processing', location: { x: 20, y: 80 }, description: '发现大量危险废物非法倾倒', assignedResources: [] },
+                { id: 'e4', title: '空气质量异常', priority: 'medium', status: 'pending', location: { x: 70, y: 30 }, description: '监测站报告PM2.5超标', assignedResources: [] },
+                { id: 'e5', title: '土壤污染调查', priority: 'low', status: 'pending', location: { x: 50, y: 50 }, description: '农田土壤疑似污染需要检测', assignedResources: [] }
+            ];
+
+            // 从localStorage加载数据
+            function loadData() {
+                const savedResources = localStorage.getItem('resources');
+                const savedEvents = localStorage.getItem('events');
+                
+                if (savedResources) {
+                    resources = JSON.parse(savedResources);
+                }
+                if (savedEvents) {
+                    events = JSON.parse(savedEvents);
+                }
+            }
+
+            // 保存数据到localStorage
+            function saveData() {
+                localStorage.setItem('resources', JSON.stringify(resources));
+                localStorage.setItem('events', JSON.stringify(events));
+            }
+
+            // 渲染资源列表
+            function renderResources() {
+                const resourceList = document.getElementById('resource-list');
+                const typeFilter = document.getElementById('resource-type-filter').value;
+                const statusFilter = document.getElementById('resource-status-filter').value;
+                const searchQuery = document.getElementById('resource-search').value.toLowerCase();
+
+                let filteredResources = resources.filter(resource => {
+                    const matchesType = typeFilter === 'all' || resource.type === typeFilter;
+                    const matchesStatus = statusFilter === 'all' || resource.status === statusFilter;
+                    const matchesSearch = resource.name.toLowerCase().includes(searchQuery) || 
+                                        resource.location.toLowerCase().includes(searchQuery);
+                    return matchesType && matchesStatus && matchesSearch;
+                });
+
+                if (filteredResources.length === 0) {
+                    resourceList.innerHTML = `
+                        <div class="no-results">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#86868B"/>
+                                <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#86868B"/>
+                                <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="#86868B"/>
+                            </svg>
+                            <p>没有找到匹配的资源</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                resourceList.innerHTML = '';
+                filteredResources.forEach(resource => {
+                    const resourceItem = document.createElement('div');
+                    resourceItem.className = `resource-item ${resource.status === 'dispatched' ? 'assigned' : ''}`;
+                    resourceItem.dataset.id = resource.id;
+                    resourceItem.innerHTML = `
+                        <div class="resource-item-title">
+                            <span>${resource.name}</span>
+                            <span class="status-badge ${resource.status === 'dispatched' ? 'status-dispatched' : 'status-pending'}">
+                                ${resource.status === 'dispatched' ? '已调度' : '可用'}
+                            </span>
+                        </div>
+                        <div class="resource-item-details">
+                            <div class="detail-item">
+                                <span>类型:</span>
+                                <span>${getTypeName(resource.type)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>位置:</span>
+                                <span>${resource.location}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>距离:</span>
+                                <span>${resource.distance}</span>
+                            </div>
+                        </div>
+                    `;
+                    resourceList.appendChild(resourceItem);
+                });
+
+                // 添加点击事件
+                document.querySelectorAll('.resource-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                        updateActionButtons();
+                    });
+                });
+            }
+
+            // 渲染事件列表和地图
+            function renderEvents() {
+                const eventList = document.getElementById('event-list');
+                const mapContainer = document.getElementById('map-container');
+                const priorityFilter = document.getElementById('event-priority-filter').value;
+                const statusFilter = document.getElementById('event-status-filter').value;
+                const searchQuery = document.getElementById('event-search').value.toLowerCase();
+
+                let filteredEvents = events.filter(event => {
+                    const matchesPriority = priorityFilter === 'all' || event.priority === priorityFilter;
+                    const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
+                    const matchesSearch = event.title.toLowerCase().includes(searchQuery) || 
+                                        event.description.toLowerCase().includes(searchQuery);
+                    return matchesPriority && matchesStatus && matchesSearch;
+                });
+
+                // 清空地图标记
+                document.querySelectorAll('.event-marker').forEach(marker => marker.remove());
+
+                // 添加地图标记
+                filteredEvents.forEach(event => {
+                    const marker = document.createElement('div');
+                    marker.className = 'event-marker';
+                    marker.dataset.eventId = event.id;
+                    marker.style.left = `${event.location.x}%`;
+                    marker.style.top = `${event.location.y}%`;
+                    marker.title = event.title;
+                    mapContainer.appendChild(marker);
+                });
+
+                if (filteredEvents.length === 0) {
+                    eventList.innerHTML = `
+                        <div class="no-results">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#86868B"/>
+                                <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#86868B"/>
+                                <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="#86868B"/>
+                            </svg>
+                            <p>没有找到匹配的事件</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                eventList.innerHTML = '';
+                filteredEvents.forEach(event => {
+                    const eventItem = document.createElement('div');
+                    eventItem.className = 'event-item';
+                    eventItem.dataset.id = event.id;
+                    eventItem.innerHTML = `
+                        <div class="event-item-title">
+                            <span>${event.title}</span>
+                            <span class="status-badge ${event.priority === 'high' ? 'status-urgent' : event.priority === 'medium' ? 'status-warning' : 'status-pending'}">
+                                ${event.priority === 'high' ? '高优先级' : event.priority === 'medium' ? '中优先级' : '低优先级'}
+                            </span>
+                        </div>
+                        <div class="event-item-details">
+                            <div class="detail-item">
+                                <span>状态:</span>
+                                <span>${event.status === 'pending' ? '待处理' : event.status === 'processing' ? '处理中' : '已解决'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>已分配资源:</span>
+                                <span>${event.assignedResources.length}个</span>
+                            </div>
+                        </div>
+                        <div class="event-description" style="margin-top:8px;font-size:14px;color:var(--text-secondary)">
+                            ${event.description}
+                        </div>
+                    `;
+                    eventList.appendChild(eventItem);
+                });
+
+                // 添加点击事件
+                document.querySelectorAll('.event-item, .event-marker').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const eventId = this.dataset.eventId || this.dataset.id;
+                        document.querySelectorAll('.event-item, .event-marker').forEach(el => {
+                            if ((el.dataset.eventId || el.dataset.id) === eventId) {
+                                el.classList.toggle('selected');
+                            } else {
+                                el.classList.remove('selected');
+                            }
+                        });
+                        updateActionButtons();
+                    });
+                });
+            }
+
+            // 获取类型名称
+            function getTypeName(type) {
+                const types = {
+                    'equipment': '设备',
+                    'personnel': '人员',
+                    'vehicle': '车辆',
+                    'material': '物资'
+                };
+                return types[type] || type;
+            }
+
+            // 更新操作按钮状态
+            function updateActionButtons() {
+                const selectedResources = document.querySelectorAll('.resource-item.selected');
+                const selectedEvents = document.querySelectorAll('.event-item.selected, .event-marker.selected');
+                
+                document.getElementById('dispatch-btn').disabled = !(selectedResources.length > 0 && selectedEvents.length > 0);
+                document.getElementById('release-btn').disabled = !(selectedResources.length > 0);
+            }
+
+            // 调度资源
+            function dispatchResources() {
+                const selectedResourceIds = Array.from(document.querySelectorAll('.resource-item.selected')).map(el => el.dataset.id);
+                const selectedEventIds = Array.from(document.querySelectorAll('.event-item.selected, .event-marker.selected')).map(el => el.dataset.eventId || el.dataset.id);
+
+                if (selectedResourceIds.length === 0 || selectedEventIds.length === 0) return;
+
+                selectedEventIds.forEach(eventId => {
+                    const event = events.find(e => e.id === eventId);
+                    if (event) {
+                        selectedResourceIds.forEach(resourceId => {
+                            if (!event.assignedResources.includes(resourceId)) {
+                                event.assignedResources.push(resourceId);
+                            }
+                        });
+                    }
+                });
+
+                selectedResourceIds.forEach(resourceId => {
+                    const resource = resources.find(r => r.id === resourceId);
+                    if (resource) {
+                        resource.status = 'dispatched';
+                    }
+                });
+
+                saveData();
+                renderResources();
+                renderEvents();
+                clearSelection();
+            }
+
+            // 解除调度
+            function releaseResources() {
+                const selectedResourceIds = Array.from(document.querySelectorAll('.resource-item.selected')).map(el => el.dataset.id);
+                if (selectedResourceIds.length === 0) return;
+
+                // 从所有事件中移除选中的资源
+                events.forEach(event => {
+                    event.assignedResources = event.assignedResources.filter(id => !selectedResourceIds.includes(id));
+                });
+
+                // 更新资源状态
+                selectedResourceIds.forEach(resourceId => {
+                    const resource = resources.find(r => r.id === resourceId);
+                    if (resource) {
+                        resource.status = 'available';
+                    }
+                });
+
+                saveData();
+                renderResources();
+                renderEvents();
+                clearSelection();
+            }
+
+            // 清除选择
+            function clearSelection() {
+                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                updateActionButtons();
+            }
+
+            // 初始化事件监听器
+            function initEventListeners() {
+                // 资源筛选
+                document.getElementById('resource-type-filter').addEventListener('change', renderResources);
+                document.getElementById('resource-status-filter').addEventListener('change', renderResources);
+                document.getElementById('resource-search').addEventListener('input', renderResources);
+
+                // 事件筛选
+                document.getElementById('event-priority-filter').addEventListener('change', renderEvents);
+                document.getElementById('event-status-filter').addEventListener('change', renderEvents);
+                document.getElementById('event-search').addEventListener('input', renderEvents);
+
+                // 按钮
+                document.getElementById('dispatch-btn').addEventListener('click', dispatchResources);
+                document.getElementById('release-btn').addEventListener('click', releaseResources);
+                document.getElementById('clear-selection').addEventListener('click', clearSelection);
+            }
+
+            // 初始化
+            loadData();
+            renderResources();
+            renderEvents();
+            initEventListeners();
+            updateActionButtons();
+        });
+    </script>
+</body>
+</html>

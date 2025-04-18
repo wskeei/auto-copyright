@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强迫症认知行为治疗训练系统 - 心理教育</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --light-text: #86868b;
+            --border-radius: 12px;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 8px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--light-text);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--light-text);
+            margin-bottom: 30px;
+            max-width: 700px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-link {
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .sidebar-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-icon {
+            margin-right: 10px;
+        }
+
+        .section-content {
+            line-height: 1.7;
+        }
+
+        .section-content p {
+            margin-bottom: 15px;
+        }
+
+        .image-container {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .edu-image {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .image-caption {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--light-text);
+            text-align: center;
+        }
+
+        .info-box {
+            background-color: rgba(0, 113, 227, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 25px 0;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .step-list {
+            list-style-type: none;
+            counter-reset: step-counter;
+            margin: 20px 0;
+        }
+
+        .step-item {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .step-item:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .dropdown {
+            margin: 25px 0;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .dropdown-header {
+            background-color: var(--card-color);
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .dropdown-header:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .dropdown-icon {
+            transition: transform 0.2s;
+        }
+
+        .dropdown-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            background-color: var(--card-color);
+            border-top: 1px solid transparent;
+        }
+
+        .dropdown.active .dropdown-content {
+            max-height: 500px;
+            padding: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dropdown.active .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        .select-group {
+            margin: 25px 0;
+        }
+
+        .select-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            background-color: var(--card-color);
+            font-size: 15px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px 0;
+            color: var(--light-text);
+            font-size: 14px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">OCD</div>
+                <div class="logo-text">认知行为治疗训练系统</div>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link">仪表盘</a>
+                <a href="#" class="nav-link">训练记录</a>
+                <a href="#" class="nav-link active">心理教育</a>
+                <a href="#" class="nav-link">治疗工具</a>
+                <a href="#" class="nav-link">进度分析</a>
+            </nav>
+            <div class="user-profile">
+                <div class="user-avatar">张</div>
+            </div>
+        </header>
+
+        <h1 class="page-title">心理教育</h1>
+        <p class="page-subtitle">了解强迫症的本质、认知行为疗法的原理以及暴露与反应阻止(ERP)的治疗机制，这些知识将帮助您更好地参与治疗过程。</p>
+
+        <div class="content-grid">
+            <aside class="sidebar">
+                <h3 class="sidebar-title">教育内容</h3>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a href="#what-is-ocd" class="sidebar-link active">
+                            <span class="sidebar-icon">📌</span>
+                            <span>什么是强迫症</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#cbt-principle" class="sidebar-link">
+                            <span class="sidebar-icon">🧠</span>
+                            <span>CBT治疗原理</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#erp-mechanism" class="sidebar-link">
+                            <span class="sidebar-icon">🔄</span>
+                            <span>ERP作用机制</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#cycle-model" class="sidebar-link">
+                            <span class="sidebar-icon">🔄</span>
+                            <span>强迫思维与行为循环</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#treatment-goals" class="sidebar-link">
+                            <span class="sidebar-icon">🎯</span>
+                            <span>治疗目标</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#common-myths" class="sidebar-link">
+                            <span class="sidebar-icon">❓</span>
+                            <span>常见误区</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#self-help" class="sidebar-link">
+                            <span class="sidebar-icon">🛠️</span>
+                            <span>自助策略</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="select-group">
+                    <label for="content-level" class="select-label">内容难度</label>
+                    <select id="content-level" class="select-box">
+                        <option value="beginner">初级 - 基础概念</option>
+                        <option value="intermediate" selected>中级 - 详细解释</option>
+                        <option value="advanced">高级 - 专业深入</option>
+                    </select>
+                </div>
+
+                <div class="select-group">
+                    <label for="content-language" class="select-label">语言偏好</label>
+                    <select id="content-language" class="select-box">
+                        <option value="zh" selected>简体中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <section id="what-is-ocd" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📌</span>
+                        什么是强迫症(OCD)
+                    </h2>
+                    <div class="section-content">
+                        <p>强迫症(Obsessive-Compulsive Disorder, OCD)是一种常见的精神障碍，其特征是反复出现的强迫思维(obsessions)和/或强迫行为(compulsions)。强迫思维是指不受欢迎的、侵入性的想法、图像或冲动，它们会引起显著的焦虑或痛苦。强迫行为则是患者感到被驱使去执行的重复行为或心理活动，通常是为了减少由强迫思维引起的焦虑或防止某些可怕的事件或情况发生。</p>
+                        
+                        <div class="image-container">
+                            <img src="https://via.placeholder.com/800x400/0071e3/ffffff?text=OCD+症状表现" alt="强迫症症状表现" class="edu-image">
+                            <p class="image-caption">强迫症的常见症状表现示意图</p>
+                        </div>
+
+                        <div class="dropdown">
+                            <div class="dropdown-header">
+                                <span>常见强迫思维类型</span>
+                                <span class="dropdown-icon">▼</span>
+                            </div>
+                            <div class="dropdown-content">
+                                <ul class="step-list">
+                                    <li class="step-item">污染恐惧：过度担心被细菌、病毒或化学物质污染</li>
+                                    <li class="step-item">伤害恐惧：害怕自己会伤害他人或自己</li>
+                                    <li class="step-item">对称与精确：对物品排列、对称性或精确性的过度需求</li>
+                                    <li class="step-item">禁忌想法：关于宗教、性或暴力的不想要的侵入性想法</li>
+                                    <li class="step-item">囤积：难以丢弃物品，即使它们没有实际价值</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="dropdown">
+                            <div class="dropdown-header">
+                                <span>常见强迫行为类型</span>
+                                <span class="dropdown-icon">▼</span>
+                            </div>
+                            <div class="dropdown-content">
+                                <ul class="step-list">
+                                    <li class="step-item">清洗与清洁：过度洗手、洗澡或清洁物品</li>
+                                    <li class="step-item">检查：反复检查门锁、电器或自己的行为</li>
+                                    <li class="step-item">计数：以特定方式计数或重复动作特定次数</li>
+                                    <li class="step-item">排序与整理：按照严格的规则排列物品</li>
+                                    <li class="step-item">心理仪式：在头脑中重复特定的词语、祈祷或图像</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="cbt-principle" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🧠</span>
+                        认知行为疗法(CBT)原理
+                    </h2>
+                    <div class="section-content">
+                        <p>认知行为疗法(Cognitive Behavioral Therapy, CBT)是一种结构化的、目标导向的心理治疗方法，被证明对强迫症特别有效。CBT基于这样一个理念：我们的思想、情感和行为是相互关联的，改变不健康的思维模式和行为可以改善情绪状态和生活质量。</p>
+                        
+                        <div class="info-box">
+                            <div class="info-title">CBT治疗强迫症的两个核心组成部分</div>
+                            <p>1. <strong>认知疗法</strong>：帮助患者识别和挑战与强迫思维相关的不合理信念和认知扭曲。</p>
+                            <p>2. <strong>行为疗法</strong>：主要是暴露与反应阻止(ERP)，帮助患者逐步面对恐惧而不执行强迫行为。</p>
+                        </div>
+
+                        <h3 style="margin: 20px 0 15px; font-size: 18px; color: var(--primary-color);">CBT如何改变大脑</h3>
+                        <p>研究表明，CBT不仅能改善症状，还能改变大脑活动模式。通过重复的认知和行为练习，患者可以建立新的神经通路，逐渐削弱强迫思维与焦虑之间的自动联系，增强前额叶皮层对情绪反应的调节能力。</p>
+                    </div>
+                </section>
+
+                <section id="erp-mechanism" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🔄</span>
+                        暴露与反应阻止(ERP)作用机制
+                    </h2>
+                    <div class="section-content">
+                        <p>暴露与反应阻止(Exposure and Response Prevention, ERP)是CBT中专门用于治疗强迫症的黄金标准方法。ERP包括两个关键部分：</p>
+                        
+                        <ul class="step-list">
+                            <li class="step-item"><strong>暴露</strong>：有意识地、逐步地接触引发强迫思维的情境或刺激</li>
+                            <li class="step-item"><strong>反应阻止</strong>：抵制执行强迫行为的冲动，学会忍受不适感</li>
+                        </ul>
+
+                        <div class="image-container">
+                            <img src="https://via.placeholder.com/800x400/2997ff/ffffff?text=ERP+治疗机制" alt="ERP治疗机制" class="edu-image">
+                            <p class="image-caption">ERP治疗强迫症的作用机制示意图</p>
+                        </div>
+
+                        <p>通过反复的ERP练习，患者会经历一个称为"习惯化"的过程。最初，暴露于恐惧情境会引发焦虑，但随着时间推移和重复暴露而不执行强迫行为，焦虑会自然减轻。这一过程帮助大脑学习到：</p>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">恐惧情境实际上并不像想象的那样危险</li>
+                            <li class="step-item">即使不执行强迫行为，焦虑也会自行消退</li>
+                            <li class="step-item">能够忍受不适感而不被它控制</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="cycle-model" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🔄</span>
+                        强迫思维与行为的循环
+                    </h2>
+                    <div class="section-content">
+                        <p>强迫症维持的关键在于强迫思维与强迫行为之间形成的恶性循环。理解这一循环是打破它的第一步。</p>
+                        
+                        <div class="info-box">
+                            <div class="info-title">强迫症循环的四个阶段</div>
+                            <ol class="step-list">
+                                <li class="step-item"><strong>触发因素</strong>：引发强迫思维的内外部刺激</li>
+                                <li class="step-item"><strong>强迫思维</strong>：侵入性的、令人痛苦的想法或冲动</li>
+                                <li class="step-item"><strong>焦虑反应</strong>：强烈的焦虑或不适感</li>
+                                <li class="step-item"><strong>强迫行为</strong>：为减轻焦虑而执行的重复行为或心理活动</li>
+                            </ol>
+                        </div>
+
+                        <p>虽然强迫行为短期内能减轻焦虑，但长期来看却强化了强迫思维与焦虑之间的联系，使循环更加顽固。ERP通过打破这一循环的最后一个环节(强迫行为)，使前三个环节之间的联系逐渐减弱。</p>
+                    </div>
+                </section>
+
+                <section id="treatment-goals" class="section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🎯</span>
+                        治疗目标
+                    </h2>
+                    <div class="section-content">
+                        <p>强迫症治疗的目标不是完全消除强迫思维(因为每个人偶尔都会有侵入性想法)，而是改变对这些思维的反应方式，减少它们对生活的影响。</p>
+                        
+                        <div class="select-group">
+                            <label for="goal-priority" class="select-label">您的首要治疗目标</label>
+                            <select id="goal-priority" class="select-box">
+                                <option value="" disabled selected>请选择最关注的方面</option>
+                                <option value="reduce-rituals">减少强迫行为</option>
+                                <option value="manage-anxiety">更好地管理焦虑</option>
+                                <option value="improve-function">改善日常功能</option>
+                                <option value="change-thoughts">改变对强迫思维的反应</option>
+                                <option value="quality-life">提高生活质量</option>
+                            </select>
+                        </div>
+
+                        <h3 style="margin: 20px 0 15px; font-size: 18px; color: var(--primary-color);">具体的治疗目标可能包括</h3>
+                        <ul class="step-list">
+                            <li class="step-item">减少强迫行为的时间和频率</li>
+                            <li class="step-item">提高对不确定性的容忍度</li>
+                            <li class="step-item">改变对侵入性思维的灾难化解释</li>
+                            <li class="step-item">恢复因强迫症而回避的正常活动</li>
+                            <li class="step-item">改善人际关系和社会功能</li>
+                            <li class="step-item">发展更健康的应对策略</li>
+                        </ul>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <footer>
+            <p>强迫症认知行为治疗训练系统 · 版本1.0 · 仅供专业治疗辅助使用</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 下拉菜单交互
+            const dropdowns = document.querySelectorAll('.dropdown-header');
+            dropdowns.forEach(header => {
+                header.addEventListener('click', function() {
+                    const dropdown = this.parentElement;
+                    dropdown.classList.toggle('active');
+                });
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    // 更新活动状态
+                    document.querySelectorAll('.sidebar-link').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // 平滑滚动
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                });
+            });
+
+            // 内容难度选择
+            const contentLevel = document.getElementById('content-level');
+            contentLevel.addEventListener('change', function() {
+                // 实际应用中这里会加载不同难度的内容
+                console.log('内容难度已更改为: ' + this.value);
+            });
+
+            // 语言选择
+            const contentLanguage = document.getElementById('content-language');
+            contentLanguage.addEventListener('change', function() {
+                // 实际应用中这里会切换语言
+                console.log('语言偏好已更改为: ' + this.value);
+            });
+
+            // 治疗目标选择
+            const goalPriority = document.getElementById('goal-priority');
+            goalPriority.addEventListener('change', function() {
+                // 实际应用中这里会根据用户选择调整内容重点
+                console.log('首要治疗目标: ' + this.options[this.selectedIndex].text);
+            });
+        });
+    </script>
+</body>
+</html>

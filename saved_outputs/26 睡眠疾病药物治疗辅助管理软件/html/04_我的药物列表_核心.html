@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠药物管理</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c3;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .medication-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .medication-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .medication-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .medication-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .medication-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .medication-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inactive {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>我的药物列表</h1>
+            <button class="btn btn-primary" id="addMedicationBtn">添加新药物</button>
+        </header>
+
+        <div class="medication-list" id="medicationList">
+            <!-- 药物列表将在这里动态生成 -->
+        </div>
+
+        <div class="modal" id="medicationModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalTitle">添加新药物</h2>
+                    <button class="close-btn" id="closeModalBtn">&times;</button>
+                </div>
+                <form id="medicationForm">
+                    <input type="hidden" id="medicationId">
+                    <div class="form-group">
+                        <label for="name">药物名称</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dosage">剂量</label>
+                        <input type="text" id="dosage" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form">剂型</label>
+                        <select id="form" required>
+                            <option value="">选择剂型</option>
+                            <option value="片剂">片剂</option>
+                            <option value="胶囊">胶囊</option>
+                            <option value="口服液">口服液</option>
+                            <option value="注射剂">注射剂</option>
+                            <option value="贴剂">贴剂</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="frequency">服用频率</label>
+                        <select id="frequency" required>
+                            <option value="">选择服用频率</option>
+                            <option value="每晚一次">每晚一次</option>
+                            <option value="每日两次">每日两次</option>
+                            <option value="每日三次">每日三次</option>
+                            <option value="按需服用">按需服用</option>
+                            <option value="每周一次">每周一次</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addMedicationBtn = document.getElementById('addMedicationBtn');
+            const medicationModal = document.getElementById('medicationModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const medicationForm = document.getElementById('medicationForm');
+            const medicationList = document.getElementById('medicationList');
+            
+            let medications = JSON.parse(localStorage.getItem('medications')) || [];
+            let isEditing = false;
+            let currentEditId = null;
+
+            function renderMedications() {
+                if (medications.length === 0) {
+                    medicationList.innerHTML = '<div class="empty-state">暂无药物记录，点击"添加新药物"开始记录</div>';
+                    return;
+                }
+
+                medicationList.innerHTML = '';
+                medications.forEach(med => {
+                    const card = document.createElement('div');
+                    card.className = 'medication-card';
+                    card.innerHTML = `
+                        <div class="medication-header">
+                            <div class="medication-name">${med.name}</div>
+                            <span class="status-badge ${med.active ? 'status-active' : 'status-inactive'}">
+                                ${med.active ? '使用中' : '已停用'}
+                            </span>
+                        </div>
+                        <div class="medication-details">
+                            <div class="detail-item">
+                                <span class="detail-label">剂量</span>
+                                <span class="detail-value">${med.dosage}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">剂型</span>
+                                <span class="detail-value">${med.form}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">服用频率</span>
+                                <span class="detail-value">${med.frequency}</span>
+                            </div>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="action-btn edit-btn" data-id="${med.id}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="action-btn delete-btn" data-id="${med.id}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    medicationList.appendChild(card);
+                });
+
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', handleEdit);
+                });
+
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', handleDelete);
+                });
+            }
+
+            function openModal() {
+                medicationModal.classList.add('active');
+            }
+
+            function closeModal() {
+                medicationModal.classList.remove('active');
+                medicationForm.reset();
+                isEditing = false;
+                currentEditId = null;
+                document.getElementById('modalTitle').textContent = '添加新药物';
+            }
+
+            function handleAdd() {
+                openModal();
+            }
+
+            function handleEdit(e) {
+                const id = e.currentTarget.getAttribute('data-id');
+                const med = medications.find(m => m.id === id);
+                
+                if (med) {
+                    isEditing = true;
+                    currentEditId = id;
+                    document.getElementById('modalTitle').textContent = '编辑药物信息';
+                    document.getElementById('medicationId').value = med.id;
+                    document.getElementById('name').value = med.name;
+                    document.getElementById('dosage').value = med.dosage;
+                    document.getElementById('form').value = med.form;
+                    document.getElementById('frequency').value = med.frequency;
+                    openModal();
+                }
+            }
+
+            function handleDelete(e) {
+                const id = e.currentTarget.getAttribute('data-id');
+                const index = medications.findIndex(m => m.id === id);
+                
+                if (index !== -1) {
+                    medications[index].active = false;
+                    localStorage.setItem('medications', JSON.stringify(medications));
+                    renderMedications();
+                }
+            }
+
+            function handleSubmit(e) {
+                e.preventDefault();
+                
+                const id = document.getElementById('medicationId').value || Date.now().toString();
+                const name = document.getElementById('name').value;
+                const dosage = document.getElementById('dosage').value;
+                const form = document.getElementById('form').value;
+                const frequency = document.getElementById('frequency').value;
+                
+                const medication = {
+                    id,
+                    name,
+                    dosage,
+                    form,
+                    frequency,
+                    active: true
+                };
+                
+                if (isEditing) {
+                    const index = medications.findIndex(m => m.id === currentEditId);
+                    if (index !== -1) {
+                        medications[index] = medication;
+                    }
+                } else {
+                    medications.push(medication);
+                }
+                
+                localStorage.setItem('medications', JSON.stringify(medications));
+                renderMedications();
+                closeModal();
+            }
+
+            addMedicationBtn.addEventListener('click', handleAdd);
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            medicationForm.addEventListener('submit', handleSubmit);
+
+            renderMedications();
+        });
+    </script>
+</body>
+</html>

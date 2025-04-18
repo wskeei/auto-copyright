@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强迫症认知行为治疗训练系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title-icon {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            background-color: #fafafa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: white;
+        }
+
+        .select-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062b3;
+        }
+
+        .btn-secondary {
+            background-color: #e8e8ed;
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d8d8dc;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background-color: #f9f9f9;
+        }
+
+        .table tr:hover {
+            background-color: #f5f5f7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background-color: #e6f2ff;
+            color: var(--primary-color);
+        }
+
+        .badge-secondary {
+            background-color: #f2f2f7;
+            color: var(--text-secondary);
+        }
+
+        .progress-container {
+            margin-top: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .tab-container {
+            margin-bottom: 25px;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-info {
+            background-color: #e6f2ff;
+            color: var(--primary-color);
+        }
+
+        .alert-icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .suds-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .suds-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .plan-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        .plan-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .plan-item-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .plan-item-suds {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .plan-item-content {
+            margin-top: 10px;
+        }
+
+        .plan-item-detail {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .plan-item-detail strong {
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #d2d2d7;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">OCD</div>
+                <div class="logo-text">强迫症认知行为治疗训练系统</div>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">U</div>
+            </div>
+        </header>
+
+        <h1 class="main-title">ERP 计划制定</h1>
+        <p class="subtitle">基于您的恐惧等级阶梯，制定循序渐进的暴露与反应预防计划</p>
+
+        <div class="tab-container">
+            <div class="tab-header">
+                <div class="tab-item active" data-tab="plan">制定计划</div>
+                <div class="tab-item" data-tab="history">历史计划</div>
+                <div class="tab-item" data-tab="progress">治疗进展</div>
+            </div>
+        </div>
+
+        <div class="tab-content active" id="plan-tab">
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="card-title-icon">📝</span>
+                    新建 ERP 计划
+                </h2>
+
+                <div class="form-group">
+                    <label class="form-label">选择恐惧项目</label>
+                    <select class="form-control select-control" id="fear-item">
+                        <option value="">-- 请选择恐惧项目 --</option>
+                        <option value="1">触摸公共门把手</option>
+                        <option value="2">不洗手吃饭</option>
+                        <option value="3">不检查门锁离开家</option>
+                        <option value="4">使用公共厕所</option>
+                        <option value="5">不整理书桌工作</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">SUDS 评分 (0-100)</label>
+                    <input type="range" class="suds-slider" id="suds-rating" min="0" max="100" value="30">
+                    <div class="suds-labels">
+                        <span>0 (无焦虑)</span>
+                        <span>50 (中度焦虑)</span>
+                        <span>100 (极度焦虑)</span>
+                    </div>
+                    <div class="progress-text">
+                        <span>当前评分: <span id="suds-value">30</span></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">暴露任务目标</label>
+                    <textarea class="form-control" id="exposure-goal" rows="3" placeholder="描述具体的暴露任务，例如：触摸公共门把手后不洗手，持续30分钟"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">暴露持续时间</label>
+                    <select class="form-control select-control" id="exposure-duration">
+                        <option value="5">5分钟</option>
+                        <option value="10">10分钟</option>
+                        <option value="15">15分钟</option>
+                        <option value="30" selected>30分钟</option>
+                        <option value="60">1小时</option>
+                        <option value="120">2小时</option>
+                        <option value="240">4小时</option>
+                        <option value="480">8小时</option>
+                        <option value="1440">24小时</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">反应阻止规则</label>
+                    <textarea class="form-control" id="prevention-rule" rows="3" placeholder="描述需要阻止的强迫行为，例如：不洗手、不检查、不重复确认等"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">计划执行日期</label>
+                    <input type="date" class="form-control" id="plan-date">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="save-plan">保存计划</button>
+                    <button class="btn btn-secondary" id="clear-form">清空表单</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="history-tab">
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="card-title-icon">📚</span>
+                    历史 ERP 计划
+                </h2>
+
+                <div id="plans-container">
+                    <div class="empty-state" id="empty-plans">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-text">暂无保存的 ERP 计划</div>
+                        <button class="btn btn-primary" id="create-new-plan">创建新计划</button>
+                    </div>
+
+                    <div id="plans-list" class="hidden">
+                        <div class="plan-item">
+                            <div class="plan-item-header">
+                                <div class="plan-item-title">触摸公共门把手</div>
+                                <div class="plan-item-suds">SUDS: 40</div>
+                            </div>
+                            <div class="plan-item-content">
+                                <div class="plan-item-detail"><strong>暴露目标:</strong> 触摸公共门把手后不洗手，持续30分钟</div>
+                                <div class="plan-item-detail"><strong>反应阻止:</strong> 不洗手、不消毒、不反复检查</div>
+                                <div class="plan-item-detail"><strong>计划日期:</strong> 2024-06-15</div>
+                            </div>
+                        </div>
+
+                        <div class="plan-item">
+                            <div class="plan-item-header">
+                                <div class="plan-item-title">不检查门锁离开家</div>
+                                <div class="plan-item-suds">SUDS: 60</div>
+                            </div>
+                            <div class="plan-item-content">
+                                <div class="plan-item-detail"><strong>暴露目标:</strong> 离开家时只检查门锁一次，然后直接离开</div>
+                                <div class="plan-item-detail"><strong>反应阻止:</strong> 不反复检查、不返回确认</div>
+                                <div class="plan-item-detail"><strong>计划日期:</strong> 2024-06-20</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="progress-tab">
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="card-title-icon">📊</span>
+                    治疗进展
+                </h2>
+
+                <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    您的治疗进展将根据完成的 ERP 计划自动计算和更新
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>总体进展</span>
+                        <span>25%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>低焦虑项目 (SUDS 0-30)</span>
+                        <span>40%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 40%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>中焦虑项目 (SUDS 31-60)</span>
+                        <span>15%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 15%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>高焦虑项目 (SUDS 61-100)</span>
+                        <span>0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabItems = document.querySelectorAll('.tab-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const sudsSlider = document.getElementById('suds-rating');
+            const sudsValue = document.getElementById('suds-value');
+            const savePlanBtn = document.getElementById('save-plan');
+            const clearFormBtn = document.getElementById('clear-form');
+            const createNewPlanBtn = document.getElementById('create-new-plan');
+            const plansList = document.getElementById('plans-list');
+            const emptyPlans = document.getElementById('empty-plans');
+            const fearItemSelect = document.getElementById('fear-item');
+            const exposureGoal = document.getElementById('exposure-goal');
+            const preventionRule = document.getElementById('prevention-rule');
+            const planDate = document.getElementById('plan-date');
+            const exposureDuration = document.getElementById('exposure-duration');
+
+            tabItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabItems.forEach(tab => tab.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                });
+            });
+
+            sudsSlider.addEventListener('input', function() {
+                sudsValue.textContent = this.value;
+            });
+
+            clearFormBtn.addEventListener('click', function() {
+                fearItemSelect.value = '';
+                sudsSlider.value = 30;
+                sudsValue.textContent = '30';
+                exposureGoal.value = '';
+                preventionRule.value = '';
+                planDate.value = '';
+                exposureDuration.value = '30';
+            });
+
+            createNewPlanBtn.addEventListener('click', function() {
+                tabItems.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                document.querySelector('.tab-item[data-tab="plan"]').classList.add('active');
+                document.getElementById('plan-tab').classList.add('active');
+            });
+
+            savePlanBtn.addEventListener('click', function() {
+                const fearItem = fearItemSelect.value;
+                const sudsRating = sudsSlider.value;
+                const goal = exposureGoal.value;
+                const rule = preventionRule.value;
+                const date = planDate.value;
+                const duration = exposureDuration.value;
+
+                if (!fearItem || !goal || !rule || !date) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+
+                const fearItemText = fearItemSelect.options[fearItemSelect.selectedIndex].text;
+                
+                const plans = JSON.parse(localStorage.getItem('erpPlans')) || [];
+                plans.push({
+                    fearItem: fearItemText,
+                    sudsRating,
+                    goal,
+                    rule,
+                    date,
+                    duration
+                });
+                
+                localStorage.setItem('erpPlans', JSON.stringify(plans));
+                
+                alert('计划已保存');
+                clearFormBtn.click();
+                
+                if (plans.length > 0) {
+                    emptyPlans.classList.add('hidden');
+                    plansList.classList.remove('hidden');
+                }
+            });
+
+            if (!localStorage.getItem('erpPlans')) {
+                localStorage.setItem('erpPlans', JSON.stringify([
+                    {
+                        fearItem: "触摸公共门把手",
+                        sudsRating: "40",
+                        goal: "触摸公共门把手后不洗手，持续30分钟",
+                        rule: "不洗手、不消毒、不反复检查",
+                        date: "2024-06-15",
+                        duration: "30"
+                    },
+                    {
+                        fearItem: "不检查门锁离开家",
+                        sudsRating: "60",
+                        goal: "离开家时只检查门锁一次，然后直接离开",
+                        rule: "不反复检查、不返回确认",
+                        date: "2024-06-20",
+                        duration: "60"
+                    }
+                ]));
+            }
+
+            const storedPlans = JSON.parse(localStorage.getItem('erpPlans'));
+            if (storedPlans && storedPlans.length > 0) {
+                emptyPlans.classList.add('hidden');
+                plansList.classList.remove('hidden');
+            }
+
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            planDate.value = `${year}-${month}-${day}`;
+            planDate.min = `${year}-${month}-${day}`;
+        });
+    </script>
+</body>
+</html>

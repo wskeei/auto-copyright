@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备分组管理</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-light: #f5f5f7;
+            --background-dark: #1d1d1f;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --card-bg: #ffffff;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-light);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .group-list {
+            list-style: none;
+        }
+
+        .group-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .group-item:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .group-item.active {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .group-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .group-icon:hover {
+            opacity: 1;
+        }
+
+        .content-area {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-box {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 200px;
+            font-size: 14px;
+        }
+
+        .select-box {
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .device-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .device-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .device-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .device-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #34c759;
+            margin-right: 5px;
+        }
+
+        .device-status.offline {
+            background-color: #ff3b30;
+        }
+
+        .device-meta {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .device-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 400px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        .drag-handle {
+            cursor: move;
+            opacity: 0.5;
+            margin-right: 8px;
+        }
+
+        .drag-handle:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>设备分组管理</h1>
+            <div class="header-actions">
+                <button class="btn btn-outline">导出配置</button>
+                <button class="btn btn-primary" id="addGroupBtn">新建分组</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>分组列表</h2>
+                </div>
+                <ul class="group-list" id="groupList">
+                    <!-- 分组列表将通过JS动态生成 -->
+                </ul>
+            </div>
+
+            <div class="content-area">
+                <div class="content-header">
+                    <h2 id="currentGroupTitle">所有设备</h2>
+                    <div class="search-filter">
+                        <select class="select-box" id="statusFilter">
+                            <option value="all">所有状态</option>
+                            <option value="online">在线</option>
+                            <option value="offline">离线</option>
+                        </select>
+                        <input type="text" class="search-box" placeholder="搜索设备...">
+                    </div>
+                </div>
+
+                <div class="device-grid" id="deviceGrid">
+                    <!-- 设备列表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑分组模态框 -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">新建分组</h2>
+                <span class="modal-close" id="closeModal">&times;</span>
+            </div>
+            <form id="groupForm">
+                <div class="form-group">
+                    <label for="groupName" class="form-label">分组名称</label>
+                    <input type="text" id="groupName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription" class="form-label">分组描述</label>
+                    <textarea id="groupDescription" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelGroup">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化数据
+            let groups = JSON.parse(localStorage.getItem('deviceGroups')) || [
+                { id: 'group1', name: '客厅', description: '客厅内的所有设备', devices: ['device1', 'device3'] },
+                { id: 'group2', name: '卧室', description: '卧室内的所有设备', devices: ['device2', 'device4'] },
+                { id: 'group3', name: '照明', description: '所有照明设备', devices: ['device1', 'device2'] }
+            ];
+
+            let devices = JSON.parse(localStorage.getItem('devices')) || [
+                { id: 'device1', name: '客厅顶灯', type: 'light', status: 'online', ip: '192.168.1.101' },
+                { id: 'device2', name: '卧室台灯', type: 'light', status: 'online', ip: '192.168.1.102' },
+                { id: 'device3', name: '客厅空调', type: 'ac', status: 'offline', ip: '192.168.1.103' },
+                { id: 'device4', name: '卧室窗帘', type: 'curtain', status: 'online', ip: '192.168.1.104' },
+                { id: 'device5', name: '厨房插座', type: 'outlet', status: 'online', ip: '192.168.1.105' }
+            ];
+
+            let currentGroupId = null;
+            let editingGroupId = null;
+
+            // DOM元素
+            const groupListEl = document.getElementById('groupList');
+            const deviceGridEl = document.getElementById('deviceGrid');
+            const currentGroupTitleEl = document.getElementById('currentGroupTitle');
+            const statusFilterEl = document.getElementById('statusFilter');
+            const groupModalEl = document.getElementById('groupModal');
+            const groupFormEl = document.getElementById('groupForm');
+            const groupNameEl = document.getElementById('groupName');
+            const groupDescriptionEl = document.getElementById('groupDescription');
+            const modalTitleEl = document.getElementById('modalTitle');
+            const addGroupBtn = document.getElementById('addGroupBtn');
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelGroupBtn = document.getElementById('cancelGroup');
+
+            // 渲染分组列表
+            function renderGroupList() {
+                groupListEl.innerHTML = '';
+                
+                // 添加"所有设备"项
+                const allItem = document.createElement('li');
+                allItem.className = `group-item ${!currentGroupId ? 'active' : ''}`;
+                allItem.innerHTML = `
+                    <span>所有设备</span>
+                `;
+                allItem.addEventListener('click', () => {
+                    currentGroupId = null;
+                    renderGroupList();
+                    renderDeviceList();
+                });
+                groupListEl.appendChild(allItem);
+
+                // 添加分组项
+                groups.forEach(group => {
+                    const groupItem = document.createElement('li');
+                    groupItem.className = `group-item ${currentGroupId === group.id ? 'active' : ''}`;
+                    groupItem.dataset.id = group.id;
+                    groupItem.innerHTML = `
+                        <span>${group.name}</span>
+                        <div class="group-actions">
+                            <span class="group-icon edit-group">✏️</span>
+                            <span class="group-icon delete-group">🗑️</span>
+                        </div>
+                    `;
+
+                    groupItem.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('group-icon')) {
+                            currentGroupId = group.id;
+                            renderGroupList();
+                            renderDeviceList();
+                        }
+                    });
+
+                    groupListEl.appendChild(groupItem);
+                });
+
+                // 添加编辑和删除事件
+                document.querySelectorAll('.edit-group').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const groupId = e.target.closest('.group-item').dataset.id;
+                        editGroup(groupId);
+                    });
+                });
+
+                document.querySelectorAll('.delete-group').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const groupId = e.target.closest('.group-item').dataset.id;
+                        deleteGroup(groupId);
+                    });
+                });
+            }
+
+            // 渲染设备列表
+            function renderDeviceList() {
+                deviceGridEl.innerHTML = '';
+                
+                let filteredDevices = [...devices];
+                
+                // 按分组筛选
+                if (currentGroupId) {
+                    const group = groups.find(g => g.id === currentGroupId);
+                    filteredDevices = filteredDevices.filter(device => group.devices.includes(device.id));
+                    currentGroupTitleEl.textContent = group.name;
+                } else {
+                    currentGroupTitleEl.textContent = '所有设备';
+                }
+                
+                // 按状态筛选
+                const statusFilter = statusFilterEl.value;
+                if (statusFilter !== 'all') {
+                    filteredDevices = filteredDevices.filter(device => device.status === statusFilter);
+                }
+                
+                if (filteredDevices.length === 0) {
+                    deviceGridEl.innerHTML = '<div class="empty-state">没有找到设备</div>';
+                    return;
+                }
+                
+                filteredDevices.forEach(device => {
+                    const isInGroup = currentGroupId ? 
+                        groups.find(g => g.id === currentGroupId).devices.includes(device.id) : false;
+                    
+                    const deviceCard = document.createElement('div');
+                    deviceCard.className = 'device-card';
+                    deviceCard.dataset.id = device.id;
+                    deviceCard.innerHTML = `
+                        <div class="device-header">
+                            <div class="device-name">
+                                <span class="device-status ${device.status === 'offline' ? 'offline' : ''}"></span>
+                                ${device.name}
+                            </div>
+                        </div>
+                        <div class="device-meta">
+                            <div>类型: ${getDeviceTypeName(device.type)}</div>
+                            <div>IP: ${device.ip}</div>
+                        </div>
+                        <div class="device-actions">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="assign-${device.id}" ${isInGroup ? 'checked' : ''}>
+                                <label for="assign-${device.id}">分配到当前分组</label>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const checkbox = deviceCard.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', (e) => {
+                        toggleDeviceInGroup(device.id, e.target.checked);
+                    });
+                    
+                    deviceGridEl.appendChild(deviceCard);
+                });
+            }
+
+            // 获取设备类型名称
+            function getDeviceTypeName(type) {
+                const typeNames = {
+                    'light': '照明',
+                    'ac': '空调',
+                    'curtain': '窗帘',
+                    'outlet': '插座'
+                };
+                return typeNames[type] || type;
+            }
+
+            // 切换设备在分组中的状态
+            function toggleDeviceInGroup(deviceId, isInGroup) {
+                if (!currentGroupId) return;
+                
+                const groupIndex = groups.findIndex(g => g.id === currentGroupId);
+                if (groupIndex === -1) return;
+                
+                if (isInGroup) {
+                    if (!groups[groupIndex].devices.includes(deviceId)) {
+                        groups[groupIndex].devices.push(deviceId);
+                    }
+                } else {
+                    groups[groupIndex].devices = groups[groupIndex].devices.filter(id => id !== deviceId);
+                }
+                
+                saveData();
+                renderDeviceList();
+            }
+
+            // 打开新建分组模态框
+            function openAddGroupModal() {
+                editingGroupId = null;
+                modalTitleEl.textContent = '新建分组';
+                groupNameEl.value = '';
+                groupDescriptionEl.value = '';
+                groupModalEl.classList.add('active');
+            }
+
+            // 打开编辑分组模态框
+            function editGroup(groupId) {
+                const group = groups.find(g => g.id === groupId);
+                if (!group) return;
+                
+                editingGroupId = groupId;
+                modalTitleEl.textContent = '编辑分组';
+                groupNameEl.value = group.name;
+                groupDescriptionEl.value = group.description || '';
+                groupModalEl.classList.add('active');
+            }
+
+            // 删除分组
+            function deleteGroup(groupId) {
+                if (confirm('确定要删除这个分组吗？分组内的设备不会被删除。')) {
+                    groups = groups.filter(g => g.id !== groupId);
+                    if (currentGroupId === groupId) {
+                        currentGroupId = null;
+                    }
+                    saveData();
+                    renderGroupList();
+                    renderDeviceList();
+                }
+            }
+
+            // 保存分组
+            function saveGroup(e) {
+                e.preventDefault();
+                
+                const name = groupNameEl.value.trim();
+                const description = groupDescriptionEl.value.trim();
+                
+                if (!name) return;
+                
+                if (editingGroupId) {
+                    // 更新现有分组
+                    const groupIndex = groups.findIndex(g => g.id === editingGroupId);
+                    if (groupIndex !== -1) {
+                        groups[groupIndex].name = name;
+                        groups[groupIndex].description = description;
+                    }
+                } else {
+                    // 创建新分组
+                    const newGroup = {
+                        id: 'group' + Date.now(),
+                        name,
+                        description,
+                        devices: []
+                    };
+                    groups.push(newGroup);
+                }
+                
+                saveData();
+                renderGroupList();
+                closeModal();
+            }
+
+            // 关闭模态框
+            function closeModal() {
+                groupModalEl.classList.remove('active');
+            }
+
+            // 保存数据到LocalStorage
+            function saveData() {
+                localStorage.setItem('deviceGroups', JSON.stringify(groups));
+                localStorage.setItem('devices', JSON.stringify(devices));
+            }
+
+            // 事件监听
+            addGroupBtn.addEventListener('click', openAddGroupModal);
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelGroupBtn.addEventListener('click', closeModal);
+            groupFormEl.addEventListener('submit', saveGroup);
+            statusFilterEl.addEventListener('change', renderDeviceList);
+
+            // 初始渲染
+            renderGroupList();
+            renderDeviceList();
+        });
+    </script>
+</body>
+</html>

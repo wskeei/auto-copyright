@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠障碍干预引导系统 - 课程学习</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .progress-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .module-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .module-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .module-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .module-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .module-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .status-completed {
+            background-color: #d1f7e5;
+            color: #007a5e;
+        }
+
+        .status-current {
+            background-color: #e0f2ff;
+            color: var(--primary-color);
+        }
+
+        .status-pending {
+            background-color: #f2f2f7;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062b3;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .btn-disabled {
+            background-color: #e0e0e0;
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .module-content {
+            display: none;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .content-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .content-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .content-body {
+            margin-bottom: 30px;
+        }
+
+        .content-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .section-text {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .section-image {
+            width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .content-footer {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .checkbox-input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .radio-group {
+            margin-bottom: 15px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .radio-input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .sleep-schedule {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .sleep-time {
+            display: flex;
+            align-items: center;
+        }
+
+        .time-input {
+            width: 80px;
+            margin: 0 10px;
+            text-align: center;
+        }
+
+        .divider {
+            margin: 0 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .modules-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sleep-schedule {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">睡眠障碍干预引导系统</div>
+            <div class="nav">
+                <a href="#" class="nav-item">概览</a>
+                <a href="#" class="nav-item active">课程学习</a>
+                <a href="#" class="nav-item">睡眠记录</a>
+                <a href="#" class="nav-item">个人中心</a>
+            </div>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-header">
+                <div class="progress-title">干预方案进度</div>
+                <div id="progress-percent">25%</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 25%;"></div>
+            </div>
+            <div class="progress-text">已完成 2/8 个模块</div>
+        </div>
+
+        <div class="modules-container">
+            <div class="module-card" data-module="1">
+                <div class="module-header">
+                    <div class="module-icon">1</div>
+                    <div class="module-title">睡眠卫生教育</div>
+                </div>
+                <div class="module-description">
+                    了解影响睡眠质量的各种因素，学习改善睡眠环境的方法。
+                </div>
+                <div class="module-status status-completed">已完成</div>
+                <button class="btn btn-secondary btn-review">复习内容</button>
+            </div>
+
+            <div class="module-card" data-module="2">
+                <div class="module-header">
+                    <div class="module-icon">2</div>
+                    <div class="module-title">睡眠日记记录</div>
+                </div>
+                <div class="module-description">
+                    通过记录睡眠日志，了解自己的睡眠模式和习惯。
+                </div>
+                <div class="module-status status-completed">已完成</div>
+                <button class="btn btn-secondary btn-review">复习内容</button>
+            </div>
+
+            <div class="module-card" data-module="3">
+                <div class="module-header">
+                    <div class="module-icon">3</div>
+                    <div class="module-title">认知重建</div>
+                </div>
+                <div class="module-description">
+                    识别并改变关于睡眠的错误认知和担忧。
+                </div>
+                <div class="module-status status-current">当前模块</div>
+                <button class="btn btn-primary btn-start">开始学习</button>
+            </div>
+
+            <div class="module-card" data-module="4">
+                <div class="module-header">
+                    <div class="module-icon">4</div>
+                    <div class="module-title">放松技巧训练</div>
+                </div>
+                <div class="module-description">
+                    学习渐进性肌肉放松和呼吸技巧来减轻睡前焦虑。
+                </div>
+                <div class="module-status status-pending">待学习</div>
+                <button class="btn btn-secondary btn-disabled" disabled>开始学习</button>
+            </div>
+
+            <div class="module-card" data-module="5">
+                <div class="module-header">
+                    <div class="module-icon">5</div>
+                    <div class="module-title">刺激控制疗法</div>
+                </div>
+                <div class="module-description">
+                    重新建立床与睡眠之间的积极联系，减少卧床觉醒时间。
+                </div>
+                <div class="module-status status-pending">待学习</div>
+                <button class="btn btn-secondary btn-disabled" disabled>开始学习</button>
+            </div>
+
+            <div class="module-card" data-module="6">
+                <div class="module-header">
+                    <div class="module-icon">6</div>
+                    <div class="module-title">睡眠限制疗法</div>
+                </div>
+                <div class="module-description">
+                    通过暂时限制卧床时间来提高睡眠效率。
+                </div>
+                <div class="module-status status-pending">待学习</div>
+                <button class="btn btn-secondary btn-disabled" disabled>开始学习</button>
+            </div>
+
+            <div class="module-card" data-module="7">
+                <div class="module-header">
+                    <div class="module-icon">7</div>
+                    <div class="module-title">预防复发策略</div>
+                </div>
+                <div class="module-description">
+                    学习如何维持改善后的睡眠质量并预防问题复发。
+                </div>
+                <div class="module-status status-pending">待学习</div>
+                <button class="btn btn-secondary btn-disabled" disabled>开始学习</button>
+            </div>
+
+            <div class="module-card" data-module="8">
+                <div class="module-header">
+                    <div class="module-icon">8</div>
+                    <div class="module-title">总结与后续计划</div>
+                </div>
+                <div class="module-description">
+                    回顾学习内容，制定个性化的长期睡眠管理计划。
+                </div>
+                <div class="module-status status-pending">待学习</div>
+                <button class="btn btn-secondary btn-disabled" disabled>开始学习</button>
+            </div>
+        </div>
+
+        <!-- Module 3 Content -->
+        <div class="module-content" id="module-3-content">
+            <div class="content-header">
+                <div class="content-title">认知重建</div>
+                <button class="content-close">&times;</button>
+            </div>
+            <div class="content-body">
+                <div class="content-section">
+                    <div class="section-title">什么是睡眠认知重建？</div>
+                    <div class="section-text">
+                        认知重建是一种心理干预技术，旨在识别和改变那些可能干扰睡眠的消极或不准确的想法和信念。许多失眠患者对睡眠有着不切实际的期望或误解，这些认知扭曲会加剧睡眠问题。
+                    </div>
+                    <img src="https://placeholder.com/800x400" alt="认知重建示意图" class="section-image">
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">常见的睡眠认知扭曲</div>
+                    <div class="section-text">
+                        请阅读以下常见的睡眠相关认知扭曲，并思考您是否有类似的想法：
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox-input">
+                            "我必须每晚睡足8小时，否则第二天会完全无法工作"
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox-input">
+                            "如果今晚睡不好，我的健康会严重受损"
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox-input">
+                            "躺在床上睡不着是在浪费时间"
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" class="checkbox-input">
+                            "我完全无法控制自己的睡眠"
+                        </label>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">认知重建练习</div>
+                    <div class="section-text">
+                        请选择一个您经常出现的消极睡眠想法，并尝试用更现实、更平衡的想法来替代它：
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">消极想法</label>
+                        <input type="text" class="form-control" placeholder="例如：我必须每晚睡足8小时...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">支持这个想法的证据</label>
+                        <textarea class="form-control form-textarea" placeholder="写下支持这个想法的证据..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">反驳这个想法的证据</label>
+                        <textarea class="form-control form-textarea" placeholder="写下反驳这个想法的证据..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">更平衡的替代想法</label>
+                        <textarea class="form-control form-textarea" placeholder="写下更现实、更平衡的想法..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="content-footer">
+                <button class="btn btn-secondary">上一步</button>
+                <button class="btn btn-primary">保存并继续</button>
+            </div>
+        </div>
+
+        <!-- Module 1 Content -->
+        <div class="module-content hidden" id="module-1-content">
+            <div class="content-header">
+                <div class="content-title">睡眠卫生教育</div>
+                <button class="content-close">&times;</button>
+            </div>
+            <div class="content-body">
+                <div class="content-section">
+                    <div class="section-title">什么是良好的睡眠卫生？</div>
+                    <div class="section-text">
+                        睡眠卫生是指一系列有助于促进良好夜间睡眠质量和白天警觉性的习惯和实践。良好的睡眠卫生可以帮助您更容易入睡并保持睡眠状态。
+                    </div>
+                    <img src="https://placeholder.com/800x400" alt="睡眠卫生示意图" class="section-image">
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">睡眠卫生建议</div>
+                    <div class="section-text">
+                        请评估您目前对这些睡眠卫生建议的遵循程度：
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">保持规律的睡眠时间表（包括周末）</label>
+                        <select class="form-control form-select">
+                            <option value="">选择您的遵循程度</option>
+                            <option value="always">总是遵循</option>
+                            <option value="often">经常遵循</option>
+                            <option value="sometimes">有时遵循</option>
+                            <option value="rarely">很少遵循</option>
+                            <option value="never">从不遵循</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">睡前避免摄入咖啡因（咖啡、茶、巧克力等）</label>
+                        <select class="form-control form-select">
+                            <option value="">选择您的遵循程度</option>
+                            <option value="always">总是遵循</option>
+                            <option value="often">经常遵循</option>
+                            <option value="sometimes">有时遵循</option>
+                            <option value="rarely">很少遵循</option>
+                            <option value="never">从不遵循</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">睡前避免使用电子设备（手机、电脑等）</label>
+                        <select class="form-control form-select">
+                            <option value="">选择您的遵循程度</option>
+                            <option value="always">总是遵循</option>
+                            <option value="often">经常遵循</option>
+                            <option value="sometimes">有时遵循</option>
+                            <option value="rarely">很少遵循</option>
+                            <option value="never">从不遵循</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="content-footer">
+                <button class="btn btn-secondary">上一步</button>
+                <button class="btn btn-primary">保存并继续</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const moduleCards = document.querySelectorAll('.module-card');
+            const moduleContents = document.querySelectorAll('.module-content');
+            const closeButtons = document.querySelectorAll('.content-close');
+            const startButtons = document.querySelectorAll('.btn-start');
+            const reviewButtons = document.querySelectorAll('.btn-review');
+
+            function loadProgress() {
+                const progress = localStorage.getItem('sleep-intervention-progress') || '25';
+                document.getElementById('progress-fill').style.width = progress + '%';
+                document.getElementById('progress-percent').textContent = progress + '%';
+            }
+
+            function saveProgress(percent) {
+                localStorage.setItem('sleep-intervention-progress', percent);
+                loadProgress();
+            }
+
+            function showModule(moduleId) {
+                moduleContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                const content = document.getElementById(`module-${moduleId}-content`);
+                if (content) {
+                    content.classList.remove('hidden');
+                }
+            }
+
+            function closeAllModules() {
+                moduleContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+            }
+
+            startButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const moduleId = this.closest('.module-card').dataset.module;
+                    showModule(moduleId);
+                });
+            });
+
+            reviewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const moduleId = this.closest('.module-card').dataset.module;
+                    showModule(moduleId);
+                });
+            });
+
+            closeButtons.forEach(button => {
+                button.addEventListener('click', closeAllModules);
+            });
+
+            document.querySelectorAll('.module-content .btn-primary').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentModule = this.closest('.module-content').id.split('-')[1];
+                    const nextModule = parseInt(currentModule) + 1;
+                    
+                    if (nextModule <= 8) {
+                        const progress = (nextModule / 8 * 100).toFixed(0);
+                        saveProgress(progress);
+                        
+                        document.querySelector(`.module-card[data-module="${currentModule}"] .module-status`)
+                            .classList.replace('status-current', 'status-completed');
+                        
+                        if (nextModule < 8) {
+                            document.querySelector(`.module-card[data-module="${nextModule}"] .module-status`)
+                                .classList.replace('status-pending', 'status-current');
+                            document.querySelector(`.module-card[data-module="${nextModule}"] .btn`)
+                                .classList.replace('btn-secondary', 'btn-primary');
+                            document.querySelector(`.module-card[data-module="${nextModule}"] .btn`)
+                                .classList.replace('btn-disabled', 'btn-start');
+                            document.querySelector(`.module-card[data-module="${nextModule}"] .btn`)
+                                .removeAttribute('disabled');
+                        }
+                        
+                        closeAllModules();
+                    }
+                });
+            });
+
+            loadProgress();
+        });
+    </script>
+</body>
+</html>

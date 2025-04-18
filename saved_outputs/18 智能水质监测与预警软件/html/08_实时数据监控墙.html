@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能水质监测与预警系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --dark-color: #1d1d1f;
+            --light-color: #f5f5f7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+            --border-radius: 12px;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 36px;
+            margin-right: 12px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-left: 12px;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+
+        .control-panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: #0062c4;
+        }
+
+        .monitoring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .monitor-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .monitor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .device-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-normal {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-danger {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-name {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .metric-unit {
+            font-size: 13px;
+            color: #999;
+            margin-left: 2px;
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .trend-up {
+            color: var(--danger-color);
+        }
+
+        .trend-down {
+            color: var(--success-color);
+        }
+
+        .trend-neutral {
+            color: #999;
+        }
+
+        .mini-chart {
+            height: 60px;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #eee;
+        }
+
+        .chart-path {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 2;
+        }
+
+        .alert-list {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .alert-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .alert-count {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .alert-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-icon {
+            margin-right: 12px;
+            color: var(--danger-color);
+            font-size: 18px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-message {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .alert-action {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .monitoring-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJzNC40NzcgMTAgMTAgMTAgMTAtNC40NzcgMTAtMTBTMTcuNTIzIDIgMTIgMnptMCAyYzQuNDE4IDAgOCAzLjU4MiA4IDhzLTMuNTgyIDgtOCA4LTgtMy41ODItOC04IDMuNTgyLTggOC04eiIvPjwvc3ZnPg==" alt="Logo">
+                <h1>智能水质监测与预警系统</h1>
+            </div>
+            <div class="user-info">
+                <span>数据中心管理员</span>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJzNC40NzcgMTAgMTAgMTAgMTAtNC40NzcgMTAtMTBTMTcuNTIzIDIgMTIgMnptMCAxYzQuOTcxIDAgOSA0LjAyOSA5IDlzLTQuMDI5IDktOSA5LTktNC4wMjktOS05IDQuMDI5LTkgOS05em0wIDNjLTMuMzE0IDAtNiAyLjY4Ni02IDZoMTJjMC0zLjMxNC0yLjY4Ni02LTYtNnoiLz48L3N2Zz4=" alt="User">
+            </div>
+        </header>
+
+        <h2 class="dashboard-title">实时数据监控墙</h2>
+
+        <div class="control-panel">
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="location">监测区域</label>
+                    <select id="location">
+                        <option value="all">全部区域</option>
+                        <option value="north">北部流域</option>
+                        <option value="south">南部流域</option>
+                        <option value="east">东部流域</option>
+                        <option value="west">西部流域</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="device-type">设备类型</label>
+                    <select id="device-type">
+                        <option value="all">全部设备</option>
+                        <option value="fixed">固定监测站</option>
+                        <option value="mobile">移动监测站</option>
+                        <option value="buoy">浮标监测站</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="refresh-rate">刷新频率</label>
+                    <select id="refresh-rate">
+                        <option value="5">5秒</option>
+                        <option value="10" selected>10秒</option>
+                        <option value="30">30秒</option>
+                        <option value="60">1分钟</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="parameter">关键参数</label>
+                    <select id="parameter">
+                        <option value="all">全部参数</option>
+                        <option value="ph">pH值</option>
+                        <option value="do">溶解氧</option>
+                        <option value="turbidity">浊度</option>
+                        <option value="temperature">水温</option>
+                        <option value="cod">化学需氧量</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="alert-level">告警级别</label>
+                    <select id="alert-level">
+                        <option value="all">全部状态</option>
+                        <option value="normal">仅正常</option>
+                        <option value="warning">警告</option>
+                        <option value="danger">严重</option>
+                    </select>
+                </div>
+                <div class="control-group" style="align-self: flex-end;">
+                    <button id="apply-filter">应用筛选</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="monitoring-grid">
+            <div class="monitor-card">
+                <div class="card-header">
+                    <span class="device-name">北部流域-监测站01</span>
+                    <span class="device-status status-normal">正常</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">pH值</span>
+                            <span class="metric-value">7.2<span class="metric-unit">pH</span></span>
+                        </div>
+                        <span class="metric-trend trend-neutral">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            0.1
+                        </span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="chart-line"></div>
+                        <svg viewBox="0 0 100 40" class="chart-path">
+                            <path d="M0,40 C10,35 20,38 30,32 C40,26 50,28 60,22 C70,16 80,18 90,12 C100,6 100,6 100,6" />
+                        </svg>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">溶解氧</span>
+                            <span class="metric-value">8.4<span class="metric-unit">mg/L</span></span>
+                        </div>
+                        <span class="metric-trend trend-down">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            0.3
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="monitor-card">
+                <div class="card-header">
+                    <span class="device-name">南部流域-浮标03</span>
+                    <span class="device-status status-warning">警告</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">浊度</span>
+                            <span class="metric-value">15.7<span class="metric-unit">NTU</span></span>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            2.1
+                        </span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="chart-line"></div>
+                        <svg viewBox="0 0 100 40" class="chart-path">
+                            <path d="M0,30 C10,28 20,26 30,24 C40,22 50,20 60,22 C70,24 80,28 90,30 C100,32 100,32 100,32" />
+                        </svg>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">化学需氧量</span>
+                            <span class="metric-value">32.5<span class="metric-unit">mg/L</span></span>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            1.8
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="monitor-card">
+                <div class="card-header">
+                    <span class="device-name">东部流域-监测站02</span>
+                    <span class="device-status status-normal">正常</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">水温</span>
+                            <span class="metric-value">22.3<span class="metric-unit">°C</span></span>
+                        </div>
+                        <span class="metric-trend trend-down">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            0.5
+                        </span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="chart-line"></div>
+                        <svg viewBox="0 0 100 40" class="chart-path">
+                            <path d="M0,20 C10,22 20,24 30,22 C40,20 50,18 60,20 C70,22 80,26 90,24 C100,22 100,22 100,22" />
+                        </svg>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">溶解氧</span>
+                            <span class="metric-value">7.8<span class="metric-unit">mg/L</span></span>
+                        </div>
+                        <span class="metric-trend trend-neutral">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            0.1
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="monitor-card">
+                <div class="card-header">
+                    <span class="device-name">西部流域-移动站01</span>
+                    <span class="device-status status-danger">严重</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">pH值</span>
+                            <span class="metric-value">5.8<span class="metric-unit">pH</span></span>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            0.4
+                        </span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="chart-line"></div>
+                        <svg viewBox="0 0 100 40" class="chart-path">
+                            <path d="M0,10 C10,12 20,14 30,16 C40,18 50,20 60,22 C70,24 80,26 90,28 C100,30 100,30 100,30" />
+                        </svg>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-info">
+                            <span class="metric-name">化学需氧量</span>
+                            <span class="metric-value">48.2<span class="metric-unit">mg/L</span></span>
+                        </div>
+                        <span class="metric-trend trend-up">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            3.5
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert-list">
+            <div class="alert-header">
+                <span class="alert-title">实时告警</span>
+                <span class="alert-count">3</span>
+            </div>
+            <div class="alert-item">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <div class="alert-message">西部流域-移动站01 pH值超出安全范围 (5.8)</div>
+                    <div class="alert-time">刚刚</div>
+                </div>
+                <div class="alert-action">处理</div>
+            </div>
+            <div class="alert-item">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <div class="alert-message">南部流域-浮标03 浊度快速上升 (15.7 NTU)</div>
+                    <div class="alert-time">5分钟前</div>
+                </div>
+                <div class="alert-action">处理</div>
+            </div>
+            <div class="alert-item">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <div class="alert-message">北部流域-监测站03 溶解氧低于阈值 (4.2 mg/L)</div>
+                    <div class="alert-time">12分钟前</div>
+                </div>
+                <div class="alert-action">处理</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const applyFilterBtn = document.getElementById('apply-filter');
+            const refreshRateSelect = document.getElementById('refresh-rate');
+            let refreshInterval;
+            
+            function randomizeValues() {
+                const cards = document.querySelectorAll('.monitor-card');
+                cards.forEach(card => {
+                    const values = card.querySelectorAll('.metric-value');
+                    values.forEach(valueEl => {
+                        const text = valueEl.textContent;
+                        const num = parseFloat(text);
+                        if (!isNaN(num)) {
+                            const randomChange = (Math.random() * 0.4 - 0.2).toFixed(1);
+                            const newValue = (parseFloat(num) + parseFloat(randomChange)).toFixed(1);
+                            valueEl.textContent = newValue + (valueEl.querySelector('.metric-unit') ? '' : valueEl.querySelector('.metric-unit').outerHTML;
+                            
+                            const trendEl = valueEl.closest('.metric-row').querySelector('.metric-trend');
+                            if (trendEl) {
+                                if (randomChange > 0.1) {
+                                    trendEl.classList.remove('trend-down', 'trend-neutral');
+                                    trendEl.classList.add('trend-up');
+                                    trendEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ${Math.abs(randomChange)}`;
+                                } else if (randomChange < -0.1) {
+                                    trendEl.classList.remove('trend-up', 'trend-neutral');
+                                    trendEl.classList.add('trend-down');
+                                    trendEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ${Math.abs(randomChange)}`;
+                                } else {
+                                    trendEl.classList.remove('trend-up', 'trend-down');
+                                    trendEl.classList.add('trend-neutral');
+                                    trendEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ${Math.abs(randomChange)}`;
+                                }
+                            }
+                        }
+                    });
+                    
+                    const statusEl = card.querySelector('.device-status');
+                    if (statusEl) {
+                        const randomStatus = Math.random();
+                        if (randomStatus > 0.95) {
+                            statusEl.textContent = '严重';
+                            statusEl.className = 'device-status status-danger';
+                        } else if (randomStatus > 0.85) {
+                            statusEl.textContent = '警告';
+                            statusEl.className = 'device-status status-warning';
+                        } else {
+                            statusEl.textContent = '正常';
+                            statusEl.className = 'device-status status-normal';
+                        }
+                    }
+                });
+            }
+            
+            function startRefreshTimer() {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                }
+                const rate = parseInt(refreshRateSelect.value) * 1000;
+                refreshInterval = setInterval(randomizeValues, rate);
+            }
+            
+            applyFilterBtn.addEventListener('click', function() {
+                const location = document.getElementById('location').value;
+                const deviceType = document.getElementById('device-type').value;
+                const parameter = document.getElementById('parameter').value;
+                const alertLevel = document.getElementById('alert-level').value;
+                
+                const cards = document.querySelectorAll('.monitor-card');
+                cards.forEach(card => {
+                    let shouldShow = true;
+                    const deviceName = card.querySelector('.device-name').textContent;
+                    const status = card.querySelector('.device-status').textContent;
+                    
+                    if (location !== 'all' && !deviceName.includes(location === 'north' ? '北部' : 
+                                                      location === 'south' ? '南部' : 
+                                                      location === 'east' ? '东部' : '西部')) {
+                        shouldShow = false;
+                    }
+                    
+                    if (deviceType !== 'all' && !deviceName.includes(deviceType === 'fixed' ? '监测站' : 
+                                                          deviceType === 'mobile' ? '移动站' : '浮标')) {
+                        shouldShow = false;
+                    }
+                    
+                    if (alertLevel !== 'all' && 
+                        ((alertLevel === 'normal' && status !== '正常') || 
+                         (alertLevel === 'warning' && status !== '警告') || 
+                         (alertLevel === 'danger' && status !== '严重'))) {
+                        shouldShow = false;
+                    }
+                    
+                    card.style.display = shouldShow ? 'block' : 'none';
+                });
+                
+                startRefreshTimer();
+            });
+            
+            refreshRateSelect.addEventListener('change', startRefreshTimer);
+            
+            startRefreshTimer();
+        });
+    </script>
+</body>
+</html>

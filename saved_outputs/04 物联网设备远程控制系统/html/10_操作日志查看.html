@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备控制中心</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #5e9cec;
+            --primary-dark: #004a9e;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+            min-width: 180px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .log-table th {
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .log-table td {
+            padding: 12px 15px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error-color);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">设备控制中心</div>
+            <div class="user-info">
+                <div class="avatar">AD</div>
+                <span>管理员</span>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2 class="card-title">操作日志</h2>
+            
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <label for="date-from">开始日期</label>
+                    <input type="date" id="date-from">
+                </div>
+                <div class="filter-item">
+                    <label for="date-to">结束日期</label>
+                    <input type="date" id="date-to">
+                </div>
+                <div class="filter-item">
+                    <label for="device-type">设备类型</label>
+                    <select id="device-type">
+                        <option value="all">全部设备</option>
+                        <option value="light">灯光</option>
+                        <option value="ac">空调</option>
+                        <option value="security">安防</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="operation-status">操作状态</label>
+                    <select id="operation-status">
+                        <option value="all">全部状态</option>
+                        <option value="success">成功</option>
+                        <option value="error">失败</option>
+                    </select>
+                </div>
+                <button id="apply-filter">应用筛选</button>
+                <button id="reset-filter">重置</button>
+            </div>
+
+            <div class="log-container">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>操作时间</th>
+                            <th>操作用户</th>
+                            <th>目标设备</th>
+                            <th>执行操作</th>
+                            <th>操作结果</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-entries">
+                        <!-- 日志条目将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <div id="empty-log" class="empty-state">暂无操作日志</div>
+            </div>
+
+            <div class="pagination">
+                <button id="prev-page">上一页</button>
+                <span id="page-info">1/1</span>
+                <button id="next-page">下一页</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logEntries = [
+                {
+                    id: 1,
+                    timestamp: '2024-06-15 09:23:45',
+                    user: '管理员',
+                    device: '客厅灯',
+                    deviceType: 'light',
+                    action: '打开',
+                    status: 'success'
+                },
+                {
+                    id: 2,
+                    timestamp: '2024-06-15 10:12:33',
+                    user: '管理员',
+                    device: '主卧空调',
+                    deviceType: 'ac',
+                    action: '设置温度为 26°C',
+                    status: 'success'
+                },
+                {
+                    id: 3,
+                    timestamp: '2024-06-14 18:45:21',
+                    user: '管理员',
+                    device: '大门锁',
+                    deviceType: 'security',
+                    action: '锁定',
+                    status: 'error'
+                },
+                {
+                    id: 4,
+                    timestamp: '2024-06-14 15:30:10',
+                    user: '管理员',
+                    device: '厨房灯',
+                    deviceType: 'light',
+                    action: '关闭',
+                    status: 'success'
+                },
+                {
+                    id: 5,
+                    timestamp: '2024-06-13 22:05:47',
+                    user: '管理员',
+                    device: '客厅窗帘',
+                    deviceType: 'other',
+                    action: '打开 50%',
+                    status: 'success'
+                },
+                {
+                    id: 6,
+                    timestamp: '2024-06-13 08:15:33',
+                    user: '管理员',
+                    device: '次卧空调',
+                    deviceType: 'ac',
+                    action: '设置温度为 24°C',
+                    status: 'success'
+                },
+                {
+                    id: 7,
+                    timestamp: '2024-06-12 19:20:18',
+                    user: '管理员',
+                    device: '安防摄像头',
+                    deviceType: 'security',
+                    action: '开启移动侦测',
+                    status: 'success'
+                },
+                {
+                    id: 8,
+                    timestamp: '2024-06-11 14:42:05',
+                    user: '管理员',
+                    device: '客厅灯',
+                    deviceType: 'light',
+                    action: '调暗至 70%',
+                    status: 'error'
+                },
+                {
+                    id: 9,
+                    timestamp: '2024-06-10 07:30:55',
+                    user: '管理员',
+                    device: '主卧空调',
+                    deviceType: 'ac',
+                    action: '关闭',
+                    status: 'success'
+                },
+                {
+                    id: 10,
+                    timestamp: '2024-06-09 23:15:42',
+                    user: '管理员',
+                    device: '花园喷灌',
+                    deviceType: 'other',
+                    action: '启动定时浇水',
+                    status: 'success'
+                }
+            ];
+
+            if (!localStorage.getItem('deviceLogs')) {
+                localStorage.setItem('deviceLogs', JSON.stringify(logEntries));
+            }
+
+            const storedLogs = JSON.parse(localStorage.getItem('deviceLogs'));
+            let currentLogs = [...storedLogs];
+            let currentPage = 1;
+            const logsPerPage = 5;
+
+            function renderLogs() {
+                const logTable = document.getElementById('log-entries');
+                const emptyState = document.getElementById('empty-log');
+                logTable.innerHTML = '';
+
+                if (currentLogs.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+
+                const start = (currentPage - 1) * logsPerPage;
+                const end = start + logsPerPage;
+                const paginatedLogs = currentLogs.slice(start, end);
+
+                paginatedLogs.forEach(log => {
+                    const row = document.createElement('tr');
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = log.timestamp;
+                    row.appendChild(timeCell);
+                    
+                    const userCell = document.createElement('td');
+                    userCell.textContent = log.user;
+                    row.appendChild(userCell);
+                    
+                    const deviceCell = document.createElement('td');
+                    deviceCell.textContent = log.device;
+                    row.appendChild(deviceCell);
+                    
+                    const actionCell = document.createElement('td');
+                    actionCell.textContent = log.action;
+                    row.appendChild(actionCell);
+                    
+                    const statusCell = document.createElement('td');
+                    const statusSpan = document.createElement('span');
+                    statusSpan.textContent = log.status === 'success' ? '成功' : '失败';
+                    statusSpan.classList.add('status');
+                    statusSpan.classList.add(log.status === 'success' ? 'status-success' : 'status-error');
+                    statusCell.appendChild(statusSpan);
+                    row.appendChild(statusCell);
+                    
+                    logTable.appendChild(row);
+                });
+
+                updatePagination();
+            }
+
+            function updatePagination() {
+                const totalPages = Math.ceil(currentLogs.length / logsPerPage);
+                document.getElementById('page-info').textContent = `${currentPage}/${totalPages}`;
+                
+                document.getElementById('prev-page').disabled = currentPage <= 1;
+                document.getElementById('next-page').disabled = currentPage >= totalPages;
+            }
+
+            function applyFilters() {
+                const dateFrom = document.getElementById('date-from').value;
+                const dateTo = document.getElementById('date-to').value;
+                const deviceType = document.getElementById('device-type').value;
+                const operationStatus = document.getElementById('operation-status').value;
+
+                currentLogs = storedLogs.filter(log => {
+                    const logDate = log.timestamp.split(' ')[0];
+                    
+                    if (dateFrom && logDate < dateFrom) return false;
+                    if (dateTo && logDate > dateTo) return false;
+                    if (deviceType !== 'all' && log.deviceType !== deviceType) return false;
+                    if (operationStatus !== 'all' && log.status !== operationStatus) return false;
+                    
+                    return true;
+                });
+
+                currentPage = 1;
+                renderLogs();
+            }
+
+            function resetFilters() {
+                document.getElementById('date-from').value = '';
+                document.getElementById('date-to').value = '';
+                document.getElementById('device-type').value = 'all';
+                document.getElementById('operation-status').value = 'all';
+                
+                currentLogs = [...storedLogs];
+                currentPage = 1;
+                renderLogs();
+            }
+
+            document.getElementById('apply-filter').addEventListener('click', applyFilters);
+            document.getElementById('reset-filter').addEventListener('click', resetFilters);
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderLogs();
+                }
+            });
+            document.getElementById('next-page').addEventListener('click', () => {
+                const totalPages = Math.ceil(currentLogs.length / logsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderLogs();
+                }
+            });
+
+            renderLogs();
+        });
+    </script>
+</body>
+</html>

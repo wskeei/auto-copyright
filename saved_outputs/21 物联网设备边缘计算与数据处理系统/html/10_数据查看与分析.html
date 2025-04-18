@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备边缘计算与数据处理系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #86868b;
+        }
+        
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        button {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: flex-end;
+        }
+        
+        button:hover {
+            background-color: #0062b3;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background-color: #f8f8f8;
+            font-weight: 600;
+            color: #515154;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f8f8;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-inactive {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error-color);
+        }
+        
+        .status-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #86868b;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metric-title {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .metric-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .change-positive {
+            color: var(--success-color);
+        }
+        
+        .change-negative {
+            color: var(--error-color);
+        }
+        
+        @media (max-width: 768px) {
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">IoT</div>
+                <span>边缘计算与数据处理</span>
+            </div>
+            <div class="user-info">
+                <span>数据中心</span>
+                <div class="user-avatar">AD</div>
+            </div>
+        </header>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">设备数据分析</div>
+                <div class="tab-container">
+                    <div class="tab active" onclick="switchTab('overview')">概览</div>
+                    <div class="tab" onclick="switchTab('details')">详细数据</div>
+                    <div class="tab" onclick="switchTab('alerts')">告警记录</div>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label class="filter-label">设备类型</label>
+                    <select id="device-type">
+                        <option value="all">全部设备</option>
+                        <option value="sensor">传感器节点</option>
+                        <option value="gateway">网关设备</option>
+                        <option value="controller">控制器</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">时间范围</label>
+                    <select id="time-range">
+                        <option value="24h">最近24小时</option>
+                        <option value="7d">最近7天</option>
+                        <option value="30d">最近30天</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group" id="custom-date-group" style="display: none;">
+                    <label class="filter-label">自定义日期</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="start-date">
+                        <input type="date" id="end-date">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">数据指标</label>
+                    <select id="data-metric">
+                        <option value="temperature">温度</option>
+                        <option value="humidity">湿度</option>
+                        <option value="pressure">压力</option>
+                        <option value="voltage">电压</option>
+                    </select>
+                </div>
+                
+                <button onclick="applyFilters()">应用筛选</button>
+            </div>
+            
+            <div class="tab-content active" id="overview-tab">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">活跃设备</div>
+                        <div class="metric-value">142</div>
+                        <div class="metric-change change-positive">+12 过去7天</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">平均温度</div>
+                        <div class="metric-value">23.4°C</div>
+                        <div class="metric-change change-negative">-1.2°C 过去24h</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">数据吞吐量</div>
+                        <div class="metric-value">1.42MB/s</div>
+                        <div class="metric-change change-positive">+0.3MB/s 过去24h</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">异常事件</div>
+                        <div class="metric-value">8</div>
+                        <div class="metric-change change-negative">+3 过去24h</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="main-chart"></canvas>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="chart-container">
+                        <canvas id="distribution-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="status-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="details-tab">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>设备ID</th>
+                            <th>类型</th>
+                            <th>位置</th>
+                            <th>温度</th>
+                            <th>湿度</th>
+                            <th>电压</th>
+                            <th>状态</th>
+                            <th>最后上报</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-data">
+                        <!-- 数据将通过JS动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="alerts-tab">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>设备ID</th>
+                            <th>告警类型</th>
+                            <th>描述</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alert-data">
+                        <!-- 数据将通过JS动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadDeviceData();
+            loadAlertData();
+            
+            document.getElementById('time-range').addEventListener('change', function() {
+                const customDateGroup = document.getElementById('custom-date-group');
+                customDateGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+        });
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        }
+        
+        function applyFilters() {
+            const deviceType = document.getElementById('device-type').value;
+            const timeRange = document.getElementById('time-range').value;
+            const dataMetric = document.getElementById('data-metric').value;
+            
+            updateCharts(deviceType, timeRange, dataMetric);
+            loadDeviceData();
+            loadAlertData();
+        }
+        
+        function initializeCharts() {
+            const mainCtx = document.getElementById('main-chart').getContext('2d');
+            const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
+            const statusCtx = document.getElementById('status-chart').getContext('2d');
+            
+            window.mainChart = new Chart(mainCtx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels(24),
+                    datasets: [{
+                        label: '温度 (°C)',
+                        data: generateRandomData(24, 15, 30),
+                        borderColor: '#0071e3',
+                        backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: getChartOptions('温度趋势 (24小时)')
+            });
+            
+            window.distributionChart = new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['传感器节点', '网关设备', '控制器', '其他'],
+                    datasets: [{
+                        data: [65, 20, 10, 5],
+                        backgroundColor: [
+                            '#0071e3',
+                            '#5ac8fa',
+                            '#34c759',
+                            '#ff9500'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: getChartOptions('设备类型分布')
+            });
+            
+            window.statusChart = new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['正常', '警告', '异常', '离线'],
+                    datasets: [{
+                        label: '设备状态',
+                        data: [120, 15, 5, 2],
+                        backgroundColor: [
+                            '#34c759',
+                            '#ff9500',
+                            '#ff3b30',
+                            '#8e8e93'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: getChartOptions('设备状态统计')
+            });
+        }
+        
+        function updateCharts(deviceType, timeRange, dataMetric) {
+            let labels, data;
+            
+            if (timeRange === '24h') {
+                labels = generateTimeLabels(24);
+                data = generateRandomData(24, 15, 30);
+            } else if (timeRange === '7d') {
+                labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+                data = generateRandomData(7, 10, 35);
+            } else {
+                labels = ['第1周', '第2周', '第3周', '第4周'];
+                data = generateRandomData(4, 5, 40);
+            }
+            
+            let metricLabel = '';
+            switch(dataMetric) {
+                case 'temperature':
+                    metricLabel = '温度 (°C)';
+                    break;
+                case 'humidity':
+                    metricLabel = '湿度 (%)';
+                    break;
+                case 'pressure':
+                    metricLabel = '压力 (hPa)';
+                    break;
+                case 'voltage':
+                    metricLabel = '电压 (V)';
+                    break;
+            }
+            
+            window.mainChart.data.labels = labels;
+            window.mainChart.data.datasets[0].data = data;
+            window.mainChart.data.datasets[0].label = metricLabel;
+            window.mainChart.options.scales.y.title.text = metricLabel;
+            window.mainChart.update();
+            
+            if (deviceType === 'all') {
+                window.distributionChart.data.datasets[0].data = [65, 20, 10, 5];
+            } else if (deviceType === 'sensor') {
+                window.distributionChart.data.datasets[0].data = [85, 10, 0, 5];
+            } else if (deviceType === 'gateway') {
+                window.distributionChart.data.datasets[0].data = [20, 70, 5, 5];
+            } else {
+                window.distributionChart.data.datasets[0].data = [15, 10, 70, 5];
+            }
+            window.distributionChart.update();
+        }
+        
+        function loadDeviceData() {
+            const deviceTypes = ['传感器节点', '网关设备', '控制器'];
+            const locations = ['区域A', '区域B', '区域C', '区域D'];
+            const statuses = ['active', 'warning', 'inactive'];
+            const statusTexts = ['正常', '警告', '离线'];
+            
+            const tableBody = document.getElementById('device-data');
+            tableBody.innerHTML = '';
+            
+            for (let i = 0; i < 15; i++) {
+                const type = deviceTypes[Math.floor(Math.random() * deviceTypes.length)];
+                const temp = (Math.random() * 15 + 15).toFixed(1);
+                const humidity = (Math.random() * 50 + 30).toFixed(1);
+                const voltage = (Math.random() * 2 + 3).toFixed(2);
+                const statusIndex = Math.floor(Math.random() * statuses.length);
+                const status = statuses[statusIndex];
+                const statusText = statusTexts[statusIndex];
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>DEV-${1000 + i}</td>
+                    <td>${type}</td>
+                    <td>${locations[Math.floor(Math.random() * locations.length)]}</td>
+                    <td>${temp}</td>
+                    <td>${humidity}</td>
+                    <td>${voltage}</td>
+                    <td><span class="status-badge status-${status}">${statusText}</span></td>
+                    <td>${Math.floor(Math.random() * 60)}分钟前</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+        
+        function loadAlertData() {
+            const alertTypes = ['温度过高', '电压异常', '通信中断', '湿度异常', '设备离线'];
+            const descriptions = [
+                '温度超过阈值30°C',
+                '电压波动超过10%',
+                '设备无响应超过15分钟',
+                '湿度超过80%',
+                '设备离线超过1小时'
+            ];
+            const statuses = ['未处理', '处理中', '已解决'];
+            
+            const tableBody = document.getElementById('alert-data');
+            tableBody.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                const alertType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+                const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const time = `${Math.floor(Math.random() * 24)}小时前`;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${time}</td>
+                    <td>DEV-${1000 + Math.floor(Math.random() * 50)}</td>
+                    <td>${alertType}</td>
+                    <td>${description}</td>
+                    <td>${status}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+        
+        function generateTimeLabels(count) {
+            const labels = [];
+            for (let i = 0; i < count; i++) {
+                const hour = i % 24;
+                labels.push(`${hour}:00`);
+            }
+            return labels;
+        }
+        
+        function generateRandomData(count, min, max) {
+            const data = [];
+            for (let i = 0; i < count; i++) {
+                data.push((Math.random() * (max - min) + min).toFixed(1));
+            }
+            return data;
+        }
+        
+        function getChartOptions(title) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: '数值'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '时间'
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+</html>

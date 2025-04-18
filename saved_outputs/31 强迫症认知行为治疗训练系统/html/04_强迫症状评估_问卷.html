@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>症状评估 | 强迫症认知行为治疗训练系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e5e5ea;
+            border-radius: 5px;
+            margin: 30px 0;
+            height: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .question-section {
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        .question-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            border-color: var(--primary-light);
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .option-radio {
+            margin-right: 12px;
+            accent-color: var(--primary-color);
+        }
+
+        .option-label {
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            display: none;
+        }
+
+        .result-score {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .result-description {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .severity-indicator {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #34c759, #ffcc00, #ff9500, #ff3b30);
+            margin: 15px 0;
+        }
+
+        .severity-labels {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .symptom-category {
+            margin-top: 25px;
+        }
+
+        .category-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: rgba(0, 113, 227, 0.05);
+            margin-bottom: 8px;
+        }
+
+        .category-icon {
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">OCD CBT Trainer</div>
+            </div>
+            <div class="user-profile">
+                <span>患者评估</span>
+                <div class="user-avatar">P</div>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">强迫症状评估</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <div id="assessmentForm">
+                <div class="question-section active" id="section1">
+                    <div class="question-title">1. 您每天花在强迫思维上的时间有多长？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="0" class="option-radio">
+                            <span class="option-label">无 - 无强迫思维</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="1" class="option-radio">
+                            <span class="option-label">轻度 - 每天少于1小时</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="2" class="option-radio">
+                            <span class="option-label">中度 - 每天1-3小时</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="3" class="option-radio">
+                            <span class="option-label">重度 - 每天3-8小时</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="4" class="option-radio">
+                            <span class="option-label">极重度 - 每天超过8小时</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section2">
+                    <div class="question-title">2. 强迫思维对您日常功能的干扰程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="0" class="option-radio">
+                            <span class="option-label">无干扰</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="1" class="option-radio">
+                            <span class="option-label">轻度干扰，但整体功能良好</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="2" class="option-radio">
+                            <span class="option-label">中度干扰，但可管理</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="3" class="option-radio">
+                            <span class="option-label">显著干扰</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="4" class="option-radio">
+                            <span class="option-label">严重干扰，几乎无法正常生活</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section3">
+                    <div class="question-title">3. 强迫思维引起的痛苦程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="0" class="option-radio">
+                            <span class="option-label">无痛苦</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="1" class="option-radio">
+                            <span class="option-label">轻度，不难受</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="2" class="option-radio">
+                            <span class="option-label">中度，感到不舒服但可忍受</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="3" class="option-radio">
+                            <span class="option-label">重度，非常不舒服</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="4" class="option-radio">
+                            <span class="option-label">极重度，几乎无法忍受</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section4">
+                    <div class="question-title">4. 您抵抗强迫思维的努力程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="0" class="option-radio">
+                            <span class="option-label">总是试图抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="1" class="option-radio">
+                            <span class="option-label">大多数时候试图抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="2" class="option-radio">
+                            <span class="option-label">有时会抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="3" class="option-radio">
+                            <span class="option-label">很少抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="4" class="option-radio">
+                            <span class="option-label">完全不抵抗，完全屈服</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section5">
+                    <div class="question-title">5. 您对强迫思维的控制程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="0" class="option-radio">
+                            <span class="option-label">完全控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="1" class="option-radio">
+                            <span class="option-label">大多能控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="2" class="option-radio">
+                            <span class="option-label">中等程度控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="3" class="option-radio">
+                            <span class="option-label">很少能控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="4" class="option-radio">
+                            <span class="option-label">完全无法控制</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section6">
+                    <div class="question-title">6. 您每天花在强迫行为上的时间有多长？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="0" class="option-radio">
+                            <span class="option-label">无 - 无强迫行为</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="1" class="option-radio">
+                            <span class="option-label">轻度 - 每天少于1小时</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="2" class="option-radio">
+                            <span class="option-label">中度 - 每天1-3小时</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="3" class="option-radio">
+                            <span class="option-label">重度 - 每天3-8小时</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="4" class="option-radio">
+                            <span class="option-label">极重度 - 每天超过8小时</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section7">
+                    <div class="question-title">7. 强迫行为对您日常功能的干扰程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="0" class="option-radio">
+                            <span class="option-label">无干扰</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="1" class="option-radio">
+                            <span class="option-label">轻度干扰，但整体功能良好</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="2" class="option-radio">
+                            <span class="option-label">中度干扰，但可管理</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="3" class="option-radio">
+                            <span class="option-label">显著干扰</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="4" class="option-radio">
+                            <span class="option-label">严重干扰，几乎无法正常生活</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section8">
+                    <div class="question-title">8. 如果不执行强迫行为，您感到的痛苦程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="0" class="option-radio">
+                            <span class="option-label">无痛苦</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="1" class="option-radio">
+                            <span class="option-label">轻度，不难受</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="2" class="option-radio">
+                            <span class="option-label">中度，感到不舒服但可忍受</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="3" class="option-radio">
+                            <span class="option-label">重度，非常不舒服</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="4" class="option-radio">
+                            <span class="option-label">极重度，几乎无法忍受</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section9">
+                    <div class="question-title">9. 您抵抗强迫行为的努力程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="0" class="option-radio">
+                            <span class="option-label">总是试图抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="1" class="option-radio">
+                            <span class="option-label">大多数时候试图抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="2" class="option-radio">
+                            <span class="option-label">有时会抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="3" class="option-radio">
+                            <span class="option-label">很少抵抗</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="4" class="option-radio">
+                            <span class="option-label">完全不抵抗，完全屈服</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section10">
+                    <div class="question-title">10. 您对强迫行为的控制程度如何？</div>
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="0" class="option-radio">
+                            <span class="option-label">完全控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="1" class="option-radio">
+                            <span class="option-label">大多能控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="2" class="option-radio">
+                            <span class="option-label">中等程度控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="3" class="option-radio">
+                            <span class="option-label">很少能控制</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="4" class="option-radio">
+                            <span class="option-label">完全无法控制</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section11">
+                    <div class="question-title">11. 您的主要强迫思维类型是什么？</div>
+                    <select id="obsessionType">
+                        <option value="">请选择...</option>
+                        <option value="contamination">污染/清洁相关</option>
+                        <option value="harm">伤害自己或他人的想法</option>
+                        <option value="symmetry">对称/精确/秩序需求</option>
+                        <option value="forbidden">禁忌/不道德的想法</option>
+                        <option value="hoarding">囤积/保存需求</option>
+                        <option value="religious">宗教/道德相关</option>
+                        <option value="somatic">身体/健康相关</option>
+                        <option value="other">其他类型</option>
+                    </select>
+                </div>
+
+                <div class="question-section" id="section12">
+                    <div class="question-title">12. 您的主要强迫行为类型是什么？</div>
+                    <select id="compulsionType">
+                        <option value="">请选择...</option>
+                        <option value="cleaning">清洁/洗涤</option>
+                        <option value="checking">检查</option>
+                        <option value="repeating">重复动作</option>
+                        <option value="counting">计数</option>
+                        <option value="ordering">排序/整理</option>
+                        <option value="hoarding">囤积/收集</option>
+                        <option value="mental">心理仪式</option>
+                        <option value="other">其他类型</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="prevBtn" class="btn btn-outline btn-disabled">上一步</button>
+                    <button type="button" id="nextBtn" class="btn btn-primary">下一步</button>
+                </div>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+                <div class="card-title">评估结果</div>
+                <div class="result-score" id="totalScore">0</div>
+                <div class="result-description" id="severityDescription"></div>
+                
+                <div class="severity-indicator"></div>
+                <div class="severity-labels">
+                    <span>轻度</span>
+                    <span>中度</span>
+                    <span>重度</span>
+                    <span>极重度</span>
+                </div>
+
+                <div class="symptom-category">
+                    <div class="category-title">主要症状分类</div>
+                    <div class="category-item">
+                        <div class="category-icon">T</div>
+                        <div id="obsessionTypeResult">强迫思维: 未选择</div>
+                    </div>
+                    <div class="category-item">
+                        <div class="category-icon">B</div>
+                        <div id="compulsionTypeResult">强迫行为: 未选择</div>
+                    </div>
+                </div>
+
+                <button type="button" id="saveBtn" class="btn btn-primary" style="width: 100%; margin-top: 30px;">保存评估结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalSections = 12;
+            let currentSection = 1;
+            const progressBar = document.getElementById('progressBar');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const assessmentForm = document.getElementById('assessmentForm');
+            const resultContainer = document.getElementById('resultContainer');
+            const totalScoreElement = document.getElementById('totalScore');
+            const severityDescription = document.getElementById('severityDescription');
+            const obsessionTypeResult = document.getElementById('obsessionTypeResult');
+            const compulsionTypeResult = document.getElementById('compulsionTypeResult');
+
+            function updateProgress() {
+                const progress = ((currentSection - 1) / totalSections) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+
+            function showSection(sectionNumber) {
+                document.querySelectorAll('.question-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`section${sectionNumber}`).classList.add('active');
+                
+                prevBtn.classList.toggle('btn-disabled', sectionNumber === 1);
+                
+                if (sectionNumber === totalSections) {
+                    nextBtn.textContent = '查看结果';
+                } else {
+                    nextBtn.textContent = '下一步';
+                }
+                
+                updateProgress();
+            }
+
+            function validateCurrentSection() {
+                if (currentSection <= 10) {
+                    return document.querySelector(`input[name="q${currentSection}"]:checked`) !== null;
+                } else {
+                    return document.getElementById(currentSection === 11 ? 'obsessionType' : 'compulsionType').value !== '';
+                }
+            }
+
+            function calculateTotalScore() {
+                let score = 0;
+                for (let i = 1; i <= 10; i++) {
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption) {
+                        score += parseInt(selectedOption.value);
+                    }
+                }
+                return score;
+            }
+
+            function getSeverityDescription(score) {
+                if (score <= 7) return "亚临床症状 - 症状轻微，可能不需要治疗";
+                if (score <= 15) return "轻度强迫症 - 症状明显但可管理";
+                if (score <= 23) return "中度强迫症 - 症状明显干扰生活";
+                if (score <= 31) return "重度强迫症 - 症状严重干扰生活";
+                return "极重度强迫症 - 症状极度困扰，需要立即治疗";
+            }
+
+            nextBtn.addEventListener('click', function() {
+                if (!validateCurrentSection()) {
+                    alert('请完成当前问题后再继续');
+                    return;
+                }
+
+                if (currentSection === totalSections) {
+                    const totalScore = calculateTotalScore();
+                    totalScoreElement.textContent = totalScore;
+                    severityDescription.textContent = getSeverityDescription(totalScore);
+                    
+                    const obsessionType = document.getElementById('obsessionType').value;
+                    const compulsionType = document.getElementById('compulsionType').value;
+                    
+                    obsessionTypeResult.textContent = `强迫思维: ${document.getElementById('obsessionType').options[document.getElementById('obsessionType').selectedIndex].text}`;
+                    compulsionTypeResult.textContent = `强迫行为: ${document.getElementById('compulsionType').options[document.getElementById('compulsionType').selectedIndex].text}`;
+                    
+                    assessmentForm.classList.add('hidden');
+                    resultContainer.style.display = 'block';
+                } else {
+                    currentSection++;
+                    showSection(currentSection);
+                }
+            });
+
+            prevBtn.addEventListener('click', function() {
+                if (currentSection > 1) {
+                    currentSection--;
+                    showSection(currentSection);
+                }
+            });
+
+            saveBtn.addEventListener('click', function() {
+                const assessmentData = {
+                    date: new Date().toISOString().split('T')[0],
+                    totalScore: calculateTotalScore(),
+                    obsessionType: document.getElementById('obsessionType').value,
+                    compulsionType: document.getElementById('compulsionType').value,
+                    answers: {}
+                };
+
+                for (let i = 1; i <= 10; i++) {
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption) {
+                        assessmentData.answers[`q${i}`] = selectedOption.value;
+                    }
+                }
+
+                localStorage.setItem('ocdAssessment', JSON.stringify(assessmentData));
+                alert('评估结果已保存');
+                window.location.href = 'dashboard.html';
+            });
+
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        this.classList.add('selected');
+                        document.querySelectorAll(`.option-item input[name="${radio.name}"]`).forEach(other => {
+                            if (other !== radio) {
+                                other.parentElement.classList.remove('selected');
+                            }
+                        });
+                    }
+                });
+            });
+
+            showSection(1);
+        });
+    </script>
+</body>
+</html>

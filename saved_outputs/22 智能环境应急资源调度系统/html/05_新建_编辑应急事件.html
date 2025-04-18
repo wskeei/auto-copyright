@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能环境应急资源调度系统 - 应急事件</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .header .version {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title svg {
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #424245;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fbfbfd;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.12);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input {
+            margin-right: 8px;
+        }
+
+        .textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .map-container {
+            height: 200px;
+            background-color: #e8e8ed;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #86868b;
+            background-color: #f5f5f7;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062be;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f5f5f7;
+        }
+
+        .urgency-high {
+            color: var(--danger-color);
+        }
+
+        .urgency-medium {
+            color: var(--warning-color);
+        }
+
+        .urgency-low {
+            color: var(--success-color);
+        }
+
+        @media (max-width: 768px) {
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>智能环境应急资源调度系统</h1>
+            <span class="version">版本 1.0</span>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                应急事件信息
+            </h2>
+
+            <form id="incidentForm">
+                <div class="form-group">
+                    <label for="eventName" class="form-label">事件名称</label>
+                    <input type="text" id="eventName" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventType" class="form-label">事件类型</label>
+                    <select id="eventType" class="form-control form-select" required>
+                        <option value="">请选择事件类型</option>
+                        <option value="chemical">化学品泄漏</option>
+                        <option value="fire">火灾爆炸</option>
+                        <option value="water">水污染</option>
+                        <option value="air">空气污染</option>
+                        <option value="biological">生物危害</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation" class="form-label">发生地点</label>
+                    <input type="text" id="eventLocation" class="form-control" placeholder="输入地址或坐标" required>
+                    <div class="map-container" style="margin-top: 10px;">
+                        <div class="map-placeholder">
+                            <span>地图位置标记将显示在这里</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTime" class="form-label">发生时间</label>
+                    <input type="text" id="eventTime" class="form-control" placeholder="选择日期和时间" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription" class="form-label">事件描述</label>
+                    <textarea id="eventDescription" class="form-control textarea" placeholder="详细描述事件情况..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">紧急程度</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="urgency" value="low" checked>
+                            <span>一般</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="urgency" value="medium">
+                            <span class="urgency-medium">紧急</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="urgency" value="high">
+                            <span class="urgency-high">特急</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reporter" class="form-label">报告人</label>
+                    <input type="text" id="reporter" class="form-control" value="当前用户" required>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#eventTime", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                locale: "zh",
+                defaultDate: new Date(),
+                time_24hr: true
+            });
+
+            const incidentForm = document.getElementById('incidentForm');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            incidentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const eventData = {
+                    name: document.getElementById('eventName').value,
+                    type: document.getElementById('eventType').value,
+                    location: document.getElementById('eventLocation').value,
+                    time: document.getElementById('eventTime').value,
+                    description: document.getElementById('eventDescription').value,
+                    urgency: document.querySelector('input[name="urgency"]:checked').value,
+                    reporter: document.getElementById('reporter').value,
+                    createdAt: new Date().toISOString()
+                };
+
+                const existingEvents = JSON.parse(localStorage.getItem('emergencyEvents') || []);
+                existingEvents.push(eventData);
+                localStorage.setItem('emergencyEvents', JSON.stringify(existingEvents));
+
+                alert('应急事件已保存');
+                window.location.href = 'incident-list.html';
+            });
+
+            cancelBtn.addEventListener('click', function() {
+                if(confirm('确定要取消编辑吗？所有未保存的更改将丢失。')) {
+                    window.location.href = 'incident-list.html';
+                }
+            });
+
+            document.getElementById('eventLocation').addEventListener('focus', function() {
+                const mapPlaceholder = document.querySelector('.map-placeholder');
+                mapPlaceholder.innerHTML = '<span>正在加载地图...</span>';
+                
+                setTimeout(() => {
+                    mapPlaceholder.innerHTML = `
+                        <div style="text-align: center;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 10px;">
+                                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <p>地图标记位置</p>
+                        </div>
+                    `;
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

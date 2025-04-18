@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备数据可视化 | 注册</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --error-color: #ff3b30;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 18px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 16px;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .form-footer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-group input {
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .checkbox-group label {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .checkbox-group a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-3 {
+            margin-top: 16px;
+        }
+
+        .link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+                <h1>设备数据可视化</h1>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" class="form-control" placeholder="设置您的用户名" required>
+                    <div id="usernameError" class="error-message">用户名已存在</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">电子邮箱</label>
+                    <input type="email" id="email" class="form-control" placeholder="您的电子邮箱" required>
+                    <div id="emailError" class="error-message">请输入有效的电子邮箱</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" class="form-control" placeholder="设置密码" required>
+                    <div class="password-strength">
+                        <div id="strengthBar" class="strength-bar"></div>
+                    </div>
+                    <div id="passwordError" class="error-message">密码必须包含至少8个字符，包括数字和字母</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="再次输入密码" required>
+                    <div id="confirmError" class="error-message">两次输入的密码不一致</div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">我已阅读并同意<a href="#">服务条款</a>和<a href="#">隐私政策</a></label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newsletter">
+                    <label for="newsletter">接收产品更新和营销邮件</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">注册</button>
+            </form>
+
+            <div class="form-footer">
+                <p class="text-center">已有账户？<a href="login.html" class="link">登录</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            const strengthBar = document.getElementById('strengthBar');
+            const usernameError = document.getElementById('usernameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const confirmError = document.getElementById('confirmError');
+
+            function checkUsernameAvailability(username) {
+                const users = JSON.parse(localStorage.getItem('users') || []);
+                return !users.some(user => user.username === username);
+            }
+
+            function validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            function validatePassword(password) {
+                const hasLetter = /[a-zA-Z]/.test(password);
+                const hasNumber = /\d/.test(password);
+                return password.length >= 8 && hasLetter && hasNumber;
+            }
+
+            function updatePasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength += 1;
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/\d/.test(password)) strength += 1;
+                if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+
+                let width = 0;
+                let color = '#ff3b30';
+                
+                if (strength === 1) {
+                    width = 25;
+                    color = '#ff3b30';
+                } else if (strength === 2) {
+                    width = 50;
+                    color = '#ff9500';
+                } else if (strength === 3) {
+                    width = 75;
+                    color = '#ffcc00';
+                } else if (strength >= 4) {
+                    width = 100;
+                    color = '#34c759';
+                }
+
+                strengthBar.style.width = width + '%';
+                strengthBar.style.backgroundColor = color;
+            }
+
+            passwordInput.addEventListener('input', function() {
+                updatePasswordStrength(this.value);
+            });
+
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let isValid = true;
+
+                const username = usernameInput.value.trim();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                const confirmPassword = confirmInput.value;
+
+                if (!checkUsernameAvailability(username)) {
+                    usernameError.classList.add('visible');
+                    isValid = false;
+                } else {
+                    usernameError.classList.remove('visible');
+                }
+
+                if (!validateEmail(email)) {
+                    emailError.classList.add('visible');
+                    isValid = false;
+                } else {
+                    emailError.classList.remove('visible');
+                }
+
+                if (!validatePassword(password)) {
+                    passwordError.classList.add('visible');
+                    isValid = false;
+                } else {
+                    passwordError.classList.remove('visible');
+                }
+
+                if (password !== confirmPassword) {
+                    confirmError.classList.add('visible');
+                    isValid = false;
+                } else {
+                    confirmError.classList.remove('visible');
+                }
+
+                if (isValid) {
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const newUser = {
+                        username: username,
+                        email: email,
+                        password: btoa(password)
+                    };
+                    users.push(newUser);
+                    localStorage.setItem('users', JSON.stringify(users));
+
+                    const successMessage = document.createElement('div');
+                    successMessage.textContent = '注册成功！正在跳转到登录页面...';
+                    successMessage.className = 'success-message visible mt-3 text-center';
+                    registerForm.appendChild(successMessage);
+
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

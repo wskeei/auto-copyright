@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 | 物联网边缘计算系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #147ce5;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .back-btn:hover {
+            opacity: 0.8;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .status-indicator::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .status-active {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-active::before {
+            background-color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(210, 210, 215, 0.5);
+            color: var(--text-secondary);
+        }
+
+        .status-inactive::before {
+            background-color: var(--text-secondary);
+        }
+
+        .auto-generate {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .auto-generate-btn {
+            font-size: 13px;
+            color: var(--primary-color);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .auto-generate-btn:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 24px 0;
+        }
+
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            font-size: 13px;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .advanced-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input {
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-item label {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>设备管理</h1>
+            <a href="devices.html" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                返回设备列表
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-title">设备信息</div>
+            
+            <form id="deviceForm">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deviceName" class="form-label">设备名称</label>
+                            <input type="text" id="deviceName" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deviceType" class="form-label">设备类型</label>
+                            <select id="deviceType" class="form-control form-select" required>
+                                <option value="">选择设备类型</option>
+                                <option value="sensor">传感器节点</option>
+                                <option value="gateway">网关设备</option>
+                                <option value="controller">控制终端</option>
+                                <option value="camera">视频设备</option>
+                                <option value="other">其他设备</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deviceId" class="form-label">设备标识符</label>
+                            <input type="text" id="deviceId" class="form-control" required>
+                            <div class="auto-generate">
+                                <button type="button" class="auto-generate-btn" id="generateId">自动生成标识符</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deviceStatus" class="form-label">设备状态</label>
+                            <select id="deviceStatus" class="form-control form-select" required>
+                                <option value="active">在线</option>
+                                <option value="inactive">离线</option>
+                                <option value="maintenance">维护中</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deviceGroup" class="form-label">设备分组</label>
+                            <select id="deviceGroup" class="form-control form-select">
+                                <option value="">未分组</option>
+                                <option value="building-a">A栋楼宇</option>
+                                <option value="building-b">B栋楼宇</option>
+                                <option value="production-line">生产线</option>
+                                <option value="warehouse">仓库</option>
+                                <option value="outdoor">户外设备</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="deviceLocation" class="form-label">设备位置</label>
+                            <input type="text" id="deviceLocation" class="form-control" placeholder="例如: 3楼305室">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="advanced-toggle" id="advancedToggle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    高级设置
+                </div>
+
+                <div class="advanced-content" id="advancedContent">
+                    <div class="form-group">
+                        <label for="dataInterval" class="form-label">数据上报间隔 (秒)</label>
+                        <select id="dataInterval" class="form-control form-select">
+                            <option value="10">10秒</option>
+                            <option value="30" selected>30秒</option>
+                            <option value="60">1分钟</option>
+                            <option value="300">5分钟</option>
+                            <option value="600">10分钟</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">数据处理选项</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="edgeProcessing" checked>
+                                <label for="edgeProcessing">启用边缘计算处理</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="dataCompression">
+                                <label for="dataCompression">启用数据压缩</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="localStorage" checked>
+                                <label for="localStorage">本地存储备份数据</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deviceDescription" class="form-label">设备描述</label>
+                        <textarea id="deviceDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">保存设备</button>
+                    <button type="button" class="btn btn-outline" id="cancelBtn">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const deviceId = urlParams.get('id');
+            const isEditMode = !!deviceId;
+            
+            const form = document.getElementById('deviceForm');
+            const generateIdBtn = document.getElementById('generateId');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const advancedToggle = document.getElementById('advancedToggle');
+            const advancedContent = document.getElementById('advancedContent');
+            
+            if (isEditMode) {
+                document.querySelector('.header h1').textContent = '编辑设备';
+                loadDeviceData(deviceId);
+            } else {
+                document.querySelector('.header h1').textContent = '添加设备';
+                generateDeviceId();
+            }
+            
+            generateIdBtn.addEventListener('click', generateDeviceId);
+            
+            advancedToggle.addEventListener('click', function() {
+                advancedContent.classList.toggle('show');
+                const icon = advancedToggle.querySelector('svg');
+                if (advancedContent.classList.contains('show')) {
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    icon.style.transform = 'rotate(0)';
+                }
+            });
+            
+            cancelBtn.addEventListener('click', function() {
+                window.location.href = 'devices.html';
+            });
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveDeviceData(isEditMode ? deviceId : null);
+            });
+            
+            function generateDeviceId() {
+                const prefix = 'DEV-';
+                const randomPart = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+                const timestamp = Date.now().toString().slice(-4);
+                document.getElementById('deviceId').value = prefix + randomPart + '-' + timestamp;
+            }
+            
+            function loadDeviceData(id) {
+                const devices = JSON.parse(localStorage.getItem('iotDevices')) || [];
+                const device = devices.find(d => d.id === id);
+                
+                if (device) {
+                    document.getElementById('deviceName').value = device.name || '';
+                    document.getElementById('deviceType').value = device.type || '';
+                    document.getElementById('deviceId').value = device.id || '';
+                    document.getElementById('deviceStatus').value = device.status || 'active';
+                    document.getElementById('deviceGroup').value = device.group || '';
+                    document.getElementById('deviceLocation').value = device.location || '';
+                    document.getElementById('dataInterval').value = device.dataInterval || '30';
+                    document.getElementById('edgeProcessing').checked = device.edgeProcessing !== false;
+                    document.getElementById('dataCompression').checked = device.dataCompression || false;
+                    document.getElementById('localStorage').checked = device.localStorage !== false;
+                    document.getElementById('deviceDescription').value = device.description || '';
+                }
+            }
+            
+            function saveDeviceData(existingId) {
+                const deviceData = {
+                    id: existingId || document.getElementById('deviceId').value,
+                    name: document.getElementById('deviceName').value,
+                    type: document.getElementById('deviceType').value,
+                    status: document.getElementById('deviceStatus').value,
+                    group: document.getElementById('deviceGroup').value,
+                    location: document.getElementById('deviceLocation').value,
+                    dataInterval: document.getElementById('dataInterval').value,
+                    edgeProcessing: document.getElementById('edgeProcessing').checked,
+                    dataCompression: document.getElementById('dataCompression').checked,
+                    localStorage: document.getElementById('localStorage').checked,
+                    description: document.getElementById('deviceDescription').value,
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                let devices = JSON.parse(localStorage.getItem('iotDevices')) || [];
+                
+                if (existingId) {
+                    const index = devices.findIndex(d => d.id === existingId);
+                    if (index !== -1) {
+                        devices[index] = deviceData;
+                    }
+                } else {
+                    devices.push(deviceData);
+                }
+                
+                localStorage.setItem('iotDevices', JSON.stringify(devices));
+                window.location.href = 'devices.html';
+            }
+        });
+    </script>
+</body>
+</html>

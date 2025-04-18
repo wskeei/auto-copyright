@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备状态概览 | 物联网数据分析</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #147ce5;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --online-status: #34c759;
+            --offline-status: #ff3b30;
+            --warning-status: #ff9500;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            font-size: 14px;
+            min-width: 160px;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .device-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #e8f2fc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .device-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--online-status);
+        }
+
+        .status-offline {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--offline-status);
+        }
+
+        .status-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-status);
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .device-type {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .device-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: monospace;
+            margin-bottom: 16px;
+        }
+
+        .device-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .last-updated {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            text-align: right;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">设备状态概览</h1>
+        <div class="controls">
+            <button class="btn btn-outline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4V20M12 4L8 8M12 4L16 8M12 20L8 16M12 20L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                刷新
+            </button>
+            <button class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4V20M12 4L8 8M12 4L16 8M12 20L8 16M12 20L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                添加设备
+            </button>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-group">
+            <span class="filter-label">设备类型</span>
+            <select id="device-type-filter">
+                <option value="all">所有类型</option>
+                <option value="sensor">环境传感器</option>
+                <option value="meter">智能电表</option>
+                <option value="controller">工业控制器</option>
+                <option value="gateway">网关设备</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">状态</span>
+            <select id="status-filter">
+                <option value="all">所有状态</option>
+                <option value="online">在线</option>
+                <option value="offline">离线</option>
+                <option value="warning">警告</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">排序方式</span>
+            <select id="sort-filter">
+                <option value="name">按名称</option>
+                <option value="status">按状态</option>
+                <option value="type">按类型</option>
+                <option value="updated">最近更新</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="device-grid" id="device-grid">
+        <!-- 设备卡片将通过JavaScript动态生成 -->
+    </div>
+
+    <script>
+        const deviceData = [
+            {
+                id: "SN-2024-001",
+                name: "温湿度传感器-01",
+                type: "sensor",
+                status: "online",
+                metrics: {
+                    temperature: "23.5°C",
+                    humidity: "65%",
+                    battery: "87%"
+                },
+                lastUpdated: "刚刚"
+            },
+            {
+                id: "SN-2024-002",
+                name: "智能电表-A区",
+                type: "meter",
+                status: "online",
+                metrics: {
+                    voltage: "220.3V",
+                    current: "4.2A",
+                    power: "925W"
+                },
+                lastUpdated: "1分钟前"
+            },
+            {
+                id: "SN-2024-003",
+                name: "工业控制器-产线1",
+                type: "controller",
+                status: "warning",
+                metrics: {
+                    status: "运行中",
+                    temp: "42°C",
+                    uptime: "36小时"
+                },
+                lastUpdated: "2分钟前"
+            },
+            {
+                id: "SN-2024-004",
+                name: "空气质量监测",
+                type: "sensor",
+                status: "online",
+                metrics: {
+                    pm25: "12μg/m³",
+                    co2: "450ppm",
+                    voc: "0.8mg/m³"
+                },
+                lastUpdated: "3分钟前"
+            },
+            {
+                id: "SN-2024-005",
+                name: "网关设备-主楼",
+                type: "gateway",
+                status: "offline",
+                metrics: {
+                    devices: "8台",
+                    uptime: "-",
+                    load: "-"
+                },
+                lastUpdated: "25分钟前"
+            },
+            {
+                id: "SN-2024-006",
+                name: "智能电表-B区",
+                type: "meter",
+                status: "online",
+                metrics: {
+                    voltage: "219.8V",
+                    current: "3.1A",
+                    power: "682W"
+                },
+                lastUpdated: "5分钟前"
+            },
+            {
+                id: "SN-2024-007",
+                name: "温湿度传感器-02",
+                type: "sensor",
+                status: "online",
+                metrics: {
+                    temperature: "24.1°C",
+                    humidity: "62%",
+                    battery: "92%"
+                },
+                lastUpdated: "7分钟前"
+            },
+            {
+                id: "SN-2024-008",
+                name: "工业控制器-产线2",
+                type: "controller",
+                status: "online",
+                metrics: {
+                    status: "待机",
+                    temp: "35°C",
+                    uptime: "42小时"
+                },
+                lastUpdated: "10分钟前"
+            }
+        ];
+
+        const typeIcons = {
+            sensor: "🌡️",
+            meter: "⚡",
+            controller: "⚙️",
+            gateway: "📶"
+        };
+
+        const typeNames = {
+            sensor: "环境传感器",
+            meter: "智能电表",
+            controller: "工业控制器",
+            gateway: "网关设备"
+        };
+
+        function renderDevices(devices) {
+            const grid = document.getElementById('device-grid');
+            grid.innerHTML = '';
+
+            if (devices.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-text">没有找到匹配的设备</div>
+                        <button class="btn btn-outline">重置筛选条件</button>
+                    </div>
+                `;
+                return;
+            }
+
+            devices.forEach(device => {
+                const card = document.createElement('div');
+                card.className = 'device-card';
+                
+                let statusClass = '';
+                if (device.status === 'online') statusClass = 'status-online';
+                else if (device.status === 'offline') statusClass = 'status-offline';
+                else if (device.status === 'warning') statusClass = 'status-warning';
+
+                let metricsHtml = '';
+                for (const [key, value] of Object.entries(device.metrics)) {
+                    metricsHtml += `
+                        <div class="metric-item">
+                            <span class="metric-label">${key}</span>
+                            <span class="metric-value">${value}</span>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="device-header">
+                        <div class="device-icon">${typeIcons[device.type]}</div>
+                        <span class="device-status ${statusClass}">${device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '警告'}</span>
+                    </div>
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-type">${typeNames[device.type]}</div>
+                    <div class="device-id">${device.id}</div>
+                    <div class="device-metrics">${metricsHtml}</div>
+                    <div class="last-updated">最后更新: ${device.lastUpdated}</div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function filterDevices() {
+            const typeFilter = document.getElementById('device-type-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const sortFilter = document.getElementById('sort-filter').value;
+
+            let filtered = [...deviceData];
+
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(device => device.type === typeFilter);
+            }
+
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(device => device.status === statusFilter);
+            }
+
+            if (sortFilter === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortFilter === 'status') {
+                filtered.sort((a, b) => {
+                    const statusOrder = { 'online': 1, 'warning': 2, 'offline': 3 };
+                    return statusOrder[a.status] - statusOrder[b.status];
+                });
+            } else if (sortFilter === 'type') {
+                filtered.sort((a, b) => a.type.localeCompare(b.type));
+            } else if (sortFilter === 'updated') {
+                filtered.sort((a, b) => {
+                    const getMinutes = (str) => {
+                        if (str === '刚刚') return 0;
+                        const match = str.match(/(\d+)/);
+                        return match ? parseInt(match[1]) : 0;
+                    };
+                    return getMinutes(a.lastUpdated) - getMinutes(b.lastUpdated);
+                });
+            }
+
+            renderDevices(filtered);
+        }
+
+        document.getElementById('device-type-filter').addEventListener('change', filterDevices);
+        document.getElementById('status-filter').addEventListener('change', filterDevices);
+        document.getElementById('sort-filter').addEventListener('change', filterDevices);
+
+        document.querySelector('.btn-outline').addEventListener('click', () => {
+            renderDevices(deviceData);
+            document.getElementById('device-type-filter').value = 'all';
+            document.getElementById('status-filter').value = 'all';
+            document.getElementById('sort-filter').value = 'name';
+        });
+
+        renderDevices(deviceData);
+    </script>
+</body>
+</html>

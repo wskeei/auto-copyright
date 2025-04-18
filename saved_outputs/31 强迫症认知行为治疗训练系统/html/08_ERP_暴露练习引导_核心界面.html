@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强迫症认知行为治疗训练系统 - ERP暴露练习</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-item {
+            margin-left: 20px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .progress-container {
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 25px 0;
+        }
+
+        .timer {
+            font-size: 48px;
+            font-weight: 600;
+            margin: 15px 0;
+            color: var(--text-color);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .select-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-input {
+            margin-right: 8px;
+        }
+
+        .suds-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .suds-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .suds-item {
+            display: none;
+        }
+
+        .suds-item.active {
+            display: block;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-weight: 500;
+        }
+
+        .history-success {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .history-failure {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #86868b;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .tab-content {
+            padding: 20px 0;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">强迫症认知行为治疗训练系统</div>
+            <nav>
+                <a href="#" class="nav-item">首页</a>
+                <a href="#" class="nav-item active">ERP练习</a>
+                <a href="#" class="nav-item">历史记录</a>
+                <a href="#" class="nav-item">设置</a>
+            </nav>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress" style="width: 25%"></div>
+            </div>
+            <div class="progress-text">
+                <span>当前进度</span>
+                <span>25%</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">ERP暴露练习引导</h2>
+            <p>请按照步骤完成本次暴露练习，系统将引导您逐步完成整个过程。</p>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab-nav">
+                <div class="tab-item active" data-tab="prepare">准备阶段</div>
+                <div class="tab-item" data-tab="exposure">暴露阶段</div>
+                <div class="tab-item" data-tab="review">回顾阶段</div>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane active" id="prepare">
+                    <div class="card">
+                        <div class="form-group">
+                            <label class="form-label">选择暴露情境</label>
+                            <select class="select-control" id="exposure-type">
+                                <option value="">请选择暴露情境</option>
+                                <option value="contamination">污染/清洁相关</option>
+                                <option value="checking">检查相关</option>
+                                <option value="symmetry">对称/精确相关</option>
+                                <option value="forbidden">禁忌想法/图像</option>
+                                <option value="hoarding">囤积相关</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">具体描述暴露任务</label>
+                            <textarea class="form-control" id="exposure-description" rows="3" placeholder="请具体描述您将要进行的暴露任务..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">预计暴露时长 (分钟)</label>
+                            <select class="select-control" id="exposure-duration">
+                                <option value="5">5分钟</option>
+                                <option value="10" selected>10分钟</option>
+                                <option value="15">15分钟</option>
+                                <option value="20">20分钟</option>
+                                <option value="30">30分钟</option>
+                                <option value="45">45分钟</option>
+                                <option value="60">60分钟</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">暴露前SUDS评分 (0-100)</label>
+                            <input type="range" class="form-control" id="pre-suds" min="0" max="100" value="50">
+                            <div class="suds-scale">
+                                <span>0 (无不适)</span>
+                                <span>100 (极度不适)</span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" id="start-exposure">开始暴露练习</button>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="exposure">
+                    <div class="card">
+                        <div class="alert alert-warning">
+                            <span class="alert-icon">⚠️</span>
+                            <div>
+                                <strong>反应阻止提醒：</strong> 在暴露过程中，请务必避免执行任何强迫行为或中和行为。这是治疗的关键部分。
+                            </div>
+                        </div>
+
+                        <h3 id="current-task-title">当前任务：</h3>
+                        <p id="current-task-description"></p>
+
+                        <div class="timer-container">
+                            <div class="timer" id="timer">10:00</div>
+                            <div class="timer-controls">
+                                <button class="btn btn-secondary" id="pause-timer">暂停</button>
+                                <button class="btn btn-danger" id="stop-exposure">提前结束</button>
+                            </div>
+                        </div>
+
+                        <div class="suds-container">
+                            <div class="suds-item active" id="mid-suds-container">
+                                <div class="form-group">
+                                    <label class="form-label">当前SUDS评分 (0-100)</label>
+                                    <input type="range" class="form-control" id="mid-suds" min="0" max="100" value="50">
+                                    <div class="suds-scale">
+                                        <span>0 (无不适)</span>
+                                        <span>100 (极度不适)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">当前想法/感受记录</label>
+                            <textarea class="form-control" id="exposure-notes" rows="3" placeholder="请记录您在暴露过程中的想法和感受..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="review">
+                    <div class="card">
+                        <div class="form-group">
+                            <label class="form-label">暴露后SUDS评分 (0-100)</label>
+                            <input type="range" class="form-control" id="post-suds" min="0" max="100" value="30">
+                            <div class="suds-scale">
+                                <span>0 (无不适)</span>
+                                <span>100 (极度不适)</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">是否成功阻止反应行为？</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="success-yes" name="success" class="radio-input" value="yes" checked>
+                                    <label for="success-yes">是</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="success-no" name="success" class="radio-input" value="no">
+                                    <label for="success-no">否</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">练习总结</label>
+                            <textarea class="form-control" id="review-notes" rows="3" placeholder="请总结本次练习的经验和体会..."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary" id="save-session">保存本次练习</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card hidden" id="history-card">
+            <h2 class="card-title">最近练习记录</h2>
+            <div id="history-list">
+                <div class="history-item">
+                    <div>
+                        <div class="history-date">2024-06-10</div>
+                        <div>污染/清洁相关 - 10分钟</div>
+                    </div>
+                    <div class="history-success">成功</div>
+                </div>
+                <div class="history-item">
+                    <div>
+                        <div class="history-date">2024-06-08</div>
+                        <div>检查相关 - 15分钟</div>
+                    </div>
+                    <div class="history-failure">失败</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabItems = document.querySelectorAll('.tab-item');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            const startExposureBtn = document.getElementById('start-exposure');
+            const pauseTimerBtn = document.getElementById('pause-timer');
+            const stopExposureBtn = document.getElementById('stop-exposure');
+            const saveSessionBtn = document.getElementById('save-session');
+            const timerDisplay = document.getElementById('timer');
+            const exposureTypeSelect = document.getElementById('exposure-type');
+            const exposureDescription = document.getElementById('exposure-description');
+            const exposureDuration = document.getElementById('exposure-duration');
+            const currentTaskTitle = document.getElementById('current-task-title');
+            const currentTaskDescription = document.getElementById('current-task-description');
+            const preSuds = document.getElementById('pre-suds');
+            const midSuds = document.getElementById('mid-suds');
+            const postSuds = document.getElementById('post-suds');
+            const exposureNotes = document.getElementById('exposure-notes');
+            const reviewNotes = document.getElementById('review-notes');
+            const historyCard = document.getElementById('history-card');
+            const historyList = document.getElementById('history-list');
+            const progressBar = document.getElementById('progress');
+
+            let timer;
+            let timeLeft;
+            let isPaused = false;
+            let currentTab = 'prepare';
+
+            tabItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabItems.forEach(tab => tab.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    currentTab = tabId;
+                    updateProgress();
+                });
+            });
+
+            startExposureBtn.addEventListener('click', function() {
+                if (!exposureTypeSelect.value) {
+                    alert('请选择暴露情境');
+                    return;
+                }
+
+                if (!exposureDescription.value.trim()) {
+                    alert('请描述具体的暴露任务');
+                    return;
+                }
+
+                const duration = parseInt(exposureDuration.value) * 60;
+                timeLeft = duration;
+                updateTimerDisplay();
+
+                currentTaskTitle.textContent = `当前任务：${exposureTypeSelect.options[exposureTypeSelect.selectedIndex].text}`;
+                currentTaskDescription.textContent = exposureDescription.value;
+
+                document.querySelector('.tab-item[data-tab="exposure"]').click();
+                
+                timer = setInterval(function() {
+                    if (!isPaused) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            document.querySelector('.tab-item[data-tab="review"]').click();
+                        }
+                    }
+                }, 1000);
+            });
+
+            pauseTimerBtn.addEventListener('click', function() {
+                isPaused = !isPaused;
+                this.textContent = isPaused ? '继续' : '暂停';
+            });
+
+            stopExposureBtn.addEventListener('click', function() {
+                clearInterval(timer);
+                document.querySelector('.tab-item[data-tab="review"]').click();
+            });
+
+            saveSessionBtn.addEventListener('click', function() {
+                const session = {
+                    date: new Date().toISOString().split('T')[0],
+                    type: exposureTypeSelect.options[exposureTypeSelect.selectedIndex].text,
+                    description: exposureDescription.value,
+                    duration: exposureDuration.value,
+                    preSuds: preSuds.value,
+                    midSuds: midSuds.value,
+                    postSuds: postSuds.value,
+                    success: document.querySelector('input[name="success"]:checked').value === 'yes',
+                    notes: reviewNotes.value
+                };
+
+                let sessions = JSON.parse(localStorage.getItem('erpSessions')) || [];
+                sessions.unshift(session);
+                localStorage.setItem('erpSessions', JSON.stringify(sessions));
+
+                updateHistory();
+                alert('练习记录已保存');
+                resetForm();
+                document.querySelector('.tab-item[data-tab="prepare"]').click();
+            });
+
+            function updateTimerDisplay() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            function updateHistory() {
+                const sessions = JSON.parse(localStorage.getItem('erpSessions')) || [];
+                historyList.innerHTML = '';
+                
+                sessions.slice(0, 3).forEach(session => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    
+                    item.innerHTML = `
+                        <div>
+                            <div class="history-date">${session.date}</div>
+                            <div>${session.type} - ${session.duration}分钟</div>
+                        </div>
+                        <div class="${session.success ? 'history-success' : 'history-failure'}">${session.success ? '成功' : '失败'}</div>
+                    `;
+                    
+                    historyList.appendChild(item);
+                });
+                
+                historyCard.classList.remove('hidden');
+            }
+
+            function resetForm() {
+                exposureTypeSelect.value = '';
+                exposureDescription.value = '';
+                exposureDuration.value = '10';
+                preSuds.value = '50';
+                midSuds.value = '50';
+                postSuds.value = '30';
+                exposureNotes.value = '';
+                reviewNotes.value = '';
+                document.getElementById('success-yes').checked = true;
+                timeLeft = 0;
+                updateTimerDisplay();
+            }
+
+            function updateProgress() {
+                let progress = 0;
+                
+                if (currentTab === 'prepare') {
+                    progress = 25;
+                } else if (currentTab === 'exposure') {
+                    progress = 50;
+                } else if (currentTab === 'review') {
+                    progress = 75;
+                }
+                
+                progressBar.style.width = `${progress}%`;
+                document.querySelector('.progress-text span:last-child').textContent = `${progress}%`;
+            }
+
+            updateHistory();
+        });
+    </script>
+</body>
+</html>

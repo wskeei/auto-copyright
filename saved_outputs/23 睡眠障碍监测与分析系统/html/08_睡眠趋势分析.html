@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠趋势分析 | 睡眠障碍监测与分析系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-color);
+            font-size: 14px;
+            color: var(--text-primary);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .date-range-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c3;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(0, 113, 227, 0.03);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">睡眠监测</div>
+            <nav class="nav">
+                <a href="#" class="nav-item">概览</a>
+                <a href="#" class="nav-item">睡眠记录</a>
+                <a href="#" class="nav-item active">趋势分析</a>
+                <a href="#" class="nav-item">建议</a>
+                <a href="#" class="nav-item">设置</a>
+            </nav>
+        </header>
+
+        <h1 class="page-title">睡眠趋势分析</h1>
+
+        <div class="card">
+            <h2 class="card-title">分析设置</h2>
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label class="filter-label">分析指标</label>
+                    <select id="metric-select">
+                        <option value="duration">总睡眠时长</option>
+                        <option value="efficiency">睡眠效率</option>
+                        <option value="latency">入睡潜伏期</option>
+                        <option value="deep_sleep">深睡时长</option>
+                        <option value="rem_sleep">REM睡眠时长</option>
+                        <option value="awakenings">夜间觉醒次数</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">时间范围</label>
+                    <select id="time-range-select">
+                        <option value="7">近一周</option>
+                        <option value="30" selected>近一月</option>
+                        <option value="90">近三月</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div class="filter-group" id="custom-date-group" style="display: none;">
+                    <label class="filter-label">自定义日期范围</label>
+                    <div class="date-range-group">
+                        <input type="date" id="start-date" class="date-input">
+                        <span style="line-height: 40px;">至</span>
+                        <input type="date" id="end-date" class="date-input">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">图表类型</label>
+                    <select id="chart-type-select">
+                        <option value="line">折线图</option>
+                        <option value="bar">柱状图</option>
+                    </select>
+                </div>
+            </div>
+            <button id="apply-btn" class="btn btn-primary">应用设置</button>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">睡眠趋势图表</h2>
+            <div class="chart-container">
+                <canvas id="sleep-chart"></canvas>
+            </div>
+            <div class="export-options">
+                <button id="export-png-btn" class="btn btn-secondary">导出PNG</button>
+                <button id="export-csv-btn" class="btn btn-secondary">导出CSV</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">详细数据</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>总睡眠时长</th>
+                        <th>睡眠效率</th>
+                        <th>入睡潜伏期</th>
+                        <th>深睡时长</th>
+                        <th>REM睡眠</th>
+                        <th>觉醒次数</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+            <div id="no-data-message" class="no-data" style="display: none;">
+                没有找到符合条件的数据，请尝试调整筛选条件或录入更多睡眠记录。
+            </div>
+        </div>
+
+        <footer>
+            <p>睡眠障碍监测与分析系统 · 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化日期输入
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(today.getMonth() - 1);
+            
+            document.getElementById('start-date').valueAsDate = oneMonthAgo;
+            document.getElementById('end-date').valueAsDate = today;
+
+            // 时间范围选择变化事件
+            document.getElementById('time-range-select').addEventListener('change', function() {
+                const customDateGroup = document.getElementById('custom-date-group');
+                if (this.value === 'custom') {
+                    customDateGroup.style.display = 'block';
+                } else {
+                    customDateGroup.style.display = 'none';
+                }
+            });
+
+            // 初始化图表
+            const ctx = document.getElementById('sleep-chart').getContext('2d');
+            let sleepChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '总睡眠时长 (小时)',
+                        data: [],
+                        borderColor: '#0071e3',
+                        backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+
+            // 从LocalStorage加载数据或使用示例数据
+            function loadSleepData() {
+                let sleepData = JSON.parse(localStorage.getItem('sleepData'));
+                
+                if (!sleepData || sleepData.length === 0) {
+                    sleepData = generateSampleData();
+                    localStorage.setItem('sleepData', JSON.stringify(sleepData));
+                }
+                
+                return sleepData;
+            }
+
+            // 生成示例数据
+            function generateSampleData() {
+                const data = [];
+                const now = new Date();
+                
+                for (let i = 90; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(now.getDate() - i);
+                    
+                    // 随机生成睡眠数据
+                    const sleepDuration = 6 + Math.random() * 3; // 6-9小时
+                    const sleepEfficiency = 80 + Math.random() * 15; // 80-95%
+                    const sleepLatency = 5 + Math.random() * 25; // 5-30分钟
+                    const deepSleep = 1 + Math.random() * 2; // 1-3小时
+                    const remSleep = 1 + Math.random() * 1.5; // 1-2.5小时
+                    const awakenings = Math.floor(Math.random() * 3); // 0-2次
+                    
+                    data.push({
+                        date: date.toISOString().split('T')[0],
+                        duration: parseFloat(sleepDuration.toFixed(1)),
+                        efficiency: parseFloat(sleepEfficiency.toFixed(1)),
+                        latency: parseFloat(sleepLatency.toFixed(1)),
+                        deep_sleep: parseFloat(deepSleep.toFixed(1)),
+                        rem_sleep: parseFloat(remSleep.toFixed(1)),
+                        awakenings: awakenings
+                    });
+                }
+                
+                return data;
+            }
+
+            // 根据筛选条件过滤数据
+            function filterData(data) {
+                const timeRange = document.getElementById('time-range-select').value;
+                const metric = document.getElementById('metric-select').value;
+                const chartType = document.getElementById('chart-type-select').value;
+                
+                let filteredData = [...data];
+                const today = new Date();
+                
+                if (timeRange !== 'custom') {
+                    const days = parseInt(timeRange);
+                    const cutoffDate = new Date();
+                    cutoffDate.setDate(today.getDate() - days);
+                    
+                    filteredData = filteredData.filter(item => {
+                        const itemDate = new Date(item.date);
+                        return itemDate >= cutoffDate;
+                    });
+                } else {
+                    const startDate = document.getElementById('start-date').value;
+                    const endDate = document.getElementById('end-date').value;
+                    
+                    filteredData = filteredData.filter(item => {
+                        return item.date >= startDate && item.date <= endDate;
+                    });
+                }
+                
+                return {
+                    filteredData,
+                    metric,
+                    chartType
+                };
+            }
+
+            // 更新图表
+            function updateChart(data, metric, chartType) {
+                const metricLabels = {
+                    duration: '总睡眠时长 (小时)',
+                    efficiency: '睡眠效率 (%)',
+                    latency: '入睡潜伏期 (分钟)',
+                    deep_sleep: '深睡时长 (小时)',
+                    rem_sleep: 'REM睡眠时长 (小时)',
+                    awakenings: '夜间觉醒次数 (次)'
+                };
+                
+                const chartColors = {
+                    duration: '#0071e3',
+                    efficiency: '#34c759',
+                    latency: '#ff9500',
+                    deep_sleep: '#5856d6',
+                    rem_sleep: '#af52de',
+                    awakenings: '#ff2d55'
+                };
+                
+                sleepChart.destroy();
+                sleepChart = new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: data.map(item => item.date),
+                        datasets: [{
+                            label: metricLabels[metric],
+                            data: data.map(item => item[metric]),
+                            borderColor: chartColors[metric],
+                            backgroundColor: chartColors[metric] + '33', // 添加透明度
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: metric === 'efficiency' || metric === 'awakenings'
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 更新数据表格
+            function updateDataTable(data) {
+                const tableBody = document.getElementById('data-table-body');
+                const noDataMessage = document.getElementById('no-data-message');
+                
+                tableBody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    noDataMessage.style.display = 'block';
+                    return;
+                }
+                
+                noDataMessage.style.display = 'none';
+                
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.duration}</td>
+                        <td>${item.efficiency}</td>
+                        <td>${item.latency}</td>
+                        <td>${item.deep_sleep}</td>
+                        <td>${item.rem_sleep}</td>
+                        <td>${item.awakenings}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // 应用按钮点击事件
+            document.getElementById('apply-btn').addEventListener('click', function() {
+                const sleepData = loadSleepData();
+                const { filteredData, metric, chartType } = filterData(sleepData);
+                
+                updateChart(filteredData, metric, chartType);
+                updateDataTable(filteredData);
+            });
+
+            // 导出PNG按钮点击事件
+            document.getElementById('export-png-btn').addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.download = '睡眠趋势图表.png';
+                link.href = document.getElementById('sleep-chart').toDataURL('image/png');
+                link.click();
+            });
+
+            // 导出CSV按钮点击事件
+            document.getElementById('export-csv-btn').addEventListener('click', function() {
+                const sleepData = loadSleepData();
+                const { filteredData } = filterData(sleepData);
+                
+                let csv = '日期,总睡眠时长(小时),睡眠效率(%),入睡潜伏期(分钟),深睡时长(小时),REM睡眠(小时),觉醒次数(次)\n';
+                
+                filteredData.forEach(item => {
+                    csv += `${item.date},${item.duration},${item.efficiency},${item.latency},${item.deep_sleep},${item.rem_sleep},${item.awakenings}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = '睡眠数据.csv';
+                link.href = url;
+                link.click();
+            });
+
+            // 初始加载数据
+            const sleepData = loadSleepData();
+            const { filteredData, metric, chartType } = filterData(sleepData);
+            updateChart(filteredData, metric, chartType);
+            updateDataTable(filteredData);
+        });
+    </script>
+</body>
+</html>

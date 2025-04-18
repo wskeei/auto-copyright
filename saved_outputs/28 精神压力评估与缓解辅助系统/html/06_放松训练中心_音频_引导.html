@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relaxation Training Center</title>
+    <style>
+        :root {
+            --primary-blue: #0071e3;
+            --light-blue: #e6f1fa;
+            --dark-blue: #004a8f;
+            --system-gray: #f5f5f7;
+            --system-gray2: #eaeaea;
+            --system-gray3: #d2d2d7;
+            --label-primary: #1d1d1f;
+            --label-secondary: #86868b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--system-gray);
+            color: var(--label-primary);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--system-gray2);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+        
+        .nav-item {
+            display: inline-block;
+            margin-left: 25px;
+            color: var(--label-secondary);
+            text-decoration: none;
+            font-size: 16px;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-blue);
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--label-secondary);
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .play-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--primary-blue);
+            border: none;
+            color: white;
+            font-size: 18px;
+            margin-right: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .progress-container {
+            flex: 1;
+            height: 4px;
+            background-color: var(--system-gray2);
+            border-radius: 2px;
+            position: relative;
+            margin-right: 10px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-blue);
+            border-radius: 2px;
+            width: 0%;
+        }
+        
+        .time {
+            font-size: 14px;
+            color: var(--label-secondary);
+            min-width: 80px;
+            text-align: right;
+        }
+        
+        .select-container {
+            margin-bottom: 15px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--system-gray3);
+            border-radius: 8px;
+            background-color: white;
+            font-size: 16px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231D1D1F%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px auto;
+        }
+        
+        .rating-container {
+            margin: 20px 0;
+        }
+        
+        .rating-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--label-secondary);
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .star {
+            color: var(--system-gray3);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .star.active {
+            color: #ffcc00;
+        }
+        
+        .btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn:hover {
+            background-color: var(--dark-blue);
+        }
+        
+        .stats-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .stats-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--label-secondary);
+            font-size: 14px;
+        }
+        
+        .breath-animation {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--light-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary-blue);
+            transition: all 4s ease-in-out;
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--primary-blue);
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .instructions {
+            background-color: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Relaxation Training</div>
+            <nav>
+                <a href="#" class="nav-item active">Guided Sessions</a>
+                <a href="#" class="nav-item">Music Library</a>
+                <a href="#" class="nav-item">Progress</a>
+                <a href="#" class="nav-item">Settings</a>
+            </nav>
+        </header>
+        
+        <h1>Relaxation Training Center</h1>
+        <p class="subtitle">Select a guided session to reduce stress and improve mindfulness</p>
+        
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-header">Guided Breathing Exercise</div>
+                <div class="card-body">
+                    <div class="select-container">
+                        <select id="breath-pattern">
+                            <option value="4-7-8">4-7-8 Breathing (Calming)</option>
+                            <option value="box">Box Breathing (Focus)</option>
+                            <option value="coherent">Coherent Breathing (Balancing)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="breath-animation">
+                        <div class="circle" id="breath-circle">Breathe In</div>
+                    </div>
+                    
+                    <div class="timer" id="breath-timer">00:00</div>
+                    
+                    <div class="instructions">
+                        Follow the animation: Inhale as the circle expands, hold when full, exhale as it contracts.
+                    </div>
+                    
+                    <button class="btn" id="start-breath">Start Session</button>
+                    <button class="btn hidden" id="stop-breath">End Session</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Body Scan Meditation</div>
+                <div class="card-body">
+                    <div class="select-container">
+                        <select id="body-scan-option">
+                            <option value="10min">10 Minute Quick Scan</option>
+                            <option value="20min">20 Minute Full Body</option>
+                            <option value="30min">30 Minute Deep Relaxation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="audio-controls">
+                        <button class="play-btn" id="body-play">▶</button>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="body-progress"></div>
+                        </div>
+                        <div class="time" id="body-time">00:00 / 10:00</div>
+                    </div>
+                    
+                    <div class="rating-container">
+                        <span class="rating-label">Rate your relaxation after session:</span>
+                        <div class="rating-stars">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="save-body">Save Session</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Mindfulness Meditation</div>
+                <div class="card-body">
+                    <div class="select-container">
+                        <select id="mindfulness-option">
+                            <option value="beginner">Beginner's Guide (5 min)</option>
+                            <option value="intermediate">Focused Attention (15 min)</option>
+                            <option value="advanced">Open Monitoring (25 min)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="audio-controls">
+                        <button class="play-btn" id="mind-play">▶</button>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="mind-progress"></div>
+                        </div>
+                        <div class="time" id="mind-time">00:00 / 05:00</div>
+                    </div>
+                    
+                    <div class="rating-container">
+                        <span class="rating-label">Rate your relaxation after session:</span>
+                        <div class="rating-stars">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="save-mind">Save Session</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stats-header">
+                <div class="stats-title">Your Relaxation Progress</div>
+                <select>
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>All Time</option>
+                </select>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Sessions Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">4.2</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">3h 45m</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Breathing Exercise
+            const breathCircle = document.getElementById('breath-circle');
+            const breathTimer = document.getElementById('breath-timer');
+            const startBreathBtn = document.getElementById('start-breath');
+            const stopBreathBtn = document.getElementById('stop-breath');
+            const breathPattern = document.getElementById('breath-pattern');
+            
+            let breathInterval;
+            let breathSeconds = 0;
+            let isBreathing = false;
+            let currentPattern = '4-7-8';
+            
+            breathPattern.addEventListener('change', function() {
+                currentPattern = this.value;
+            });
+            
+            startBreathBtn.addEventListener('click', function() {
+                isBreathing = true;
+                startBreathBtn.classList.add('hidden');
+                stopBreathBtn.classList.remove('hidden');
+                breathSeconds = 0;
+                updateBreathTimer();
+                startBreathAnimation();
+                breathInterval = setInterval(updateBreathTimer, 1000);
+            });
+            
+            stopBreathBtn.addEventListener('click', function() {
+                isBreathing = false;
+                startBreathBtn.classList.remove('hidden');
+                stopBreathBtn.classList.add('hidden');
+                clearInterval(breathInterval);
+                breathCircle.style.width = '100px';
+                breathCircle.style.height = '100px';
+                breathCircle.textContent = 'Breathe In';
+            });
+            
+            function updateBreathTimer() {
+                breathSeconds++;
+                const minutes = Math.floor(breathSeconds / 60);
+                const seconds = breathSeconds % 60;
+                breathTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            function startBreathAnimation() {
+                if (!isBreathing) return;
+                
+                const patterns = {
+                    '4-7-8': { inhale: 4, hold: 7, exhale: 8 },
+                    'box': { inhale: 4, hold: 4, exhale: 4 },
+                    'coherent': { inhale: 5, hold: 0, exhale: 5 }
+                };
+                
+                const pattern = patterns[currentPattern];
+                const totalTime = pattern.inhale + pattern.hold + pattern.exhale;
+                let cycleTime = 0;
+                
+                function animate() {
+                    if (!isBreathing) return;
+                    
+                    cycleTime = (cycleTime + 0.1) % totalTime;
+                    
+                    if (cycleTime < pattern.inhale) {
+                        const progress = cycleTime / pattern.inhale;
+                        const size = 100 + (progress * 100);
+                        breathCircle.style.width = `${size}px`;
+                        breathCircle.style.height = `${size}px`;
+                        breathCircle.textContent = 'Breathe In';
+                    } else if (cycleTime < pattern.inhale + pattern.hold) {
+                        breathCircle.textContent = 'Hold';
+                    } else {
+                        const progress = (cycleTime - pattern.inhale - pattern.hold) / pattern.exhale;
+                        const size = 200 - (progress * 100);
+                        breathCircle.style.width = `${size}px`;
+                        breathCircle.style.height = `${size}px`;
+                        breathCircle.textContent = 'Breathe Out';
+                    }
+                    
+                    requestAnimationFrame(animate);
+                }
+                
+                animate();
+            }
+            
+            // Audio Players
+            function setupAudioPlayer(playBtnId, progressId, timeId, durations) {
+                const playBtn = document.getElementById(playBtnId);
+                const progressBar = document.getElementById(progressId);
+                const timeDisplay = document.getElementById(timeId);
+                let isPlaying = false;
+                let progress = 0;
+                let duration = durations['10min'] || durations['beginner'];
+                
+                playBtn.addEventListener('click', function() {
+                    isPlaying = !isPlaying;
+                    playBtn.textContent = isPlaying ? '❚❚' : '▶';
+                    
+                    if (isPlaying) {
+                        simulatePlayback();
+                    }
+                });
+                
+                function simulatePlayback() {
+                    if (!isPlaying) return;
+                    
+                    progress += 0.5;
+                    const progressPercent = (progress / duration) * 100;
+                    progressBar.style.width = `${Math.min(progressPercent, 100)}%`;
+                    
+                    const currentTime = Math.min(progress, duration);
+                    const minutes = Math.floor(currentTime / 60);
+                    const seconds = Math.floor(currentTime % 60);
+                    const totalMinutes = Math.floor(duration / 60);
+                    const totalSeconds = Math.floor(duration % 60);
+                    
+                    timeDisplay.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} / 
+                         ${totalMinutes.toString().padStart(2, '0')}:${totalSeconds.toString().padStart(2, '0')}`;
+                    
+                    if (progress < duration) {
+                        setTimeout(simulatePlayback, 500);
+                    } else {
+                        isPlaying = false;
+                        playBtn.textContent = '▶';
+                    }
+                }
+                
+                return {
+                    updateDuration: function(newDuration) {
+                        duration = newDuration;
+                        progress = 0;
+                        progressBar.style.width = '0%';
+                        timeDisplay.textContent = `00:00 / ${Math.floor(duration / 60).toString().padStart(2, '0')}:${Math.floor(duration % 60).toString().padStart(2, '0')}`;
+                        if (isPlaying) {
+                            isPlaying = false;
+                            playBtn.textContent = '▶';
+                        }
+                    }
+                };
+            }
+            
+            const bodyScanPlayer = setupAudioPlayer('body-play', 'body-progress', 'body-time', {
+                '10min': 600,
+                '20min': 1200,
+                '30min': 1800
+            });
+            
+            const mindPlayer = setupAudioPlayer('mind-play', 'mind-progress', 'mind-time', {
+                'beginner': 300,
+                'intermediate': 900,
+                'advanced': 1500
+            });
+            
+            document.getElementById('body-scan-option').addEventListener('change', function() {
+                const durations = {
+                    '10min': 600,
+                    '20min': 1200,
+                    '30min': 1800
+                };
+                bodyScanPlayer.updateDuration(durations[this.value]);
+            });
+            
+            document.getElementById('mindfulness-option').addEventListener('change', function() {
+                const durations = {
+                    'beginner': 300,
+                    'intermediate': 900,
+                    'advanced': 1500
+                };
+                mindPlayer.updateDuration(durations[this.value]);
+            });
+            
+            // Rating System
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const container = this.parentElement;
+                    const stars = container.querySelectorAll('.star');
+                    const index = Array.from(stars).indexOf(this);
+                    
+                    stars.forEach((s, i) => {
+                        if (i <= index) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Save Buttons
+            document.getElementById('save-body').addEventListener('click', function() {
+                const rating = document.querySelector('#body-scan-option').parentElement.parentElement.querySelectorAll('.star.active').length;
+                if (rating > 0) {
+                    alert('Session saved with rating: ' + rating + ' stars');
+                } else {
+                    alert('Please rate your session before saving');
+                }
+            });
+            
+            document.getElementById('save-mind').addEventListener('click', function() {
+                const rating = document.querySelector('#mindfulness-option').parentElement.parentElement.querySelectorAll('.star.active').length;
+                if (rating > 0) {
+                    alert('Session saved with rating: ' + rating + ' stars');
+                } else {
+                    alert('Please rate your session before saving');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

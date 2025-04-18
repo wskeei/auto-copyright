@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能睡眠节律调节优化系统 - 个人节律评估</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            height: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-section {
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-item:hover {
+            border-color: var(--primary-light);
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .option-radio {
+            margin-right: 12px;
+            accent-color: var(--primary-color);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .result-icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(0, 113, 227, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .result-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--primary-color);
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .result-description {
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .result-details {
+            background-color: rgba(0, 113, 227, 0.05);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .result-details-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">Z</div>
+                <span>睡眠节律调节</span>
+            </div>
+            <div class="nav">
+                <a href="#" class="nav-item">首页</a>
+                <a href="#" class="nav-item active">节律评估</a>
+                <a href="#" class="nav-item">睡眠分析</a>
+                <a href="#" class="nav-item">优化建议</a>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2 class="card-title">个人节律评估</h2>
+            <p>完成以下问卷帮助我们了解您的睡眠习惯和节律类型</p>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div id="questionnaireContainer">
+                <div class="question-section active" id="section1">
+                    <h3 class="question-title">1. 您通常在什么时间感到困倦并准备入睡？</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q1" class="option-radio" value="5">
+                            <span>晚上8:00-9:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" class="option-radio" value="4">
+                            <span>晚上9:00-10:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" class="option-radio" value="3">
+                            <span>晚上10:00-11:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" class="option-radio" value="2">
+                            <span>晚上11:00-12:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" class="option-radio" value="1">
+                            <span>凌晨12:00以后</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section2">
+                    <h3 class="question-title">2. 您通常在什么时间自然醒来（无需闹钟）？</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q2" class="option-radio" value="5">
+                            <span>早上5:00之前</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" class="option-radio" value="4">
+                            <span>早上5:00-6:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" class="option-radio" value="3">
+                            <span>早上6:00-7:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" class="option-radio" value="2">
+                            <span>早上7:00-8:00</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" class="option-radio" value="1">
+                            <span>早上8:00以后</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section3">
+                    <h3 class="question-title">3. 如果完全自由安排时间，您会倾向于选择哪种作息？</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q3" class="option-radio" value="5">
+                            <span>早睡早起（晚上9点前睡，早上5点前起）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" class="option-radio" value="4">
+                            <span>稍早作息（晚上10点前睡，早上6点前起）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" class="option-radio" value="3">
+                            <span>中间型（晚上11点左右睡，早上7点左右起）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" class="option-radio" value="2">
+                            <span>稍晚作息（晚上12点左右睡，早上8点左右起）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" class="option-radio" value="1">
+                            <span>晚睡晚起（凌晨1点后睡，早上9点后起）</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section4">
+                    <h3 class="question-title">4. 您早晨醒来后的前30分钟感觉如何？</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q4" class="option-radio" value="5">
+                            <span>非常清醒，精力充沛</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" class="option-radio" value="4">
+                            <span>比较清醒</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" class="option-radio" value="3">
+                            <span>一般，需要短暂适应</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" class="option-radio" value="2">
+                            <span>有些困倦</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" class="option-radio" value="1">
+                            <span>非常困倦，难以集中精力</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section" id="section5">
+                    <h3 class="question-title">5. 您一天中精力最充沛的时间段是？</h3>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q5" class="option-radio" value="5">
+                            <span>清晨（5:00-8:00）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" class="option-radio" value="4">
+                            <span>上午（8:00-12:00）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" class="option-radio" value="3">
+                            <span>下午（12:00-17:00）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" class="option-radio" value="2">
+                            <span>傍晚（17:00-21:00）</span>
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" class="option-radio" value="1">
+                            <span>夜间（21:00以后）</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button class="btn btn-secondary" id="prevBtn" disabled>上一题</button>
+                    <button class="btn btn-primary" id="nextBtn">下一题</button>
+                </div>
+            </div>
+
+            <div class="result-container hidden" id="resultContainer">
+                <div class="result-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </div>
+                <h2 class="result-title" id="resultTitle">您的节律类型</h2>
+                <p class="result-description" id="resultDescription"></p>
+                <div class="result-details">
+                    <h4 class="result-details-title">评估详情</h4>
+                    <p id="resultDetails"></p>
+                </div>
+                <button class="btn btn-primary" id="saveBtn" style="margin-top: 20px;">保存评估结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionnaireContainer = document.getElementById('questionnaireContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            const progressBar = document.getElementById('progressBar');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            const resultDetails = document.getElementById('resultDetails');
+
+            const sections = document.querySelectorAll('.question-section');
+            let currentSection = 0;
+            const totalSections = sections.length;
+            const answers = {};
+
+            function updateProgress() {
+                const progress = ((currentSection) / totalSections) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+
+            function showSection(index) {
+                sections.forEach((section, i) => {
+                    section.classList.toggle('active', i === index);
+                });
+
+                prevBtn.disabled = index === 0;
+                nextBtn.textContent = index === totalSections - 1 ? '提交评估' : '下一题';
+                updateProgress();
+            }
+
+            function collectAnswers() {
+                answers.q1 = document.querySelector('input[name="q1"]:checked')?.value;
+                answers.q2 = document.querySelector('input[name="q2"]:checked')?.value;
+                answers.q3 = document.querySelector('input[name="q3"]:checked')?.value;
+                answers.q4 = document.querySelector('input[name="q4"]:checked')?.value;
+                answers.q5 = document.querySelector('input[name="q5"]:checked')?.value;
+            }
+
+            function calculateResult() {
+                let totalScore = 0;
+                for (let key in answers) {
+                    totalScore += parseInt(answers[key]) || 0;
+                }
+
+                if (totalScore >= 20) {
+                    return {
+                        type: '偏早睡早起型',
+                        description: '您的自然节律倾向于早睡早起，早晨是您一天中精力最充沛的时段。',
+                        details: '您的评估结果显示您属于早睡早起型人群。这类人群通常在晚上较早时间感到困倦，早晨自然醒来时间较早，且在清晨时段工作效率最高。建议您保持规律的早睡早起习惯，避免夜间过度用眼或摄入咖啡因。'
+                    };
+                } else if (totalScore >= 15) {
+                    return {
+                        type: '偏早型',
+                        description: '您的节律稍偏早，但比典型的早睡早起型更灵活一些。',
+                        details: '您的评估结果显示您属于偏早型人群。这类人群通常在晚上较早时间感到困倦，但也能适应稍晚的作息。早晨是您的高效时段，但上午也能保持良好的工作状态。建议您保持规律的作息时间，避免作息波动过大。'
+                    };
+                } else if (totalScore >= 10) {
+                    return {
+                        type: '中间型',
+                        description: '您的节律属于中间型，没有明显的早晚倾向。',
+                        details: '您的评估结果显示您属于中间型人群。这类人群的睡眠和清醒时间较为灵活，既能适应稍早也能适应稍晚的作息。您的高效时段可能分布在上午或下午。建议您保持规律的作息，避免极端作息变化。'
+                    };
+                } else if (totalScore >= 5) {
+                    return {
+                        type: '偏晚型',
+                        description: '您的节律稍偏晚，但比典型的晚睡晚起型更灵活一些。',
+                        details: '您的评估结果显示您属于偏晚型人群。这类人群通常在晚上较晚时间才感到困倦，早晨自然醒来时间较晚。您的高效时段可能在下午或傍晚。建议您尽量保持规律的作息，避免早晨过早安排重要活动。'
+                    };
+                } else {
+                    return {
+                        type: '偏晚睡晚起型',
+                        description: '您的自然节律倾向于晚睡晚起，夜间是您一天中精力最充沛的时段。',
+                        details: '您的评估结果显示您属于晚睡晚起型人群。这类人群通常在深夜才感到困倦，早晨自然醒来时间较晚，且在下午或夜间工作效率最高。建议您合理安排工作时间，避免早晨过早安排重要活动，同时注意保证充足的睡眠时间。'
+                    };
+                }
+            }
+
+            function showResult() {
+                collectAnswers();
+                const result = calculateResult();
+                
+                resultTitle.textContent = result.type;
+                resultDescription.textContent = result.description;
+                resultDetails.textContent = result.details;
+                
+                questionnaireContainer.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+            }
+
+            nextBtn.addEventListener('click', function() {
+                const currentQuestion = document.querySelector(`input[name="q${currentSection + 1}"]:checked`);
+                
+                if (!currentQuestion && currentSection < totalSections - 1) {
+                    alert('请选择一个选项');
+                    return;
+                }
+
+                if (currentSection < totalSections - 1) {
+                    currentSection++;
+                    showSection(currentSection);
+                } else {
+                    showResult();
+                }
+            });
+
+            prevBtn.addEventListener('click', function() {
+                if (currentSection > 0) {
+                    currentSection--;
+                    showSection(currentSection);
+                }
+            });
+
+            saveBtn.addEventListener('click', function() {
+                const result = calculateResult();
+                localStorage.setItem('sleepRhythmAssessment', JSON.stringify({
+                    type: result.type,
+                    score: Object.values(answers).reduce((a, b) => parseInt(a) + parseInt(b), 0),
+                    date: new Date().toISOString()
+                }));
+                alert('评估结果已保存');
+            });
+
+            document.querySelectorAll('.option-radio').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    this.closest('.option-item').classList.add('selected');
+                    document.querySelectorAll(`.option-item input[name="${this.name}"]`).forEach(item => {
+                        if (item !== this) {
+                            item.closest('.option-item').classList.remove('selected');
+                        }
+                    });
+                });
+            });
+
+            showSection(0);
+        });
+    </script>
+</body>
+</html>

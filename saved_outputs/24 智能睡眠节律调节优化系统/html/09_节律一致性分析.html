@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能睡眠节律调节优化系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 113, 227, 0.1), rgba(90, 200, 250, 0.1));
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .metric-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-container {
+            margin: 25px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: rgba(0, 113, 227, 0.1);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            width: 75%;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .recommendations {
+            margin-top: 30px;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: rgba(0, 113, 227, 0.05);
+            border-radius: var(--border-radius);
+        }
+
+        .recommendation-icon {
+            margin-right: 15px;
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .recommendation-content h4 {
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .recommendation-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background-color: var(--card-color);
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230071e3'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .date-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-range-selector select {
+            width: auto;
+            min-width: 120px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 6C12.7956 6 13.5587 5.68393 14.1213 5.12132C14.6839 4.55871 15 3.79565 15 3C15 2.20435 14.6839 1.44129 14.1213 0.87868C13.5587 0.316071 12.7956 0 12 0C11.2044 0 10.4413 0.316071 9.87868 0.87868C9.31607 1.44129 9 2.20435 9 3C9 3.79565 9.31607 4.55871 9.87868 5.12132C10.4413 5.68393 11.2044 6 12 6ZM9 24H15V8H9V24Z" fill="url(#paint0_linear)"/>
+                    <defs>
+                        <linearGradient id="paint0_linear" x1="12" y1="0" x2="12" y2="24" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#0071e3"/>
+                            <stop offset="1" stop-color="#5ac8fa"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>智能睡眠节律调节优化系统</h1>
+            </div>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=用户&background=0071e3&color=fff" alt="用户头像">
+                <span>用户</span>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active">节律一致性分析</div>
+            <div class="tab">睡眠质量评估</div>
+            <div class="tab">个性化建议</div>
+            <div class="tab">设置</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">睡眠节律分析</h2>
+                    <p class="card-subtitle">基于最近30天的睡眠数据</p>
+                </div>
+                <div class="date-range-selector">
+                    <select>
+                        <option>最近7天</option>
+                        <option selected>最近30天</option>
+                        <option>最近90天</option>
+                        <option>自定义范围</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    睡眠/觉醒时间变化图表
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">节律一致性评分</div>
+                    <div class="metric-value">82</div>
+                    <div class="metric-label">(满分100)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">平均社交时差</div>
+                    <div class="metric-value">1.2h</div>
+                    <div class="metric-label">工作日 vs 休息日</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">入睡时间标准差</div>
+                    <div class="metric-value">38min</div>
+                    <div class="metric-label">波动范围</div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <h3>节律稳定性</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="progress-label">
+                    <span>较低</span>
+                    <span>较高</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">节律改善建议</h2>
+            </div>
+
+            <div class="recommendations">
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">⏰</div>
+                    <div class="recommendation-content">
+                        <h4>固定起床时间</h4>
+                        <p>即使在周末也尽量保持与工作日相同的起床时间，差异不超过1小时，有助于稳定生物钟。</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">🌞</div>
+                    <div class="recommendation-content">
+                        <h4>晨间光照</h4>
+                        <p>起床后30分钟内接触自然光或强光至少15分钟，有助于同步生物钟。</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">📱</div>
+                    <div class="recommendation-content">
+                        <h4>减少晚间蓝光</h4>
+                        <p>睡前一小时避免使用电子设备，或启用蓝光过滤功能，减少对褪黑素分泌的抑制。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">节律调整计划</h2>
+            </div>
+
+            <div class="form-group">
+                <label for="target-bedtime">目标入睡时间</label>
+                <select id="target-bedtime">
+                    <option>22:00</option>
+                    <option>22:30</option>
+                    <option selected>23:00</option>
+                    <option>23:30</option>
+                    <option>00:00</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="target-waketime">目标起床时间</label>
+                <select id="target-waketime">
+                    <option>06:00</option>
+                    <option>06:30</option>
+                    <option selected>07:00</option>
+                    <option>07:30</option>
+                    <option>08:00</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="adjustment-speed">调整速度</label>
+                <select id="adjustment-speed">
+                    <option>缓慢 (每天15分钟)</option>
+                    <option selected>中等 (每天30分钟)</option>
+                    <option>快速 (每天60分钟)</option>
+                </select>
+            </div>
+
+            <button class="btn">生成个性化调整计划</button>
+        </div>
+
+        <footer>
+            <p>版本 1.0 · 数据安全保护 · 仅供个人健康管理使用</p>
+        </footer>
+    </div>
+</body>
+</html>

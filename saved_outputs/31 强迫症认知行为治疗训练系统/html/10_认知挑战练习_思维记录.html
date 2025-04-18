@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强迫症认知行为治疗训练系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .version {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .main-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"], 
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, 
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .record-list {
+            margin-top: 30px;
+        }
+
+        .record-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.2s;
+        }
+
+        .record-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .record-date {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .record-title {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .record-content {
+            margin-top: 15px;
+        }
+
+        .record-section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .section-content {
+            color: var(--text-primary);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .severity {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .severity-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .low {
+            background-color: var(--success-color);
+        }
+
+        .medium {
+            background-color: #ffcc00;
+        }
+
+        .high {
+            background-color: #ff3b30;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 113, 227, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .stats-info h3 {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .stats-info p {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            margin-top: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">OCD</div>
+                <div class="logo-text">认知行为治疗训练</div>
+            </div>
+            <div class="version">版本 1.0</div>
+            <div class="nav">
+                <a href="#" class="nav-item active">认知挑战</a>
+                <a href="#" class="nav-item">训练记录</a>
+                <a href="#" class="nav-item">统计分析</a>
+                <a href="#" class="nav-item">个人设置</a>
+            </div>
+        </header>
+
+        <h1 class="main-title">认知挑战练习</h1>
+        <p class="subtitle">识别和挑战与强迫症相关的错误信念，建立更健康的思维方式</p>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="new">新建记录</div>
+            <div class="tab" data-tab="records">历史记录</div>
+            <div class="tab" data-tab="stats">统计</div>
+        </div>
+
+        <div class="tab-content active" id="new-tab">
+            <div class="card">
+                <form id="thought-record-form">
+                    <div class="form-group">
+                        <label for="record-date">日期</label>
+                        <input type="date" id="record-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="situation">情境描述</label>
+                        <textarea id="situation" placeholder="描述触发强迫思维的具体情境（时间、地点、发生了什么）" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="thought">强迫思维</label>
+                        <textarea id="thought" placeholder="记录当时出现的强迫思维或图像" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="belief">相关信念</label>
+                        <select id="belief" required>
+                            <option value="">选择相关的错误信念类型</option>
+                            <option value="over-responsibility">过度责任感</option>
+                            <option value="perfectionism">完美主义</option>
+                            <option value="thought-action-fusion">想法行为融合</option>
+                            <option value="intolerance-uncertainty">不确定性不容忍</option>
+                            <option value="overestimation-threat">威胁高估</option>
+                            <option value="control-thoughts">控制思维的需求</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emotion">情绪反应</label>
+                        <select id="emotion" required>
+                            <option value="">选择主要情绪</option>
+                            <option value="anxiety">焦虑</option>
+                            <option value="fear">恐惧</option>
+                            <option value="guilt">内疚</option>
+                            <option value="shame">羞耻</option>
+                            <option value="anger">愤怒</option>
+                            <option value="sadness">悲伤</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="intensity">情绪强度 (0-100)</label>
+                        <input type="range" id="intensity" min="0" max="100" value="50" required>
+                        <div class="severity">
+                            <span>0</span>
+                            <span id="intensity-value">50</span>
+                            <span>100</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="support-evidence">支持信念的证据</label>
+                        <textarea id="support-evidence" placeholder="列出支持这些信念的证据（事实而非感受）"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="against-evidence">反对信念的证据</label>
+                        <textarea id="against-evidence" placeholder="列出反对这些信念的证据或事实"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alternative">替代性想法</label>
+                        <textarea id="alternative" placeholder="基于证据，写下更现实、适应性的替代想法" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="re-rate">重新评估情绪强度 (0-100)</label>
+                        <input type="range" id="re-rate" min="0" max="100" value="50" required>
+                        <div class="severity">
+                            <span>0</span>
+                            <span id="re-rate-value">50</span>
+                            <span>100</span>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn">保存记录</button>
+                        <button type="reset" class="btn btn-secondary">重置</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tab-content" id="records-tab">
+            <div class="card">
+                <div class="card-title">历史记录</div>
+                <div class="record-list" id="record-list">
+                    <div class="empty-state">暂无记录，请创建新的认知挑战记录</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="stats-tab">
+            <div class="card">
+                <div class="card-title">训练统计</div>
+                
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="stats-icon">📊</div>
+                        <div class="stats-info">
+                            <h3>总记录数</h3>
+                            <p id="total-records">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="stats-icon">📉</div>
+                        <div class="stats-info">
+                            <h3>平均情绪改善</h3>
+                            <p id="avg-improvement">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <h3>最常见的错误信念</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="belief-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>过度责任感</span>
+                        <span id="belief-percent">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab切换
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                    
+                    if (tabId === 'records') {
+                        loadRecords();
+                    } else if (tabId === 'stats') {
+                        updateStats();
+                    }
+                });
+            });
+
+            // 情绪强度滑块
+            const intensitySlider = document.getElementById('intensity');
+            const intensityValue = document.getElementById('intensity-value');
+            intensitySlider.addEventListener('input', function() {
+                intensityValue.textContent = this.value;
+            });
+
+            // 重新评估滑块
+            const reRateSlider = document.getElementById('re-rate');
+            const reRateValue = document.getElementById('re-rate-value');
+            reRateSlider.addEventListener('input', function() {
+                reRateValue.textContent = this.value;
+            });
+
+            // 表单提交
+            const form = document.getElementById('thought-record-form');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const record = {
+                    date: document.getElementById('record-date').value,
+                    situation: document.getElementById('situation').value,
+                    thought: document.getElementById('thought').value,
+                    belief: document.getElementById('belief').value,
+                    emotion: document.getElementById('emotion').value,
+                    intensity: document.getElementById('intensity').value,
+                    supportEvidence: document.getElementById('support-evidence').value,
+                    againstEvidence: document.getElementById('against-evidence').value,
+                    alternative: document.getElementById('alternative').value,
+                    reRate: document.getElementById('re-rate').value,
+                    id: Date.now()
+                };
+                
+                saveRecord(record);
+                form.reset();
+                intensityValue.textContent = '50';
+                reRateValue.textContent = '50';
+                
+                // 切换到记录标签页
+                document.querySelector('.tab[data-tab="records"]').click();
+            });
+
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('record-date').value = today;
+
+            // 加载记录
+            function loadRecords() {
+                const records = getRecords();
+                const recordList = document.getElementById('record-list');
+                
+                if (records.length === 0) {
+                    recordList.innerHTML = '<div class="empty-state">暂无记录，请创建新的认知挑战记录</div>';
+                    return;
+                }
+                
+                recordList.innerHTML = '';
+                
+                records.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(record => {
+                    const beliefText = {
+                        'over-responsibility': '过度责任感',
+                        'perfectionism': '完美主义',
+                        'thought-action-fusion': '想法行为融合',
+                        'intolerance-uncertainty': '不确定性不容忍',
+                        'overestimation-threat': '威胁高估',
+                        'control-thoughts': '控制思维的需求'
+                    }[record.belief];
+                    
+                    const emotionText = {
+                        'anxiety': '焦虑',
+                        'fear': '恐惧',
+                        'guilt': '内疚',
+                        'shame': '羞耻',
+                        'anger': '愤怒',
+                        'sadness': '悲伤'
+                    }[record.emotion];
+                    
+                    const improvement = ((parseInt(record.intensity) - parseInt(record.reRate)) / parseInt(record.intensity) * 100).toFixed(0);
+                    
+                    const item = document.createElement('div');
+                    item.className = 'record-item';
+                    item.innerHTML = `
+                        <div class="record-header">
+                            <div class="record-date">${formatDate(record.date)}</div>
+                            <div class="severity">
+                                <span>改善: ${improvement}%</span>
+                                <div class="severity-dot ${getSeverityClass(improvement)}"></div>
+                            </div>
+                        </div>
+                        <div class="record-title">${beliefText} - ${emotionText}</div>
+                        <div class="record-content">
+                            <div class="record-section">
+                                <div class="section-title">情境描述</div>
+                                <div class="section-content">${record.situation}</div>
+                            </div>
+                            <div class="record-section">
+                                <div class="section-title">强迫思维</div>
+                                <div class="section-content">${record.thought}</div>
+                            </div>
+                            <div class="record-section">
+                                <div class="section-title">情绪强度</div>
+                                <div class="section-content">${record.intensity} → ${record.reRate}</div>
+                            </div>
+                            <div class="record-section">
+                                <div class="section-title">替代性想法</div>
+                                <div class="section-content">${record.alternative}</div>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-secondary" onclick="deleteRecord(${record.id})">删除</button>
+                        </div>
+                    `;
+                    
+                    recordList.appendChild(item);
+                });
+            }
+
+            // 更新统计信息
+            function updateStats() {
+                const records = getRecords();
+                document.getElementById('total-records').textContent = records.length;
+                
+                if (records.length > 0) {
+                    const totalImprovement = records.reduce((sum, record) => {
+                        const improvement = (parseInt(record.intensity) - parseInt(record.reRate)) / parseInt(record.intensity) * 100;
+                        return sum + improvement;
+                    }, 0);
+                    
+                    const avgImprovement = (totalImprovement / records.length).toFixed(0);
+                    document.getElementById('avg-improvement').textContent = avgImprovement + '%';
+                    
+                    // 计算最常见的错误信念
+                    const beliefCounts = {};
+                    records.forEach(record => {
+                        beliefCounts[record.belief] = (beliefCounts[record.belief] || 0) + 1;
+                    });
+                    
+                    let maxBelief = '';
+                    let maxCount = 0;
+                    for (const belief in beliefCounts) {
+                        if (beliefCounts[belief] > maxCount) {
+                            maxCount = beliefCounts[belief];
+                            maxBelief = belief;
+                        }
+                    }
+                    
+                    if (maxBelief) {
+                        const beliefPercent = (maxCount / records.length * 100).toFixed(0);
+                        document.getElementById('belief-progress').style.width = beliefPercent + '%';
+                        document.getElementById('belief-percent').textContent = beliefPercent + '%';
+                        
+                        const beliefText = {
+                            'over-responsibility': '过度责任感',
+                            'perfectionism': '完美主义',
+                            'thought-action-fusion': '想法行为融合',
+                            'intolerance-uncertainty': '不确定性不容忍',
+                            'overestimation-threat': '威胁高估',
+                            'control-thoughts': '控制思维的需求'
+                        }[maxBelief];
+                        
+                        document.querySelector('.progress-labels span:first-child').textContent = beliefText;
+                    }
+                } else {
+                    document.getElementById('avg-improvement').textContent = '0%';
+                    document.getElementById('belief-progress').style.width = '0%';
+                    document.getElementById('belief-percent').textContent = '0%';
+                }
+            }
+
+            // 辅助函数
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('zh-CN', options);
+            }
+
+            function getSeverityClass(improvement) {
+                improvement = parseInt(improvement);
+                if (improvement < 30) return 'low';
+                if (improvement < 70) return 'medium';
+                return 'high';
+            }
+        });
+
+        // 数据存储函数
+        function getRecords() {
+            const recordsJson = localStorage.getItem('ocdThoughtRecords');
+            return recordsJson ? JSON.parse(recordsJson) : [];
+        }
+
+        function saveRecord(record) {
+            const records = getRecords();
+            records.push(record);
+            localStorage.setItem('ocdThoughtRecords', JSON.stringify(records));
+        }
+
+        function deleteRecord(id) {
+            const records = getRecords().filter(record => record.id !== id);
+            localStorage.setItem('ocdThoughtRecords', JSON.stringify(records));
+            document.querySelector('.tab[data-tab="records"]').click();
+        }
+
+        // 全局函数
+        window.deleteRecord = deleteRecord;
+    </script>
+</body>
+</html>

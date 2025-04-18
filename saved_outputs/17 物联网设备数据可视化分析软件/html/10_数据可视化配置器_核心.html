@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备数据可视化分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f5f7;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--card-color);
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 30px;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .device-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .device-item.selected {
+            background-color: rgba(0, 113, 227, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .device-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">物联网数据可视化</div>
+            <div>
+                <button class="btn btn-secondary" id="loadConfig">加载配置</button>
+                <button class="btn" id="saveConfig">保存配置</button>
+            </div>
+        </header>
+
+        <div class="two-columns">
+            <div class="card">
+                <div class="card-title">数据源配置</div>
+                <div class="form-group">
+                    <label>选择设备</label>
+                    <div class="device-grid">
+                        <div class="device-item" data-id="device1">
+                            <div class="device-icon">1</div>
+                            <div>智能空调-客厅</div>
+                        </div>
+                        <div class="device-item" data-id="device2">
+                            <div class="device-icon">2</div>
+                            <div>智能插座-卧室</div>
+                        </div>
+                        <div class="device-item" data-id="device3">
+                            <div class="device-icon">3</div>
+                            <div>温湿度传感器</div>
+                        </div>
+                        <div class="device-item" data-id="device4">
+                            <div class="device-icon">4</div>
+                            <div>智能门锁</div>
+                        </div>
+                        <div class="device-item" data-id="device5">
+                            <div class="device-icon">5</div>
+                            <div>智能灯泡</div>
+                        </div>
+                        <div class="device-item" data-id="device6">
+                            <div class="device-icon">6</div>
+                            <div>空气质量检测仪</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>数据指标</label>
+                    <select id="dataMetric">
+                        <option value="temperature">温度 (°C)</option>
+                        <option value="humidity">湿度 (%)</option>
+                        <option value="power">功耗 (W)</option>
+                        <option value="voltage">电压 (V)</option>
+                        <option value="current">电流 (A)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">可视化配置</div>
+                <div class="form-group">
+                    <label>图表类型</label>
+                    <select id="chartType">
+                        <option value="line">折线图</option>
+                        <option value="bar">柱状图</option>
+                        <option value="pie">饼图</option>
+                        <option value="gauge">仪表盘</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>时间范围</label>
+                    <select id="timeRange">
+                        <option value="1h">最近1小时</option>
+                        <option value="6h">最近6小时</option>
+                        <option value="24h">最近24小时</option>
+                        <option value="7d">最近7天</option>
+                        <option value="30d">最近30天</option>
+                        <option value="custom">自定义范围</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="customDateRange" style="display: none;">
+                    <label>自定义日期范围</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="startDate" style="flex: 1;">
+                        <input type="date" id="endDate" style="flex: 1;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>图表标题</label>
+                    <input type="text" id="chartTitle" placeholder="输入图表标题">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">可视化预览</div>
+            <div class="chart-container">
+                <canvas id="dataChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deviceItems = document.querySelectorAll('.device-item');
+            const dataMetricSelect = document.getElementById('dataMetric');
+            const chartTypeSelect = document.getElementById('chartType');
+            const timeRangeSelect = document.getElementById('timeRange');
+            const customDateRange = document.getElementById('customDateRange');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const chartTitleInput = document.getElementById('chartTitle');
+            const saveConfigBtn = document.getElementById('saveConfig');
+            const loadConfigBtn = document.getElementById('loadConfig');
+            const chartCanvas = document.getElementById('dataChart');
+
+            let selectedDevices = [];
+            let chart = null;
+
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(today.getMonth() - 1);
+
+            startDateInput.valueAsDate = oneMonthAgo;
+            endDateInput.valueAsDate = today;
+
+            deviceItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const deviceId = this.getAttribute('data-id');
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        selectedDevices = selectedDevices.filter(id => id !== deviceId);
+                    } else {
+                        this.classList.add('selected');
+                        selectedDevices.push(deviceId);
+                    }
+                    updateChart();
+                });
+            });
+
+            timeRangeSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateRange.style.display = 'block';
+                } else {
+                    customDateRange.style.display = 'none';
+                }
+                updateChart();
+            });
+
+            [dataMetricSelect, chartTypeSelect, startDateInput, endDateInput, chartTitleInput].forEach(element => {
+                element.addEventListener('change', updateChart);
+            });
+
+            saveConfigBtn.addEventListener('click', saveConfig);
+            loadConfigBtn.addEventListener('click', loadConfig);
+
+            function getRandomData(count, min, max) {
+                return Array.from({length: count}, () => Math.floor(Math.random() * (max - min + 1)) + min);
+            }
+
+            function generateLabels() {
+                const range = timeRangeSelect.value;
+                let count = 12;
+                let unit = '小时';
+                
+                if (range === '1h') {
+                    count = 12;
+                    unit = '分钟';
+                } else if (range === '6h') {
+                    count = 6;
+                    unit = '小时';
+                } else if (range === '24h') {
+                    count = 24;
+                    unit = '小时';
+                } else if (range === '7d') {
+                    count = 7;
+                    unit = '天';
+                } else if (range === '30d') {
+                    count = 30;
+                    unit = '天';
+                } else if (range === 'custom') {
+                    const start = new Date(startDateInput.value);
+                    const end = new Date(endDateInput.value);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    count = Math.min(diffDays, 30);
+                    unit = '天';
+                }
+                
+                return Array.from({length: count}, (_, i) => {
+                    if (unit === '分钟') return `${i * 5} ${unit}`;
+                    if (unit === '小时') return `${i + 1} ${unit}`;
+                    return `${i + 1} ${unit}前`;
+                }).reverse();
+            }
+
+            function updateChart() {
+                if (selectedDevices.length === 0) return;
+
+                const metric = dataMetricSelect.value;
+                const type = chartTypeSelect.value;
+                const title = chartTitleInput.value || `${metric}数据可视化`;
+                const labels = generateLabels();
+                
+                const datasets = selectedDevices.map(deviceId => {
+                    const deviceName = document.querySelector(`.device-item[data-id="${deviceId}"] div:last-child`).textContent;
+                    let min = 0, max = 100;
+                    
+                    if (metric === 'temperature') {
+                        min = 10;
+                        max = 35;
+                    } else if (metric === 'humidity') {
+                        min = 30;
+                        max = 90;
+                    } else if (metric === 'power') {
+                        min = 5;
+                        max = 200;
+                    } else if (metric === 'voltage') {
+                        min = 200;
+                        max = 240;
+                    } else if (metric === 'current') {
+                        min = 0.1;
+                        max = 10;
+                    }
+                    
+                    return {
+                        label: `${deviceName}-${metric}`,
+                        data: getRandomData(labels.length, min, max),
+                        borderColor: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+                        backgroundColor: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+                        borderWidth: 2
+                    };
+                });
+
+                if (chart) {
+                    chart.destroy();
+                }
+
+                const ctx = chartCanvas.getContext('2d');
+                
+                if (type === 'gauge') {
+                    const total = datasets.reduce((sum, dataset) => sum + dataset.data[dataset.data.length - 1], 0);
+                    const avg = total / datasets.length;
+                    
+                    chart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['当前值', '剩余'],
+                            datasets: [{
+                                data: [avg, 100 - avg],
+                                backgroundColor: [var(--primary-color), '#e0e0e0'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            circumference: 270,
+                            rotation: 225,
+                            cutout: '80%',
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: title,
+                                    font: { size: 16 }
+                                },
+                                tooltip: { enabled: false },
+                                legend: { display: false }
+                            },
+                            elements: {
+                                arc: { borderWidth: 0 }
+                            }
+                        }
+                    });
+                } else {
+                    chart = new Chart(ctx, {
+                        type: type,
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: title,
+                                    font: { size: 16 }
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: type !== 'line' && type !== 'bar'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            function saveConfig() {
+                const config = {
+                    devices: selectedDevices,
+                    metric: dataMetricSelect.value,
+                    chartType: chartTypeSelect.value,
+                    timeRange: timeRangeSelect.value,
+                    startDate: startDateInput.value,
+                    endDate: endDateInput.value,
+                    title: chartTitleInput.value
+                };
+                localStorage.setItem('iotVizConfig', JSON.stringify(config));
+                alert('配置已保存');
+            }
+
+            function loadConfig() {
+                const savedConfig = localStorage.getItem('iotVizConfig');
+                if (!savedConfig) {
+                    alert('没有找到保存的配置');
+                    return;
+                }
+
+                const config = JSON.parse(savedConfig);
+                
+                deviceItems.forEach(item => {
+                    item.classList.remove('selected');
+                    if (config.devices.includes(item.getAttribute('data-id'))) {
+                        item.classList.add('selected');
+                    }
+                });
+                selectedDevices = config.devices;
+                
+                dataMetricSelect.value = config.metric;
+                chartTypeSelect.value = config.chartType;
+                timeRangeSelect.value = config.timeRange;
+                
+                if (config.timeRange === 'custom') {
+                    customDateRange.style.display = 'block';
+                    startDateInput.value = config.startDate;
+                    endDateInput.value = config.endDate;
+                } else {
+                    customDateRange.style.display = 'none';
+                }
+                
+                chartTitleInput.value = config.title;
+                
+                updateChart();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>失眠症认知行为治疗数字化辅助系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        h2 {
+            font-size: 22px;
+            margin: 25px 0 15px;
+            color: var(--primary-color);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: #0062c4;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .question-group {
+            margin-bottom: 25px;
+        }
+
+        .question {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .option input {
+            margin-right: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-score {
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .result-description {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .feature-item {
+            padding: 20px;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 113, 227, 0.05);
+            border: 1px solid rgba(0, 113, 227, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .dropdown {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .dropdown-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .dropdown-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .slider-container {
+            margin: 25px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">CBT-I 辅助系统</div>
+            <div>
+                <a href="#" class="nav-item active">疗程介绍</a>
+                <a href="#" class="nav-item">睡眠日记</a>
+                <a href="#" class="nav-item">治疗计划</a>
+                <a href="#" class="nav-item">个人中心</a>
+            </div>
+        </header>
+
+        <div id="intro-section" class="card">
+            <h1>失眠认知行为治疗 (CBT-I) 介绍</h1>
+            <p>CBT-I 是一种基于证据的心理治疗方法，专门针对失眠问题。它通过改变不良的睡眠习惯和错误的睡眠认知来改善睡眠质量，效果持久且无药物副作用。</p>
+            
+            <div class="section-divider"></div>
+            
+            <h2>主要治疗组成部分</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🛌</div>
+                    <div class="feature-title">睡眠日记</div>
+                    <div class="feature-desc">记录每日睡眠模式，帮助识别问题并提供治疗依据</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⏱️</div>
+                    <div class="feature-title">睡眠限制</div>
+                    <div class="feature-desc">通过限制卧床时间来提升睡眠效率，逐步延长睡眠时间</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-title">认知重建</div>
+                    <div class="feature-desc">识别并改变关于睡眠的错误认知和担忧</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🌿</div>
+                    <div class="feature-title">睡眠卫生</div>
+                    <div class="feature-desc">优化睡眠环境和生活习惯，创造良好睡眠条件</div>
+                </div>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <h2>预期效果</h2>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li style="margin-bottom: 8px;">入睡时间缩短至30分钟以内</li>
+                <li style="margin-bottom: 8px;">夜间觉醒次数减少至1次以下</li>
+                <li style="margin-bottom: 8px;">总睡眠时间增加至6小时以上</li>
+                <li style="margin-bottom: 8px;">睡眠效率提升至85%以上</li>
+            </ul>
+            
+            <button id="start-assessment" class="btn">开始基线评估</button>
+        </div>
+
+        <div id="assessment-section" class="card hidden">
+            <h1>失眠状况基线评估</h1>
+            <p>请回答以下问题，帮助我们了解您的失眠状况。评估结果将用于制定个性化的治疗计划。</p>
+            
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+            </div>
+            
+            <form id="assessment-form">
+                <div id="page-1" class="assessment-page">
+                    <h2>失眠严重程度指数 (ISI)</h2>
+                    
+                    <div class="question-group">
+                        <div class="question">1. 您对当前睡眠问题的严重程度如何评价？</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q1" value="0"> 无
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="1"> 轻微
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="2"> 中等
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="3"> 严重
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="4"> 非常严重
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">2. 您对当前睡眠状况的满意程度如何？</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q2" value="0"> 非常满意
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="1"> 满意
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="2"> 一般
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="3"> 不满意
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="4"> 非常不满意
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">3. 您认为您的睡眠问题对日常生活有多大影响？</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q3" value="0"> 没有影响
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="1"> 轻微影响
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="2"> 中度影响
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="3"> 严重影响
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q3" value="4"> 非常严重影响
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" onclick="nextPage(1)">下一页</button>
+                </div>
+                
+                <div id="page-2" class="assessment-page hidden">
+                    <h2>失眠严重程度指数 (ISI) 续</h2>
+                    
+                    <div class="question-group">
+                        <div class="question">4. 您认为他人对您当前睡眠问题的关注程度如何？</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q4" value="0"> 不关注
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="1"> 轻微关注
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="2"> 中度关注
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="3"> 严重关注
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q4" value="4"> 非常严重关注
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">5. 您对当前睡眠问题的担忧程度如何？</div>
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q5" value="0"> 不担忧
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="1"> 轻微担忧
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="2"> 中度担忧
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="3"> 严重担忧
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q5" value="4"> 非常严重担忧
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevPage(2)">上一页</button>
+                        <button type="button" class="btn" onclick="nextPage(2)">下一页</button>
+                    </div>
+                </div>
+                
+                <div id="page-3" class="assessment-page hidden">
+                    <h2>睡眠信念与态度评估</h2>
+                    
+                    <div class="question-group">
+                        <div class="question">6. 您认为每晚需要多少小时睡眠才能保持白天精力充沛？</div>
+                        <div class="dropdown">
+                            <select class="dropdown-select" name="q6">
+                                <option value="">请选择...</option>
+                                <option value="1">少于5小时</option>
+                                <option value="2">5-6小时</option>
+                                <option value="3">6-7小时</option>
+                                <option value="4">7-8小时</option>
+                                <option value="5">8小时以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">7. 当您难以入睡时，您通常会怎么做？</div>
+                        <div class="dropdown">
+                            <select class="dropdown-select" name="q7">
+                                <option value="">请选择...</option>
+                                <option value="1">继续躺在床上尝试入睡</option>
+                                <option value="2">起床做一些放松活动</option>
+                                <option value="3">使用电子设备</option>
+                                <option value="4">服用助眠药物</option>
+                                <option value="5">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">8. 您对失眠可能导致健康问题的担忧程度如何？</div>
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>毫不担忧</span>
+                                <span>极度担忧</span>
+                            </div>
+                            <input type="range" min="0" max="10" value="5" class="slider" name="q8">
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevPage(3)">上一页</button>
+                        <button type="button" class="btn" onclick="nextPage(3)">下一页</button>
+                    </div>
+                </div>
+                
+                <div id="page-4" class="assessment-page hidden">
+                    <h2>睡眠习惯评估</h2>
+                    
+                    <div class="question-group">
+                        <div class="question">9. 您通常几点上床准备睡觉？</div>
+                        <div class="dropdown">
+                            <select class="dropdown-select" name="q9">
+                                <option value="">请选择...</option>
+                                <option value="1">21:00之前</option>
+                                <option value="2">21:00-22:00</option>
+                                <option value="3">22:00-23:00</option>
+                                <option value="4">23:00-24:00</option>
+                                <option value="5">24:00之后</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">10. 您通常需要多长时间才能入睡？</div>
+                        <div class="dropdown">
+                            <select class="dropdown-select" name="q10">
+                                <option value="">请选择...</option>
+                                <option value="1">15分钟以内</option>
+                                <option value="2">15-30分钟</option>
+                                <option value="3">30-60分钟</option>
+                                <option value="4">60-90分钟</option>
+                                <option value="5">90分钟以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <div class="question">11. 您平均每晚实际睡眠时间是多少？</div>
+                        <div class="dropdown">
+                            <select class="dropdown-select" name="q11">
+                                <option value="">请选择...</option>
+                                <option value="1">少于4小时</option>
+                                <option value="2">4-5小时</option>
+                                <option value="3">5-6小时</option>
+                                <option value="4">6-7小时</option>
+                                <option value="5">7小时以上</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevPage(4)">上一页</button>
+                        <button type="submit" class="btn">提交评估</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div id="result-section" class="card hidden">
+            <div class="result-card">
+                <h1>您的评估结果</h1>
+                <p>根据您的回答，我们得出以下评估结果：</p>
+                
+                <div class="result-score" id="isi-score">0</div>
+                <div class="result-description" id="isi-description"></div>
+                
+                <div class="section-divider"></div>
+                
+                <h2>建议治疗方案</h2>
+                <div id="treatment-plan" style="text-align: left; max-width: 600px; margin: 0 auto;"></div>
+                
+                <button id="start-treatment" class="btn" style="margin-top: 30px;">开始治疗计划</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startAssessmentBtn = document.getElementById('start-assessment');
+            const introSection = document.getElementById('intro-section');
+            const assessmentSection = document.getElementById('assessment-section');
+            
+            startAssessmentBtn.addEventListener('click', function() {
+                introSection.classList.add('hidden');
+                assessmentSection.classList.remove('hidden');
+                updateProgressBar(1);
+            });
+            
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        document.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    }
+                });
+            });
+            
+            const assessmentForm = document.getElementById('assessment-form');
+            assessmentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                calculateResults();
+            });
+        });
+        
+        function nextPage(currentPage) {
+            document.getElementById(`page-${currentPage}`).classList.add('hidden');
+            document.getElementById(`page-${currentPage + 1}`).classList.remove('hidden');
+            updateProgressBar(currentPage + 1);
+        }
+        
+        function prevPage(currentPage) {
+            document.getElementById(`page-${currentPage}`).classList.add('hidden');
+            document.getElementById(`page-${currentPage - 1}`).classList.remove('hidden');
+            updateProgressBar(currentPage - 1);
+        }
+        
+        function updateProgressBar(currentPage) {
+            const progress = (currentPage / 4) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+        
+        function calculateResults() {
+            const form = document.getElementById('assessment-form');
+            const formData = new FormData(form);
+            
+            let isiScore = 0;
+            for (let i = 1; i <= 5; i++) {
+                isiScore += parseInt(formData.get(`q${i}`)) || 0;
+            }
+            
+            let description = '';
+            if (isiScore <= 7) {
+                description = '您的失眠症状在正常范围内，没有临床意义上的失眠问题。';
+            } else if (isiScore <= 14) {
+                description = '您有轻度失眠问题，建议通过改善睡眠习惯来提升睡眠质量。';
+            } else if (isiScore <= 21) {
+                description = '您有中度失眠问题，建议接受系统的CBT-I治疗来改善睡眠状况。';
+            } else {
+                description = '您有严重失眠问题，强烈建议接受专业的CBT-I治疗和医疗评估。';
+            }
+            
+            const bedtime = formData.get('q9');
+            const sleepLatency = formData.get('q10');
+            const totalSleepTime = formData.get('q11');
+            
+            let treatmentPlan = '<ul style="margin-left: 20px;">';
+            
+            if (sleepLatency >= 3 || totalSleepTime <= 3) {
+                treatmentPlan += '<li style="margin-bottom: 10px;"><strong>睡眠限制疗法：</strong>根据您的睡眠效率计算合适的卧床时间，逐步调整</li>';
+            }
+            
+            if (formData.get('q7') === '1') {
+                treatmentPlan += '<li style="margin-bottom: 10px;"><strong>刺激控制疗法：</strong>当无法入睡时起床，只在困倦时返回床上</li>';
+            }
+            
+            if (formData.get('q8') >= 7) {
+                treatmentPlan += '<li style="margin-bottom: 10px;"><strong>认知重建：</strong>识别并改变关于睡眠的错误认知和过度担忧</li>';
+            }
+            
+            treatmentPlan += '<li style="margin-bottom: 10px;"><strong>睡眠卫生教育：</strong>优化睡眠环境和生活习惯</li>';
+            treatmentPlan += '<li style="margin-bottom: 10px;"><strong>放松训练：</strong>学习渐进式肌肉放松和呼吸技巧</li>';
+            treatmentPlan += '</ul>';
+            
+            localStorage.setItem('cbtiAssessment', JSON.stringify({
+                isiScore,
+                bedtime,
+                sleepLatency,
+                totalSleepTime,
+                lastAssessment: new Date().toISOString()
+            }));
+            
+            document.getElementById('isi-score').textContent = isiScore;
+            document.getElementById('isi-description').textContent = description;
+            document.getElementById('treatment-plan').innerHTML = treatmentPlan;
+            
+            document.getElementById('assessment-section').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+            
+            document.getElementById('start-treatment').addEventListener('click', function() {
+                window.location.href = 'treatment-plan.html';
+            });
+        }
+    </script>
+</body>
+</html>

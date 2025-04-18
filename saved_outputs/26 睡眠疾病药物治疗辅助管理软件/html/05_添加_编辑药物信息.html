@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠药物管理 - 添加/编辑药物</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+            --placeholder-color: #86868b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-control::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        .datalist-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .select-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230071e3'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c3;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .image-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--primary-color);
+        }
+
+        .image-upload-icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .image-upload-text {
+            color: var(--placeholder-color);
+            text-align: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 15px;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .textarea-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .date-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">睡眠药物管理</div>
+            <div class="nav">
+                <a href="#" class="nav-item">首页</a>
+                <a href="#" class="nav-item active">药物管理</a>
+                <a href="#" class="nav-item">用药记录</a>
+                <a href="#" class="nav-item">统计分析</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">添加/编辑药物信息</h2>
+            
+            <div class="form-group">
+                <label for="drugName" class="form-label">药物名称</label>
+                <input list="drugNames" id="drugName" class="form-control" placeholder="输入药物通用名或商品名">
+                <datalist id="drugNames">
+                    <option value="唑吡坦">
+                    <option value="佐匹克隆">
+                    <option value="右佐匹克隆">
+                    <option value="艾司佐匹克隆">
+                    <option value="扎来普隆">
+                    <option value="褪黑素">
+                    <option value="多塞平">
+                    <option value="曲唑酮">
+                    <option value="苏沃雷生">
+                    <option value="阿戈美拉汀">
+                </datalist>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="dosage" class="form-label">剂量</label>
+                        <input type="text" id="dosage" class="form-control" placeholder="例如: 5mg">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="form" class="form-label">剂型</label>
+                        <select id="form" class="select-control">
+                            <option value="">选择剂型</option>
+                            <option value="片剂">片剂</option>
+                            <option value="胶囊">胶囊</option>
+                            <option value="口服液">口服液</option>
+                            <option value="缓释片">缓释片</option>
+                            <option value="舌下片">舌下片</option>
+                            <option value="贴剂">贴剂</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="instructions" class="form-label">服用说明</label>
+                <textarea id="instructions" class="textarea-control" placeholder="例如: 睡前30分钟服用，避免与酒精同服"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="doctor" class="form-label">开药医生</label>
+                <input type="text" id="doctor" class="form-control" placeholder="输入医生姓名">
+            </div>
+
+            <div class="form-group">
+                <label for="prescriptionDate" class="form-label">开药日期</label>
+                <input type="date" id="prescriptionDate" class="date-control" value="2024-06-01">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">药物外观</label>
+                <div class="image-upload" id="imageUpload">
+                    <div class="image-upload-icon">📷</div>
+                    <div class="image-upload-text">点击上传药物图片</div>
+                    <input type="file" id="drugImage" accept="image/*" style="display: none;">
+                    <img id="imagePreview" class="image-preview" alt="药物预览">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">药物描述</label>
+                <textarea id="description" class="textarea-control" placeholder="例如: 白色圆形药片，一面有刻痕"></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" id="saveBtn">保存药物信息</button>
+                <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageUpload = document.getElementById('imageUpload');
+            const drugImage = document.getElementById('drugImage');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            imageUpload.addEventListener('click', function() {
+                drugImage.click();
+            });
+            
+            drugImage.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        imagePreview.src = event.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const drugName = document.getElementById('drugName').value;
+                const dosage = document.getElementById('dosage').value;
+                const form = document.getElementById('form').value;
+                const instructions = document.getElementById('instructions').value;
+                const doctor = document.getElementById('doctor').value;
+                const prescriptionDate = document.getElementById('prescriptionDate').value;
+                const description = document.getElementById('description').value;
+                
+                if (!drugName || !dosage || !form || !instructions || !doctor || !prescriptionDate) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+                
+                const drugData = {
+                    id: Date.now(),
+                    name: drugName,
+                    dosage: dosage,
+                    form: form,
+                    instructions: instructions,
+                    doctor: doctor,
+                    date: prescriptionDate,
+                    description: description,
+                    image: imagePreview.src || ''
+                };
+                
+                let drugs = JSON.parse(localStorage.getItem('drugs') || '[]');
+                drugs.push(drugData);
+                localStorage.setItem('drugs', JSON.stringify(drugs));
+                
+                alert('药物信息已保存');
+                window.location.href = 'drug-list.html';
+            });
+            
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                if (confirm('确定要取消编辑吗？未保存的更改将丢失。')) {
+                    window.location.href = 'drug-list.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

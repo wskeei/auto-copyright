@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能环境应急资源调度系统 - 应急事件管理</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 6px;
+            margin-right: 12px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .nav-item {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-left: 24px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c4;
+        }
+
+        .table-container {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-primary);
+            background-color: #f9f9fb;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f9f9fb;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-processing {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .status-completed {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-left: 8px;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:hover:not(.active) {
+            background-color: #f9f9fb;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border-color);
+        }
+
+        .empty-text {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">智能环境应急资源调度系统</div>
+            </div>
+            <nav>
+                <a href="#" class="nav-item">仪表盘</a>
+                <a href="#" class="nav-item active">应急事件</a>
+                <a href="#" class="nav-item">资源管理</a>
+                <a href="#" class="nav-item">人员调度</a>
+                <a href="#" class="nav-item">分析报告</a>
+            </nav>
+        </header>
+
+        <main>
+            <h1 class="page-title">应急事件管理</h1>
+
+            <div class="toolbar">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="搜索事件名称或编号...">
+                </div>
+                <button class="btn btn-primary" id="newEventBtn">新建事件</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>事件编号</th>
+                            <th>事件名称</th>
+                            <th>事件类型</th>
+                            <th>发生地点</th>
+                            <th>报告时间</th>
+                            <th>当前状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EV-2024-0621</td>
+                            <td>化工厂原料泄漏</td>
+                            <td>
+                                <select>
+                                    <option>化学泄漏</option>
+                                    <option>洪水</option>
+                                    <option>火灾</option>
+                                    <option>地震</option>
+                                </select>
+                            </td>
+                            <td>滨海市化工园区A区</td>
+                            <td>2024-06-21 14:30</td>
+                            <td>
+                                <select>
+                                    <option selected>处理中</option>
+                                    <option>已结束</option>
+                                    <option>待响应</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EV-2024-0618</td>
+                            <td>城区内涝</td>
+                            <td>
+                                <select>
+                                    <option>洪水</option>
+                                    <option selected>化学泄漏</option>
+                                    <option>火灾</option>
+                                    <option>地震</option>
+                                </select>
+                            </td>
+                            <td>滨江市中心区</td>
+                            <td>2024-06-18 08:15</td>
+                            <td>
+                                <select>
+                                    <option>处理中</option>
+                                    <option selected>已结束</option>
+                                    <option>待响应</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EV-2024-0615</td>
+                            <td>森林火灾</td>
+                            <td>
+                                <select>
+                                    <option>洪水</option>
+                                    <option>化学泄漏</option>
+                                    <option selected>火灾</option>
+                                    <option>地震</option>
+                                </select>
+                            </td>
+                            <td>青山国家森林公园</td>
+                            <td>2024-06-15 16:45</td>
+                            <td>
+                                <select>
+                                    <option selected>处理中</option>
+                                    <option>已结束</option>
+                                    <option>待响应</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EV-2024-0610</td>
+                            <td>仓库火情</td>
+                            <td>
+                                <select>
+                                    <option>洪水</option>
+                                    <option>化学泄漏</option>
+                                    <option selected>火灾</option>
+                                    <option>地震</option>
+                                </select>
+                            </td>
+                            <td>物流园区3号仓库</td>
+                            <td>2024-06-10 22:10</td>
+                            <td>
+                                <select>
+                                    <option>处理中</option>
+                                    <option selected>已结束</option>
+                                    <option>待响应</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EV-2024-0605</td>
+                            <td>河流污染</td>
+                            <td>
+                                <select>
+                                    <option selected>化学泄漏</option>
+                                    <option>洪水</option>
+                                    <option>火灾</option>
+                                    <option>地震</option>
+                                </select>
+                            </td>
+                            <td>清水河上游</td>
+                            <td>2024-06-05 09:20</td>
+                            <td>
+                                <select>
+                                    <option>处理中</option>
+                                    <option selected>已结束</option>
+                                    <option>待响应</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="pagination-btn">←</div>
+                <div class="pagination-btn active">1</div>
+                <div class="pagination-btn">2</div>
+                <div class="pagination-btn">3</div>
+                <div class="pagination-btn">→</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('newEventBtn').addEventListener('click', function() {
+            window.location.href = 'event-create.html';
+        });
+
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const eventId = row.cells[0].textContent.toLowerCase();
+                const eventName = row.cells[1].textContent.toLowerCase();
+                
+                if (eventId.includes(searchTerm) || eventName.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                const row = this.closest('tr');
+                console.log(`更新事件 ${row.cells[0].textContent} 的 ${this.parentElement.previousElementSibling.textContent} 为 ${this.value}`);
+            });
+        });
+    </script>
+</body>
+</html>

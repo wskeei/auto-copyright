@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能睡眠节律调节优化系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --subtext-color: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--card-color);
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 15px;
+        }
+
+        .time-input {
+            flex: 1;
+        }
+
+        .recommendation {
+            background-color: rgba(0, 113, 227, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+        }
+
+        .recommendation h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .recommendation p {
+            font-size: 14px;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #0062c3;
+        }
+
+        .button-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .button-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .sleep-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--subtext-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-bar {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--subtext-color);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">Z</div>
+                <h1>智能睡眠节律调节优化系统</h1>
+            </div>
+            <div class="user-profile">
+                <span>用户设置</span>
+                <div class="user-avatar">U</div>
+            </div>
+        </header>
+
+        <div class="tab-bar">
+            <div class="tab active" data-tab="plan">睡眠计划</div>
+            <div class="tab" data-tab="analysis">睡眠分析</div>
+            <div class="tab" data-tab="settings">系统设置</div>
+        </div>
+
+        <div id="plan-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>理想睡眠计划设定</h2>
+                </div>
+                <div class="form-group">
+                    <label for="bedtime">目标就寝时间</label>
+                    <input type="time" id="bedtime" value="23:00">
+                </div>
+                <div class="form-group">
+                    <label for="wakeup">目标起床时间</label>
+                    <input type="time" id="wakeup" value="07:00">
+                </div>
+                <div class="form-group">
+                    <label for="sleep-duration">期望总睡眠时长</label>
+                    <select id="sleep-duration">
+                        <option value="7">7小时</option>
+                        <option value="7.5">7.5小时</option>
+                        <option value="8" selected>8小时</option>
+                        <option value="8.5">8.5小时</option>
+                        <option value="9">9小时</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sleep-goal">睡眠质量目标</label>
+                    <select id="sleep-goal">
+                        <option value="improve">改善睡眠质量</option>
+                        <option value="maintain" selected>维持当前睡眠质量</option>
+                        <option value="deep">获得深度睡眠</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="activity-level">日常活动量</label>
+                    <select id="activity-level">
+                        <option value="low">低 (久坐为主)</option>
+                        <option value="moderate" selected>中等 (适量运动)</option>
+                        <option value="high">高 (体力活动较多)</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button class="button-secondary" id="reset-btn">重置</button>
+                    <button class="button" id="save-btn">保存计划</button>
+                </div>
+            </div>
+
+            <div class="card" id="recommendation-card">
+                <div class="card-header">
+                    <h2>睡眠优化建议</h2>
+                </div>
+                <div class="recommendation">
+                    <h3>睡前放松时间段</h3>
+                    <p id="relax-time">建议在22:00-23:00进行放松活动</p>
+                    <h3>理想的日间活动安排</h3>
+                    <p id="day-activity">早晨建议进行适量有氧运动，午后可安排20分钟小憩</p>
+                    <p id="caffeine-cutoff">最后摄入咖啡因时间建议不晚于15:00</p>
+                </div>
+                <div class="sleep-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">计划睡眠时长</div>
+                        <div class="stat-value" id="planned-duration">8小时</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">实际睡眠效率</div>
+                        <div class="stat-value" id="sleep-efficiency">92%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">深度睡眠比例</div>
+                        <div class="stat-value" id="deep-sleep">25%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="analysis-tab" class="tab-content hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2>睡眠数据分析</h2>
+                </div>
+                <p>睡眠分析功能将在后续版本中提供</p>
+            </div>
+        </div>
+
+        <div id="settings-tab" class="tab-content hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2>系统设置</h2>
+                </div>
+                <p>系统设置功能将在后续版本中提供</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.add('hidden'));
+                    
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab') + '-tab';
+                    document.getElementById(tabId).classList.remove('hidden');
+                });
+            });
+
+            const bedtimeInput = document.getElementById('bedtime');
+            const wakeupInput = document.getElementById('wakeup');
+            const durationSelect = document.getElementById('sleep-duration');
+            const saveBtn = document.getElementById('save-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const relaxTimeEl = document.getElementById('relax-time');
+            const dayActivityEl = document.getElementById('day-activity');
+            const caffeineCutoffEl = document.getElementById('caffeine-cutoff');
+            const plannedDurationEl = document.getElementById('planned-duration');
+            const sleepEfficiencyEl = document.getElementById('sleep-efficiency');
+            const deepSleepEl = document.getElementById('deep-sleep');
+
+            function calculateRecommendations() {
+                const bedtime = bedtimeInput.value;
+                const wakeup = wakeupInput.value;
+                const duration = parseFloat(durationSelect.value);
+                const goal = document.getElementById('sleep-goal').value;
+                const activity = document.getElementById('activity-level').value;
+
+                const [bedHour, bedMinute] = bedtime.split(':').map(Number);
+                const [wakeHour, wakeMinute] = wakeup.split(':').map(Number);
+
+                let relaxStartHour = bedHour - 1;
+                if (relaxStartHour < 0) relaxStartHour += 24;
+                const relaxEndHour = bedHour;
+
+                let caffeineCutoffHour = 15;
+                if (bedHour <= 22) {
+                    caffeineCutoffHour = 15;
+                } else {
+                    caffeineCutoffHour = 17;
+                }
+
+                let activitySuggestion = '';
+                if (activity === 'low') {
+                    activitySuggestion = '建议每天增加30分钟中等强度运动，如快走或瑜伽';
+                } else if (activity === 'moderate') {
+                    activitySuggestion = '保持当前运动量，早晨建议进行适量有氧运动';
+                } else {
+                    activitySuggestion = '高强度运动建议安排在早晨或午后，避免晚间剧烈运动';
+                }
+
+                relaxTimeEl.textContent = `建议在${String(relaxStartHour).padStart(2, '0')}:${String(bedMinute).padStart(2, '0')}-${bedtime}进行放松活动`;
+                dayActivityEl.textContent = activitySuggestion;
+                caffeineCutoffEl.textContent = `最后摄入咖啡因时间建议不晚于${caffeineCutoffHour}:00`;
+                plannedDurationEl.textContent = `${duration}小时`;
+
+                const efficiency = goal === 'improve' ? '88%' : goal === 'deep' ? '85%' : '92%';
+                const deepSleep = goal === 'improve' ? '20%' : goal === 'deep' ? '30%' : '25%';
+                
+                sleepEfficiencyEl.textContent = efficiency;
+                deepSleepEl.textContent = deepSleep;
+
+                saveToLocalStorage();
+            }
+
+            function saveToLocalStorage() {
+                const sleepPlan = {
+                    bedtime: bedtimeInput.value,
+                    wakeup: wakeupInput.value,
+                    duration: durationSelect.value,
+                    goal: document.getElementById('sleep-goal').value,
+                    activity: document.getElementById('activity-level').value,
+                    lastUpdated: new Date().toISOString()
+                };
+                localStorage.setItem('sleepPlan', JSON.stringify(sleepPlan));
+            }
+
+            function loadFromLocalStorage() {
+                const savedPlan = localStorage.getItem('sleepPlan');
+                if (savedPlan) {
+                    const plan = JSON.parse(savedPlan);
+                    bedtimeInput.value = plan.bedtime;
+                    wakeupInput.value = plan.wakeup;
+                    durationSelect.value = plan.duration;
+                    document.getElementById('sleep-goal').value = plan.goal;
+                    document.getElementById('activity-level').value = plan.activity;
+                    calculateRecommendations();
+                }
+            }
+
+            function resetForm() {
+                bedtimeInput.value = '23:00';
+                wakeupInput.value = '07:00';
+                durationSelect.value = '8';
+                document.getElementById('sleep-goal').value = 'maintain';
+                document.getElementById('activity-level').value = 'moderate';
+                calculateRecommendations();
+            }
+
+            bedtimeInput.addEventListener('change', calculateRecommendations);
+            wakeupInput.addEventListener('change', calculateRecommendations);
+            durationSelect.addEventListener('change', calculateRecommendations);
+            document.getElementById('sleep-goal').addEventListener('change', calculateRecommendations);
+            document.getElementById('activity-level').addEventListener('change', calculateRecommendations);
+            saveBtn.addEventListener('click', calculateRecommendations);
+            resetBtn.addEventListener('click', resetForm);
+
+            loadFromLocalStorage();
+            calculateRecommendations();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能电网设备监控与调度系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-left: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-left: 12px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            width: 300px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        .search-bar i {
+            color: var(--text-secondary);
+            margin-right: 8px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c4;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .btn i {
+            margin-right: 6px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .device-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .device-list th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .device-list td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        .device-list tr:last-child td {
+            border-bottom: none;
+        }
+
+        .device-list tr:hover {
+            background-color: rgba(0, 113, 227, 0.03);
+        }
+
+        .device-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-transformer {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .type-switch {
+            background-color: rgba(0, 122, 255, 0.1);
+            color: #007aff;
+        }
+
+        .type-capacitor {
+            background-color: rgba(175, 82, 222, 0.1);
+            color: #af52de;
+        }
+
+        .status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-normal {
+            background-color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: var(--warning-color);
+        }
+
+        .status-danger {
+            background-color: var(--danger-color);
+        }
+
+        .topology-container {
+            width: 100%;
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .topology-svg {
+            width: 90%;
+            height: 90%;
+        }
+
+        .node {
+            fill: var(--primary-color);
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .line {
+            stroke: var(--text-secondary);
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        }
+
+        .view-switcher {
+            display: flex;
+            background-color: #e8e8ed;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .view-option {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .view-option.active {
+            background-color: white;
+            color: var(--primary-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .metrics {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-card {
+            flex: 1;
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .metric-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .page-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .page-btn:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <h1>电网监控系统</h1>
+            </div>
+            <div class="user-info">
+                <span>操作员</span>
+                <div class="user-avatar">OP</div>
+            </div>
+        </header>
+
+        <div class="view-switcher">
+            <div class="view-option active">列表视图</div>
+            <div class="view-option">拓扑视图</div>
+        </div>
+
+        <div class="card">
+            <div class="topology-container">
+                <svg class="topology-svg" viewBox="0 0 800 300">
+                    <line x1="100" y1="150" x2="250" y2="150" class="line" />
+                    <line x1="350" y1="150" x2="500" y2="150" class="line" />
+                    <line x1="600" y1="150" x2="700" y2="150" class="line" />
+                    
+                    <circle cx="100" cy="150" r="20" class="node" />
+                    <circle cx="250" cy="150" r="20" class="node" />
+                    <circle cx="350" cy="150" r="20" class="node" />
+                    <circle cx="500" cy="150" r="20" class="node" />
+                    <circle cx="600" cy="150" r="20" class="node" />
+                    <circle cx="700" cy="150" r="20" class="node" />
+                    
+                    <text x="100" y="190" text-anchor="middle" font-size="12">变电站A</text>
+                    <text x="250" y="190" text-anchor="middle" font-size="12">变压器T1</text>
+                    <text x="350" y="190" text-anchor="middle" font-size="12">开关K1</text>
+                    <text x="500" y="190" text-anchor="middle" font-size="12">电容器C1</text>
+                    <text x="600" y="190" text-anchor="middle" font-size="12">变压器T2</text>
+                    <text x="700" y="190" text-anchor="middle" font-size="12">变电站B</text>
+                </svg>
+            </div>
+
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-title">监控设备总数</div>
+                    <div class="metric-value">42<span class="metric-unit">台</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">正常运行</div>
+                    <div class="metric-value">38<span class="metric-unit">台</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">告警设备</div>
+                    <div class="metric-value">3<span class="metric-unit">台</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">故障设备</div>
+                    <div class="metric-value">1<span class="metric-unit">台</span></div>
+                </div>
+            </div>
+
+            <div class="card-header">
+                <div class="card-title">设备列表</div>
+                <div class="actions">
+                    <div class="search-bar">
+                        <i>🔍</i>
+                        <input type="text" placeholder="搜索设备名称或编号...">
+                    </div>
+                    <button class="btn btn-outline">
+                        <i>↻</i>刷新
+                    </button>
+                </div>
+            </div>
+
+            <table class="device-list">
+                <thead>
+                    <tr>
+                        <th>设备名称</th>
+                        <th>设备编号</th>
+                        <th>设备类型</th>
+                        <th>安装位置</th>
+                        <th>电压(kV)</th>
+                        <th>电流(A)</th>
+                        <th>功率因数</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>主变压器#1</td>
+                        <td>T-2024-001</td>
+                        <td><span class="device-type type-transformer">变压器</span></td>
+                        <td>变电站A</td>
+                        <td>220.5</td>
+                        <td>1250.3</td>
+                        <td>0.95</td>
+                        <td><span class="status status-normal"></span>正常</td>
+                    </tr>
+                    <tr>
+                        <td>高压开关#2</td>
+                        <td>K-2024-002</td>
+                        <td><span class="device-type type-switch">开关</span></td>
+                        <td>变电站A</td>
+                        <td>220.0</td>
+                        <td>0.0</td>
+                        <td>-</td>
+                        <td><span class="status status-danger"></span>断开</td>
+                    </tr>
+                    <tr>
+                        <td>补偿电容#1</td>
+                        <td>C-2024-003</td>
+                        <td><span class="device-type type-capacitor">电容器</span></td>
+                        <td>变电站B</td>
+                        <td>110.2</td>
+                        <td>850.7</td>
+                        <td>0.98</td>
+                        <td><span class="status status-normal"></span>正常</td>
+                    </tr>
+                    <tr>
+                        <td>主变压器#2</td>
+                        <td>T-2024-004</td>
+                        <td><span class="device-type type-transformer">变压器</span></td>
+                        <td>变电站B</td>
+                        <td>110.8</td>
+                        <td>980.2</td>
+                        <td>0.92</td>
+                        <td><span class="status status-warning"></span>过载</td>
+                    </tr>
+                    <tr>
+                        <td>高压开关#5</td>
+                        <td>K-2024-005</td>
+                        <td><span class="device-type type-switch">开关</span></td>
+                        <td>变电站C</td>
+                        <td>110.5</td>
+                        <td>650.1</td>
+                        <td>0.94</td>
+                        <td><span class="status status-normal"></span>闭合</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="page-btn">«</div>
+                <div class="page-btn active">1</div>
+                <div class="page-btn">2</div>
+                <div class="page-btn">3</div>
+                <div class="page-btn">»</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshBtn = document.querySelector('.btn-outline');
+            const searchInput = document.querySelector('.search-bar input');
+            const viewOptions = document.querySelectorAll('.view-option');
+            const deviceRows = document.querySelectorAll('.device-list tbody tr');
+            const topologyContainer = document.querySelector('.topology-container');
+            const deviceListTable = document.querySelector('.device-list');
+
+            viewOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    viewOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.textContent === '拓扑视图') {
+                        topologyContainer.style.display = 'flex';
+                        deviceListTable.style.display = 'none';
+                    } else {
+                        topologyContainer.style.display = 'none';
+                        deviceListTable.style.display = 'table';
+                    }
+                });
+            });
+
+            refreshBtn.addEventListener('click', function() {
+                const statuses = ['status-normal', 'status-warning', 'status-danger'];
+                const statusTexts = ['正常', '过载', '断开'];
+                
+                deviceRows.forEach(row => {
+                    if (Math.random() > 0.7) {
+                        const randomIndex = Math.floor(Math.random() * 3);
+                        const statusCell = row.querySelector('td:last-child');
+                        const statusDot = statusCell.querySelector('.status');
+                        
+                        statusDot.className = 'status ' + statuses[randomIndex];
+                        statusCell.lastChild.textContent = statusTexts[randomIndex];
+                        
+                        if (randomIndex === 2) {
+                            row.querySelector('td:nth-child(5)').textContent = '0.0';
+                            row.querySelector('td:nth-child(6)').textContent = '0.0';
+                            row.querySelector('td:nth-child(7)').textContent = '-';
+                        } else {
+                            const voltage = (Math.random() * 50 + 100).toFixed(1);
+                            const current = (Math.random() * 1000 + 500).toFixed(1);
+                            const factor = (Math.random() * 0.1 + 0.9).toFixed(2);
+                            
+                            row.querySelector('td:nth-child(5)').textContent = voltage;
+                            row.querySelector('td:nth-child(6)').textContent = current;
+                            row.querySelector('td:nth-child(7)').textContent = factor;
+                        }
+                    }
+                });
+            });
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                deviceRows.forEach(row => {
+                    const name = row.querySelector('td:first-child').textContent.toLowerCase();
+                    const id = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) {
+                        row.style.display = '';
+                    } else if (id.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

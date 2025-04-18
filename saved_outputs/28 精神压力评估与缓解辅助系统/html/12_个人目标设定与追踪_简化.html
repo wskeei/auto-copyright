@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精神压力评估与缓解辅助系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --success-color: #34c759;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title svg {
+            margin-right: 10px;
+        }
+
+        .goal-form {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .goal-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .goal-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .add-goal-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0 20px;
+            margin-left: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-goal-btn:hover {
+            background-color: #0062c4;
+        }
+
+        .goal-list {
+            list-style: none;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .goal-checkbox {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 6px;
+            margin-right: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .goal-checkbox:checked {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .goal-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .goal-text {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .goal-completed .goal-text {
+            color: var(--text-secondary);
+            text-decoration: line-through;
+        }
+
+        .goal-actions {
+            display: flex;
+        }
+
+        .goal-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+        }
+
+        .goal-action-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .progress-section {
+            margin-top: 20px;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .feedback-card {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: rgba(0, 113, 227, 0.05);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .feedback-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .feedback-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .goal-category {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            margin-bottom: 20px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">精神压力评估与缓解辅助系统</div>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">U</div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    目标设定
+                </div>
+
+                <select id="goal-category-select">
+                    <option value="relaxation">放松训练</option>
+                    <option value="exercise">身体锻炼</option>
+                    <option value="journaling">情绪记录</option>
+                    <option value="sleep">睡眠改善</option>
+                    <option value="social">社交活动</option>
+                </select>
+
+                <div class="goal-form">
+                    <input type="text" class="goal-input" id="new-goal-input" placeholder="输入新的目标，例如：本周进行3次放松训练">
+                    <button class="add-goal-btn" id="add-goal-btn">添加</button>
+                </div>
+
+                <div class="goal-category">
+                    <div class="category-title">放松训练</div>
+                    <ul class="goal-list" id="relaxation-goals"></ul>
+                </div>
+
+                <div class="goal-category">
+                    <div class="category-title">身体锻炼</div>
+                    <ul class="goal-list" id="exercise-goals"></ul>
+                </div>
+
+                <div class="goal-category">
+                    <div class="category-title">情绪记录</div>
+                    <ul class="goal-list" id="journaling-goals"></ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    进度追踪
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-title">本周目标完成情况</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="weekly-progress"></div>
+                    </div>
+                    <div class="progress-text" id="weekly-progress-text">0/0 已完成</div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-title">本月目标完成情况</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="monthly-progress"></div>
+                    </div>
+                    <div class="progress-text" id="monthly-progress-text">0/0 已完成</div>
+                </div>
+
+                <div class="feedback-card" id="feedback-card">
+                    <div class="feedback-title">提示</div>
+                    <div class="feedback-text">添加您的第一个目标以开始追踪进度</div>
+                </div>
+
+                <div class="goal-category">
+                    <div class="category-title">睡眠改善</div>
+                    <ul class="goal-list" id="sleep-goals"></ul>
+                </div>
+
+                <div class="goal-category">
+                    <div class="category-title">社交活动</div>
+                    <ul class="goal-list" id="social-goals"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const goalInput = document.getElementById('new-goal-input');
+            const addGoalBtn = document.getElementById('add-goal-btn');
+            const categorySelect = document.getElementById('goal-category-select');
+            const weeklyProgress = document.getElementById('weekly-progress');
+            const weeklyProgressText = document.getElementById('weekly-progress-text');
+            const monthlyProgress = document.getElementById('monthly-progress');
+            const monthlyProgressText = document.getElementById('monthly-progress-text');
+            const feedbackCard = document.getElementById('feedback-card');
+
+            let goals = JSON.parse(localStorage.getItem('stressReliefGoals')) || {
+                relaxation: [],
+                exercise: [],
+                journaling: [],
+                sleep: [],
+                social: []
+            };
+
+            function saveGoals() {
+                localStorage.setItem('stressReliefGoals', JSON.stringify(goals));
+                updateProgress();
+            }
+
+            function renderGoals() {
+                renderCategoryGoals('relaxation');
+                renderCategoryGoals('exercise');
+                renderCategoryGoals('journaling');
+                renderCategoryGoals('sleep');
+                renderCategoryGoals('social');
+            }
+
+            function renderCategoryGoals(category) {
+                const listElement = document.getElementById(`${category}-goals`);
+                listElement.innerHTML = '';
+
+                goals[category].forEach((goal, index) => {
+                    const li = document.createElement('li');
+                    li.className = `goal-item ${goal.completed ? 'goal-completed' : ''}`;
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'goal-checkbox';
+                    checkbox.checked = goal.completed;
+                    checkbox.addEventListener('change', function() {
+                        goals[category][index].completed = this.checked;
+                        saveGoals();
+                        renderGoals();
+                    });
+
+                    const span = document.createElement('span');
+                    span.className = 'goal-text';
+                    span.textContent = goal.text;
+
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'goal-actions';
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'goal-action-btn';
+                    editBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+                    editBtn.addEventListener('click', function() {
+                        const newText = prompt('编辑目标:', goal.text);
+                        if (newText && newText.trim() !== '') {
+                            goals[category][index].text = newText.trim();
+                            saveGoals();
+                            renderGoals();
+                        }
+                    });
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'goal-action-btn';
+                    deleteBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
+                    deleteBtn.addEventListener('click', function() {
+                        if (confirm('确定要删除这个目标吗?')) {
+                            goals[category].splice(index, 1);
+                            saveGoals();
+                            renderGoals();
+                        }
+                    });
+
+                    actionsDiv.appendChild(editBtn);
+                    actionsDiv.appendChild(deleteBtn);
+
+                    li.appendChild(checkbox);
+                    li.appendChild(span);
+                    li.appendChild(actionsDiv);
+                    listElement.appendChild(li);
+                });
+            }
+
+            function updateProgress() {
+                let totalGoals = 0;
+                let completedGoals = 0;
+
+                for (const category in goals) {
+                    totalGoals += goals[category].length;
+                    completedGoals += goals[category].filter(g => g.completed).length;
+                }
+
+                const weeklyPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
+                const monthlyPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
+
+                weeklyProgress.style.width = `${weeklyPercentage}%`;
+                monthlyProgress.style.width = `${monthlyPercentage}%`;
+                weeklyProgressText.textContent = `${completedGoals}/${totalGoals} 已完成`;
+                monthlyProgressText.textContent = `${completedGoals}/${totalGoals} 已完成`;
+
+                if (totalGoals === 0) {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">提示</div>
+                        <div class="feedback-text">添加您的第一个目标以开始追踪进度</div>
+                    `;
+                } else if (completedGoals === 0) {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">建议</div>
+                        <div class="feedback-text">设定小目标并逐步完成，有助于缓解压力</div>
+                    `;
+                } else if (completedGoals === totalGoals) {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">做得很好！</div>
+                        <div class="feedback-text">您已经完成了所有目标，继续保持这种积极的状态</div>
+                    `;
+                } else if (weeklyPercentage >= 75) {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">进展顺利</div>
+                        <div class="feedback-text">您已经完成了大部分目标，继续保持</div>
+                    `;
+                } else if (weeklyPercentage >= 50) {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">不错</div>
+                        <div class="feedback-text">您已经完成了一半以上的目标，继续努力</div>
+                    `;
+                } else if (weeklyPercentage >= 25) {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">继续努力</div>
+                        <div class="feedback-text">您已经取得了一些进展，再加把劲</div>
+                    `;
+                } else {
+                    feedbackCard.innerHTML = `
+                        <div class="feedback-title">刚开始</div>
+                        <div class="feedback-text">每个小进步都很重要，慢慢来</div>
+                    `;
+                }
+            }
+
+            addGoalBtn.addEventListener('click', function() {
+                const text = goalInput.value.trim();
+                const category = categorySelect.value;
+
+                if (text !== '') {
+                    if (!goals[category]) {
+                        goals[category] = [];
+                    }
+
+                    goals[category].push({
+                        text: text,
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    });
+
+                    goalInput.value = '';
+                    saveGoals();
+                    renderGoals();
+                }
+            });
+
+            goalInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addGoalBtn.click();
+                }
+            });
+
+            renderGoals();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

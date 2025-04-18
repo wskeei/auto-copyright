@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备数据可视化分析</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: var(--text-color);
+            pointer-events: none;
+        }
+
+        select.form-control {
+            appearance: none;
+            padding-right: 30px;
+        }
+
+        .date-time-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .date-time-input {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c4;
+        }
+
+        .btn-secondary {
+            background-color: #e8e8ed;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d8d8dc;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f8f8;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        tr:hover {
+            background-color: #f8f8f8;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 0;
+            color: #86868b;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-active {
+            background-color: #34c759;
+        }
+
+        .status-inactive {
+            background-color: #ff3b30;
+        }
+
+        .status-warning {
+            background-color: #ff9500;
+        }
+
+        @media (max-width: 768px) {
+            .date-time-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">物联网数据分析</div>
+            <div class="nav">
+                <div class="nav-item">仪表盘</div>
+                <div class="nav-item">实时监控</div>
+                <div class="nav-item active">历史数据</div>
+                <div class="nav-item">告警管理</div>
+                <div class="nav-item">系统设置</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">历史数据查询</div>
+            <div class="form-group">
+                <label class="form-label">选择设备</label>
+                <div class="select-wrapper">
+                    <select class="form-control" id="device-select">
+                        <option value="">-- 请选择设备 --</option>
+                        <option value="device-1">温度传感器 - 会议室</option>
+                        <option value="device-2">湿度传感器 - 实验室</option>
+                        <option value="device-3">光照传感器 - 走廊</option>
+                        <option value="device-4">空气质量传感器 - 办公室</option>
+                        <option value="device-5">能耗监测器 - 机房</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">时间范围</label>
+                <div class="date-time-group">
+                    <div class="date-time-input">
+                        <label class="form-label">开始时间</label>
+                        <input type="datetime-local" class="form-control" id="start-time">
+                    </div>
+                    <div class="date-time-input">
+                        <label class="form-label">结束时间</label>
+                        <input type="datetime-local" class="form-control" id="end-time">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="query-btn">查询数据</button>
+                <button class="btn btn-secondary" id="reset-btn">重置条件</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">查询结果</div>
+            <div class="table-container">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>时间戳</th>
+                            <th>设备名称</th>
+                            <th>设备类型</th>
+                            <th>数值</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-body">
+                        <tr class="no-data">
+                            <td colspan="5">请选择设备并设置时间范围后查询数据</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="export-btn" disabled>导出数据 (CSV)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deviceSelect = document.getElementById('device-select');
+            const startTimeInput = document.getElementById('start-time');
+            const endTimeInput = document.getElementById('end-time');
+            const queryBtn = document.getElementById('query-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const dataBody = document.getElementById('data-body');
+
+            // 设置默认时间范围（最近7天）
+            const now = new Date();
+            const sevenDaysAgo = new Date(now);
+            sevenDaysAgo.setDate(now.getDate() - 7);
+
+            startTimeInput.value = formatDateTimeLocal(sevenDaysAgo);
+            endTimeInput.value = formatDateTimeLocal(now);
+
+            queryBtn.addEventListener('click', queryData);
+            resetBtn.addEventListener('click', resetForm);
+            exportBtn.addEventListener('click', exportToCSV);
+
+            function formatDateTimeLocal(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+
+            function resetForm() {
+                deviceSelect.value = '';
+                startTimeInput.value = formatDateTimeLocal(sevenDaysAgo);
+                endTimeInput.value = formatDateTimeLocal(now);
+                dataBody.innerHTML = '<tr class="no-data"><td colspan="5">请选择设备并设置时间范围后查询数据</td></tr>';
+                exportBtn.disabled = true;
+            }
+
+            function queryData() {
+                const deviceId = deviceSelect.value;
+                const startTime = startTimeInput.value;
+                const endTime = endTimeInput.value;
+
+                if (!deviceId) {
+                    alert('请选择要查询的设备');
+                    return;
+                }
+
+                if (!startTime || !endTime) {
+                    alert('请设置完整的时间范围');
+                    return;
+                }
+
+                if (new Date(endTime) <= new Date(startTime)) {
+                    alert('结束时间必须大于开始时间');
+                    return;
+                }
+
+                // 模拟数据查询
+                const deviceName = deviceSelect.options[deviceSelect.selectedIndex].text;
+                const deviceType = deviceName.split(' - ')[0];
+                const data = generateMockData(deviceId, deviceName, deviceType, startTime, endTime);
+
+                renderDataTable(data);
+                exportBtn.disabled = false;
+            }
+
+            function generateMockData(deviceId, deviceName, deviceType, startTime, endTime) {
+                const start = new Date(startTime);
+                const end = new Date(endTime);
+                const diffInMinutes = Math.floor((end - start) / (1000 * 60));
+                const dataPoints = Math.min(diffInMinutes, 100); // 最多100个数据点
+
+                const data = [];
+                const statuses = ['active', 'inactive', 'warning'];
+
+                for (let i = 0; i < dataPoints; i++) {
+                    const timestamp = new Date(start.getTime() + (i * diffInMinutes / dataPoints) * (1000 * 60));
+                    const value = generateRandomValue(deviceType);
+                    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+                    data.push({
+                        timestamp: timestamp.toISOString(),
+                        deviceName,
+                        deviceType,
+                        value,
+                        status
+                    });
+                }
+
+                return data;
+            }
+
+            function generateRandomValue(deviceType) {
+                if (deviceType.includes('温度')) {
+                    return (Math.random() * 15 + 15).toFixed(1) + '°C';
+                } else if (deviceType.includes('湿度')) {
+                    return (Math.random() * 40 + 30).toFixed(1) + '%';
+                } else if (deviceType.includes('光照')) {
+                    return Math.floor(Math.random() * 2000) + ' lux';
+                } else if (deviceType.includes('空气质量')) {
+                    return Math.floor(Math.random() * 300) + ' AQI';
+                } else {
+                    return (Math.random() * 5).toFixed(2) + ' kWh';
+                }
+            }
+
+            function renderDataTable(data) {
+                if (data.length === 0) {
+                    dataBody.innerHTML = '<tr class="no-data"><td colspan="5">没有找到符合条件的数据</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(item => {
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleString('zh-CN');
+
+                    let statusClass = '';
+                    let statusText = '';
+                    if (item.status === 'active') {
+                        statusClass = 'status-active';
+                        statusText = '正常';
+                    } else if (item.status === 'inactive') {
+                        statusClass = 'status-inactive';
+                        statusText = '离线';
+                    } else {
+                        statusClass = 'status-warning';
+                        statusText = '警告';
+                    }
+
+                    html += `
+                        <tr>
+                            <td>${formattedDate}</td>
+                            <td>${item.deviceName}</td>
+                            <td>${item.deviceType}</td>
+                            <td>${item.value}</td>
+                            <td><span class="status-indicator ${statusClass}"></span>${statusText}</td>
+                        </tr>
+                    `;
+                });
+
+                dataBody.innerHTML = html;
+            }
+
+            function exportToCSV() {
+                const rows = Array.from(dataBody.querySelectorAll('tr')).filter(tr => !tr.classList.contains('no-data'));
+                if (rows.length === 0) {
+                    alert('没有数据可导出');
+                    return;
+                }
+
+                let csvContent = "时间戳,设备名称,设备类型,数值,状态\n";
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = Array.from(cells).map(cell => {
+                        // 移除状态指示器
+                        if (cell.querySelector('.status-indicator')) {
+                            return cell.textContent.replace(/^\s+/, '');
+                        }
+                        return cell.textContent;
+                    });
+                    csvContent += rowData.join(',') + '\n';
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `设备数据_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强迫症认知行为治疗训练系统 - 反应阻止技术库</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #147ce5;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-title .badge {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-left: 15px;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-box::before {
+            content: "";
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2386868b'%3E%3Cpath d='M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            min-width: 180px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2386868b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .techniques-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .technique-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .technique-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .card-difficulty {
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background-color: #f5f5f7;
+            color: var(--text-secondary);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .card-steps {
+            margin-top: 15px;
+        }
+
+        .step-item {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .step-text {
+            font-size: 14px;
+        }
+
+        .card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background-color: #f5f5f7;
+            color: var(--text-secondary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: #f5f5f7;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover {
+            background-color: #f5f5f7;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .progress-section {
+            margin-top: 40px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            width: 65%;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .techniques-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .filter-controls {
+                flex-wrap: wrap;
+            }
+            
+            select {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230071e3'%3E%3Cpath d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z'/%3E%3C/svg%3E" alt="Logo">
+                <h1>强迫症认知行为治疗训练系统</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">训练计划</a></li>
+                    <li><a href="#" class="active">技术库</a></li>
+                    <li><a href="#">进展追踪</a></li>
+                    <li><a href="#">资源中心</a></li>
+                </ul>
+            </nav>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=用户&background=0071e3&color=fff" alt="用户头像">
+                <span>用户</span>
+            </div>
+        </header>
+
+        <div class="page-title">
+            反应阻止技术库
+            <span class="badge">1.0</span>
+        </div>
+
+        <div class="filter-bar">
+            <div class="search-box">
+                <input type="text" placeholder="搜索技术或策略...">
+            </div>
+            <div class="filter-controls">
+                <select>
+                    <option>所有类别</option>
+                    <option>延迟技巧</option>
+                    <option>改变仪式行为</option>
+                    <option>应对不适感</option>
+                    <option>寻求支持</option>
+                </select>
+                <select>
+                    <option>所有难度</option>
+                    <option>初级</option>
+                    <option>中级</option>
+                    <option>高级</option>
+                </select>
+                <select>
+                    <option>排序方式</option>
+                    <option>最受欢迎</option>
+                    <option>最近添加</option>
+                    <option>难度从低到高</option>
+                    <option>难度从高到低</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="techniques-grid">
+            <div class="technique-card">
+                <div class="card-header">
+                    <div class="card-title">延迟执行技巧</div>
+                    <div class="card-difficulty">初级</div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">当强迫冲动出现时，不是立即执行强迫行为，而是设定一个延迟时间，逐渐延长这个延迟时间。</p>
+                    <div class="card-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">识别强迫冲动出现的时间点</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">设定初始延迟时间（如5分钟）</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">使用计时器记录延迟时间</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">逐渐增加延迟时间（15分钟、30分钟、1小时等）</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-tags">
+                        <span class="tag">延迟技巧</span>
+                        <span class="tag">时间管理</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                        <button class="btn btn-primary">添加到计划</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <div class="card-header">
+                    <div class="card-title">行为替代法</div>
+                    <div class="card-difficulty">中级</div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">用另一种无害但不同的行为替代原有的强迫行为，打破原有的仪式化模式。</p>
+                    <div class="card-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">分析原有强迫行为的具体步骤</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">设计一个类似但不同的替代行为</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">在冲动出现时执行替代行为</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">逐渐减少替代行为的频率</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-tags">
+                        <span class="tag">改变仪式</span>
+                        <span class="tag">行为替代</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                        <button class="btn btn-primary">添加到计划</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <div class="card-header">
+                    <div class="card-title">不适感耐受训练</div>
+                    <div class="card-difficulty">高级</div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">学习接受和耐受由不执行强迫行为引起的不适感，认识到这种不适感会随时间减弱。</p>
+                    <div class="card-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">故意触发强迫冲动但不执行行为</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">记录不适感的强度（0-10分）</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">观察不适感如何随时间变化</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">认识到不适感会自然消退</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-tags">
+                        <span class="tag">耐受训练</span>
+                        <span class="tag">情绪管理</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                        <button class="btn btn-primary">添加到计划</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <div class="card-header">
+                    <div class="card-title">注意力转移法</div>
+                    <div class="card-difficulty">中级</div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">当强迫冲动出现时，将注意力转移到其他活动上，直到冲动减弱或消失。</p>
+                    <div class="card-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">准备一个"转移活动清单"</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">当冲动出现时立即开始清单上的活动</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">专注于活动至少15-20分钟</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">评估冲动强度是否降低</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-tags">
+                        <span class="tag">注意力管理</span>
+                        <span class="tag">分散技巧</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                        <button class="btn btn-primary">添加到计划</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <div class="card-header">
+                    <div class="card-title">社交支持系统</div>
+                    <div class="card-difficulty">初级</div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">建立一个支持网络，在需要抵抗强迫行为时寻求他人的帮助和支持。</p>
+                    <div class="card-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">识别3-5位可信赖的支持人员</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">与他们沟通你的治疗目标和需求</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">制定具体的支持请求方式</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">在冲动强烈时联系支持人员</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-tags">
+                        <span class="tag">社交支持</span>
+                        <span class="tag">人际关系</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                        <button class="btn btn-primary">添加到计划</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="technique-card">
+                <div class="card-header">
+                    <div class="card-title">认知重构技术</div>
+                    <div class="card-difficulty">高级</div>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">挑战和改变与强迫行为相关的非理性思维和信念。</p>
+                    <div class="card-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">记录触发强迫行为的具体想法</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">评估这些想法的证据和逻辑</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">发展更平衡合理的替代想法</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">用替代想法应对强迫冲动</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-tags">
+                        <span class="tag">认知疗法</span>
+                        <span class="tag">思维挑战</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline">详情</button>
+                        <button class="btn btn-primary">添加到计划</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <div class="pagination-btn active">1</div>
+            <div class="pagination-btn">2</div>
+            <div class="pagination-btn">3</div>
+            <div class="pagination-btn">4</div>
+            <div class="pagination-btn">5</div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-header">
+                <div class="progress-title">您的训练进度</div>
+                <div>65% 完成</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-stats">
+                <div>已掌握 13 项技术</div>
+                <div>剩余 7 项技术</div>
+            </div>
+            <div class="progress-actions">
+                <button class="btn btn-primary">查看详细报告</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

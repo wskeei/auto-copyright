@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备数据可视化分析</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title .icon {
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background-color: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .flex-row .form-group {
+            flex: 1;
+        }
+
+        .alert-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .alert-list th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: rgba(0, 113, 227, 0.05);
+            color: var(--text-primary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .alert-list td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .alert-list tr:last-child td {
+            border-bottom: none;
+        }
+
+        .alert-list tr:hover {
+            background-color: rgba(0, 113, 227, 0.03);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-new {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .status-confirmed {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+            padding: 4px;
+        }
+
+        .action-btn:hover {
+            text-decoration: underline;
+        }
+
+        .no-alerts {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+        }
+
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .rule-item {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rule-item-content {
+            flex: 1;
+        }
+
+        .rule-item-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .rule-item-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .rule-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">📊</span>
+                <span>设备数据分析</span>
+            </div>
+            <div class="nav">
+                <div class="nav-item">仪表盘</div>
+                <div class="nav-item">设备管理</div>
+                <div class="nav-item active">告警中心</div>
+                <div class="nav-item">数据分析</div>
+                <div class="nav-item">设置</div>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-title">
+                <span>告警规则管理</span>
+                <span class="icon">⚙️</span>
+            </div>
+
+            <div class="tab-container">
+                <div class="tab active" data-tab="rules">告警规则</div>
+                <div class="tab" data-tab="alerts">告警记录</div>
+            </div>
+
+            <div class="tab-content active" id="rules-tab">
+                <div class="card">
+                    <div class="card-title">创建新告警规则</div>
+                    <form id="alert-rule-form">
+                        <div class="flex-row">
+                            <div class="form-group">
+                                <label for="device">设备</label>
+                                <select id="device" required>
+                                    <option value="">选择设备</option>
+                                    <option value="device-1">车间温度传感器 #1</option>
+                                    <option value="device-2">车间温度传感器 #2</option>
+                                    <option value="device-3">仓库湿度传感器</option>
+                                    <option value="device-4">生产线压力传感器</option>
+                                    <option value="device-5">冷却液流量计</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="metric">监测指标</label>
+                                <select id="metric" required>
+                                    <option value="">选择指标</option>
+                                    <option value="temperature">温度 (°C)</option>
+                                    <option value="humidity">湿度 (%RH)</option>
+                                    <option value="pressure">压力 (kPa)</option>
+                                    <option value="flow">流量 (L/min)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex-row">
+                            <div class="form-group">
+                                <label for="condition">条件</label>
+                                <select id="condition" required>
+                                    <option value="">选择条件</option>
+                                    <option value="gt">大于</option>
+                                    <option value="lt">小于</option>
+                                    <option value="eq">等于</option>
+                                    <option value="gte">大于等于</option>
+                                    <option value="lte">小于等于</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="threshold">阈值</label>
+                                <input type="number" id="threshold" step="0.1" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">持续时间 (分钟)</label>
+                            <input type="number" id="duration" min="1" value="5" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="severity">严重程度</label>
+                            <select id="severity" required>
+                                <option value="low">低</option>
+                                <option value="medium" selected>中</option>
+                                <option value="high">高</option>
+                                <option value="critical">严重</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">告警描述</label>
+                            <input type="text" id="description" placeholder="输入告警描述...">
+                        </div>
+
+                        <div class="flex-row" style="justify-content: flex-end; margin-top: 20px;">
+                            <button type="button" class="btn btn-secondary">取消</button>
+                            <button type="submit" class="btn btn-primary">保存规则</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">现有告警规则</div>
+                    <div id="rules-list">
+                        <div class="rule-item">
+                            <div class="rule-item-content">
+                                <div class="rule-item-title">车间温度过高告警</div>
+                                <div class="rule-item-desc">当车间温度传感器 #1 的温度大于 30°C 持续 5 分钟时触发</div>
+                            </div>
+                            <div class="rule-item-actions">
+                                <button class="btn btn-secondary" style="padding: 6px 10px;">编辑</button>
+                                <button class="btn btn-secondary" style="padding: 6px 10px;">删除</button>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="rule-item-content">
+                                <div class="rule-item-title">仓库湿度过低告警</div>
+                                <div class="rule-item-desc">当仓库湿度传感器的湿度小于 40%RH 持续 10 分钟时触发</div>
+                            </div>
+                            <div class="rule-item-actions">
+                                <button class="btn btn-secondary" style="padding: 6px 10px;">编辑</button>
+                                <button class="btn btn-secondary" style="padding: 6px 10px;">删除</button>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="rule-item-content">
+                                <div class="rule-item-title">生产线压力异常告警</div>
+                                <div class="rule-item-desc">当生产线压力传感器的压力不等于 500kPa 持续 3 分钟时触发</div>
+                            </div>
+                            <div class="rule-item-actions">
+                                <button class="btn btn-secondary" style="padding: 6px 10px;">编辑</button>
+                                <button class="btn btn-secondary" style="padding: 6px 10px;">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="alerts-tab">
+                <div class="card">
+                    <div class="card-title">告警记录</div>
+                    <div class="flex-row" style="margin-bottom: 15px; justify-content: space-between;">
+                        <div class="form-group" style="width: 200px;">
+                            <select id="alert-filter">
+                                <option value="all">全部状态</option>
+                                <option value="new">未处理</option>
+                                <option value="confirmed">已确认</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="width: 200px;">
+                            <select id="alert-device-filter">
+                                <option value="all">全部设备</option>
+                                <option value="device-1">车间温度传感器 #1</option>
+                                <option value="device-2">车间温度传感器 #2</option>
+                                <option value="device-3">仓库湿度传感器</option>
+                                <option value="device-4">生产线压力传感器</option>
+                                <option value="device-5">冷却液流量计</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <table class="alert-list">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>设备</th>
+                                <th>告警内容</th>
+                                <th>严重程度</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-table-body">
+                            <tr>
+                                <td>06-15 14:30</td>
+                                <td>车间温度传感器 #1</td>
+                                <td>温度超过30°C持续5分钟</td>
+                                <td>中</td>
+                                <td><span class="status-badge status-new">未处理</span></td>
+                                <td><button class="action-btn">确认</button></td>
+                            </tr>
+                            <tr>
+                                <td>06-15 13:45</td>
+                                <td>仓库湿度传感器</td>
+                                <td>湿度低于40%RH持续10分钟</td>
+                                <td>高</td>
+                                <td><span class="status-badge status-confirmed">已确认</span></td>
+                                <td><button class="action-btn">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td>06-15 11:20</td>
+                                <td>生产线压力传感器</td>
+                                <td>压力异常(520kPa)持续3分钟</td>
+                                <td>中</td>
+                                <td><span class="status-badge status-confirmed">已确认</span></td>
+                                <td><button class="action-btn">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td>06-15 09:15</td>
+                                <td>车间温度传感器 #1</td>
+                                <td>温度超过30°C持续5分钟</td>
+                                <td>中</td>
+                                <td><span class="status-badge status-confirmed">已确认</span></td>
+                                <td><button class="action-btn">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td>06-14 16:40</td>
+                                <td>冷却液流量计</td>
+                                <td>流量低于2L/min持续5分钟</td>
+                                <td>严重</td>
+                                <td><span class="status-badge status-confirmed">已确认</span></td>
+                                <td><button class="action-btn">查看</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+
+            const alertFilter = document.getElementById('alert-filter');
+            const alertDeviceFilter = document.getElementById('alert-device-filter');
+            const alertsTableBody = document.getElementById('alerts-table-body');
+
+            function filterAlerts() {
+                const statusFilter = alertFilter.value;
+                const deviceFilter = alertDeviceFilter.value;
+                
+                const rows = alertsTableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const status = row.querySelector('.status-badge').classList.contains('status-new') ? 'new' : 'confirmed';
+                    const device = row.cells[1].textContent;
+                    const deviceId = getDeviceId(device);
+                    
+                    const statusMatch = statusFilter === 'all' || status === statusFilter;
+                    const deviceMatch = deviceFilter === 'all' || deviceId === deviceFilter;
+                    
+                    row.style.display = statusMatch && deviceMatch ? '' : 'none';
+                });
+            }
+
+            function getDeviceId(deviceName) {
+                const devices = {
+                    '车间温度传感器 #1': 'device-1',
+                    '车间温度传感器 #2': 'device-2',
+                    '仓库湿度传感器': 'device-3',
+                    '生产线压力传感器': 'device-4',
+                    '冷却液流量计': 'device-5'
+                };
+                return devices[deviceName] || '';
+            }
+
+            alertFilter.addEventListener('change', filterAlerts);
+            alertDeviceFilter.addEventListener('change', filterAlerts);
+
+            const alertRuleForm = document.getElementById('alert-rule-form');
+            alertRuleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const deviceSelect = document.getElementById('device');
+                const metricSelect = document.getElementById('metric');
+                const conditionSelect = document.getElementById('condition');
+                const thresholdInput = document.getElementById('threshold');
+                const durationInput = document.getElementById('duration');
+                const severitySelect = document.getElementById('severity');
+                const descriptionInput = document.getElementById('description');
+                
+                const deviceText = deviceSelect.options[deviceSelect.selectedIndex].text;
+                const metricText = metricSelect.options[metricSelect.selectedIndex].text;
+                const conditionText = getConditionText(conditionSelect.value);
+                const threshold = thresholdInput.value;
+                const duration = durationInput.value;
+                const severity = severitySelect.options[severitySelect.selectedIndex].text;
+                
+                const ruleDescription = `当${deviceText}的${metricText}${conditionText}${threshold}${getMetricUnit(metricSelect.value)}持续${duration}分钟时触发`;
+                
+                const ruleItem = document.createElement('div');
+                ruleItem.className = 'rule-item';
+                ruleItem.innerHTML = `
+                    <div class="rule-item-content">
+                        <div class="rule-item-title">${descriptionInput.value || '新告警规则'}</div>
+                        <div class="rule-item-desc">${ruleDescription}</div>
+                    </div>
+                    <div class="rule-item-actions">
+                        <button class="btn btn-secondary" style="padding: 6px 10px;">编辑</button>
+                        <button class="btn btn-secondary" style="padding: 6px 10px;">删除</button>
+                    </div>
+                `;
+                
+                document.getElementById('rules-list').prepend(ruleItem);
+                alertRuleForm.reset();
+            });
+
+            function getConditionText(condition) {
+                const conditions = {
+                    'gt': '大于',
+                    'lt': '小于',
+                    'eq': '等于',
+                    'gte': '大于等于',
+                    'lte': '小于等于'
+                };
+                return conditions[condition] || '';
+            }
+
+            function getMetricUnit(metric) {
+                const units = {
+                    'temperature': '°C',
+                    'humidity': '%RH',
+                    'pressure': 'kPa',
+                    'flow': 'L/min'
+                };
+                return units[metric] || '';
+            }
+
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('action-btn') {
+                    const row = e.target.closest('tr');
+                    const statusBadge = row.querySelector('.status-badge');
+                    
+                    if (e.target.textContent === '确认') {
+                        statusBadge.classList.remove('status-new');
+                        statusBadge.classList.add('status-confirmed');
+                        statusBadge.textContent = '已确认';
+                        e.target.textContent = '查看';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

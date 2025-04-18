@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能水质监测与预警系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --light-text: #86868b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4f0fb 100%);
+        }
+        
+        .login-container {
+            width: 380px;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: 600;
+            font-size: 24px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+        
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: #0062c4;
+        }
+        
+        .register-link {
+            color: var(--light-text);
+            font-size: 14px;
+        }
+        
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: #ff3b30;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">WQ</div>
+        <h1>智能水质监测与预警系统</h1>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+                <div id="usernameError" class="error-message">请输入有效的用户名</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                <div id="passwordError" class="error-message">密码不能为空</div>
+            </div>
+            
+            <div class="options">
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <label for="rememberMe">记住我</label>
+                </div>
+                <a href="#" class="forgot-password">忘记密码？</a>
+            </div>
+            
+            <button type="submit" class="login-btn">登录</button>
+        </form>
+        
+        <div class="register-link">
+            还没有账号？<a href="#">立即注册</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const rememberMe = document.getElementById('rememberMe');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const usernameError = document.getElementById('usernameError');
+            const passwordError = document.getElementById('passwordError');
+            
+            // 检查本地存储是否有记住的凭据
+            if (localStorage.getItem('rememberedCredentials') {
+                const credentials = JSON.parse(localStorage.getItem('rememberedCredentials'));
+                usernameInput.value = credentials.username;
+                passwordInput.value = credentials.password;
+                rememberMe.checked = true;
+            }
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 重置错误信息
+                usernameError.style.display = 'none';
+                passwordError.style.display = 'none';
+                
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                
+                let isValid = true;
+                
+                if (username === '') {
+                    usernameError.style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (password === '') {
+                    passwordError.style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (!isValid) return;
+                
+                // 如果勾选了记住我，保存凭据
+                if (rememberMe.checked) {
+                    localStorage.setItem('rememberedCredentials', JSON.stringify({
+                        username: username,
+                        password: password
+                    }));
+                } else {
+                    localStorage.removeItem('rememberedCredentials');
+                }
+                
+                // 验证用户凭据
+                const validUsers = [
+                    { username: 'admin', password: 'admin123' },
+                    { username: 'operator', password: 'operator123' },
+                    { username: 'viewer', password: 'viewer123' }
+                ];
+                
+                const user = validUsers.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    // 保存登录状态并跳转
+                    sessionStorage.setItem('isAuthenticated', 'true');
+                    sessionStorage.setItem('currentUser', username);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    usernameError.textContent = '用户名或密码错误';
+                    usernameError.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

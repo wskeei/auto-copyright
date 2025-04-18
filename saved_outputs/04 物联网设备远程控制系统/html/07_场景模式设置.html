@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场景模式设置 - 物联网设备远程控制系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f5f7;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .device-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .device-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .device-name {
+            font-weight: 500;
+        }
+
+        .device-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .device-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .select-control {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .scenario-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .scenario-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .scenario-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .scenario-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .scenario-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .scenario-devices {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .scenario-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #f5f5f7;
+            color: var(--text-secondary);
+        }
+
+        .status-badge.active {
+            background-color: #d1f3d8;
+            color: #1d7a2c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>场景模式设置</h1>
+            <button id="createScenarioBtn" class="btn btn-primary">创建新场景</button>
+        </div>
+
+        <div id="scenarioListContainer" class="card">
+            <h2 class="card-title">我的场景</h2>
+            <div id="scenarioList" class="scenario-list">
+                <!-- 场景列表将通过JS动态生成 -->
+            </div>
+        </div>
+
+        <div id="createScenarioFormContainer" class="card" style="display: none;">
+            <h2 class="card-title" id="formTitle">创建新场景</h2>
+            
+            <div class="form-group">
+                <label class="form-label">场景名称</label>
+                <input type="text" id="scenarioName" class="form-control" placeholder="例如：回家模式、睡眠模式">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">场景描述</label>
+                <input type="text" id="scenarioDescription" class="form-control" placeholder="简要描述此场景的功能">
+            </div>
+
+            <div class="divider"></div>
+
+            <h3 class="card-title">选择设备及状态</h3>
+            <div id="deviceList" class="device-list">
+                <!-- 设备列表将通过JS动态生成 -->
+            </div>
+
+            <div class="form-group" style="margin-top: 24px;">
+                <button id="saveScenarioBtn" class="btn btn-primary">保存场景</button>
+                <button id="cancelScenarioBtn" class="btn btn-secondary" style="margin-left: 12px;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 设备数据
+        const devices = [
+            { id: 'light-livingroom', name: '客厅灯', type: 'light', states: ['开', '关'], currentState: '关' },
+            { id: 'light-bedroom', name: '卧室灯', type: 'light', states: ['开', '关'], currentState: '关' },
+            { id: 'curtain-livingroom', name: '客厅窗帘', type: 'curtain', states: ['打开', '关闭'], currentState: '打开' },
+            { id: 'ac-livingroom', name: '客厅空调', type: 'ac', states: ['制冷', '制热', '通风', '关闭'], currentState: '关闭' },
+            { id: 'ac-bedroom', name: '卧室空调', type: 'ac', states: ['制冷', '制热', '通风', '关闭'], currentState: '关闭' },
+            { id: 'tv-livingroom', name: '客厅电视', type: 'tv', states: ['开', '关'], currentState: '关' },
+            { id: 'speaker-livingroom', name: '客厅音响', type: 'speaker', states: ['开', '关'], currentState: '关' },
+            { id: 'humidifier-bedroom', name: '卧室加湿器', type: 'humidifier', states: ['开', '关'], currentState: '关' }
+        ];
+
+        // 从LocalStorage加载场景数据
+        let scenarios = JSON.parse(localStorage.getItem('scenarios')) || [];
+
+        // DOM元素
+        const scenarioListContainer = document.getElementById('scenarioListContainer');
+        const scenarioList = document.getElementById('scenarioList');
+        const createScenarioFormContainer = document.getElementById('createScenarioFormContainer');
+        const createScenarioBtn = document.getElementById('createScenarioBtn');
+        const saveScenarioBtn = document.getElementById('saveScenarioBtn');
+        const cancelScenarioBtn = document.getElementById('cancelScenarioBtn');
+        const scenarioNameInput = document.getElementById('scenarioName');
+        const scenarioDescriptionInput = document.getElementById('scenarioDescription');
+        const deviceList = document.getElementById('deviceList');
+        const formTitle = document.getElementById('formTitle');
+
+        let isEditing = false;
+        let editingScenarioId = null;
+
+        // 初始化页面
+        function initPage() {
+            renderScenarioList();
+            renderDeviceList();
+            setupEventListeners();
+        }
+
+        // 渲染场景列表
+        function renderScenarioList() {
+            if (scenarios.length === 0) {
+                scenarioList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🌌</div>
+                        <p>暂无场景模式</p>
+                        <p>点击右上角"创建新场景"按钮开始设置</p>
+                    </div>
+                `;
+                return;
+            }
+
+            scenarioList.innerHTML = scenarios.map(scenario => `
+                <div class="scenario-card" data-id="${scenario.id}">
+                    <div class="scenario-name">${scenario.name}</div>
+                    <div class="scenario-desc">${scenario.description}</div>
+                    <div class="scenario-devices">包含设备: ${scenario.devices.length}个</div>
+                    <div class="scenario-actions">
+                        <button class="btn btn-primary execute-scenario" data-id="${scenario.id}">执行</button>
+                        <button class="btn btn-secondary edit-scenario" data-id="${scenario.id}">编辑</button>
+                        <button class="btn btn-secondary delete-scenario" data-id="${scenario.id}">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染设备列表
+        function renderDeviceList() {
+            deviceList.innerHTML = devices.map(device => `
+                <div class="device-item" data-id="${device.id}">
+                    <div class="device-header">
+                        <span class="device-name">${device.name}</span>
+                        <span class="device-status status-badge ${device.currentState === '开' || device.currentState === '打开' ? 'active' : ''}">
+                            ${device.currentState}
+                        </span>
+                    </div>
+                    <div class="device-controls">
+                        <select class="select-control device-state-select" data-device-id="${device.id}">
+                            ${device.states.map(state => `<option value="${state}">${state}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            createScenarioBtn.addEventListener('click', showCreateScenarioForm);
+            saveScenarioBtn.addEventListener('click', saveScenario);
+            cancelScenarioBtn.addEventListener('click', hideCreateScenarioForm);
+
+            // 场景卡片上的按钮事件委托
+            scenarioList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('execute-scenario')) {
+                    const scenarioId = e.target.getAttribute('data-id');
+                    executeScenario(scenarioId);
+                } else if (e.target.classList.contains('edit-scenario')) {
+                    const scenarioId = e.target.getAttribute('data-id');
+                    editScenario(scenarioId);
+                } else if (e.target.classList.contains('delete-scenario')) {
+                    const scenarioId = e.target.getAttribute('data-id');
+                    deleteScenario(scenarioId);
+                }
+            });
+        }
+
+        // 显示创建场景表单
+        function showCreateScenarioForm() {
+            scenarioNameInput.value = '';
+            scenarioDescriptionInput.value = '';
+            isEditing = false;
+            editingScenarioId = null;
+            formTitle.textContent = '创建新场景';
+            
+            // 重置所有设备选择状态
+            document.querySelectorAll('.device-state-select').forEach(select => {
+                const deviceId = select.getAttribute('data-device-id');
+                const device = devices.find(d => d.id === deviceId);
+                select.value = device.currentState;
+            });
+            
+            scenarioListContainer.style.display = 'none';
+            createScenarioFormContainer.style.display = 'block';
+        }
+
+        // 隐藏创建场景表单
+        function hideCreateScenarioForm() {
+            scenarioListContainer.style.display = 'block';
+            createScenarioFormContainer.style.display = 'none';
+        }
+
+        // 保存场景
+        function saveScenario() {
+            const name = scenarioNameInput.value.trim();
+            const description = scenarioDescriptionInput.value.trim();
+            
+            if (!name) {
+                alert('请输入场景名称');
+                return;
+            }
+            
+            const deviceStates = [];
+            document.querySelectorAll('.device-item').forEach(item => {
+                const deviceId = item.getAttribute('data-id');
+                const select = item.querySelector('.device-state-select');
+                const selectedState = select.value;
+                
+                deviceStates.push({
+                    deviceId,
+                    state: selectedState
+                });
+            });
+            
+            if (isEditing && editingScenarioId) {
+                // 更新现有场景
+                const scenarioIndex = scenarios.findIndex(s => s.id === editingScenarioId);
+                if (scenarioIndex !== -1) {
+                    scenarios[scenarioIndex] = {
+                        id: editingScenarioId,
+                        name,
+                        description,
+                        devices: deviceStates
+                    };
+                }
+            } else {
+                // 创建新场景
+                const newScenario = {
+                    id: generateId(),
+                    name,
+                    description,
+                    devices: deviceStates
+                };
+                scenarios.push(newScenario);
+            }
+            
+            localStorage.setItem('scenarios', JSON.stringify(scenarios));
+            hideCreateScenarioForm();
+            renderScenarioList();
+        }
+
+        // 执行场景
+        function executeScenario(scenarioId) {
+            const scenario = scenarios.find(s => s.id === scenarioId);
+            if (!scenario) return;
+            
+            scenario.devices.forEach(deviceState => {
+                const device = devices.find(d => d.id === deviceState.deviceId);
+                if (device) {
+                    device.currentState = deviceState.state;
+                }
+            });
+            
+            renderDeviceList();
+            alert(`场景"${scenario.name}"已执行`);
+        }
+
+        // 编辑场景
+        function editScenario(scenarioId) {
+            const scenario = scenarios.find(s => s.id === scenarioId);
+            if (!scenario) return;
+            
+            scenarioNameInput.value = scenario.name;
+            scenarioDescriptionInput.value = scenario.description;
+            isEditing = true;
+            editingScenarioId = scenarioId;
+            formTitle.textContent = '编辑场景';
+            
+            // 设置设备选择状态
+            scenario.devices.forEach(deviceState => {
+                const select = document.querySelector(`.device-state-select[data-device-id="${deviceState.deviceId}"]`);
+                if (select) {
+                    select.value = deviceState.state;
+                }
+            });
+            
+            scenarioListContainer.style.display = 'none';
+            createScenarioFormContainer.style.display = 'block';
+        }
+
+        // 删除场景
+        function deleteScenario(scenarioId) {
+            if (confirm('确定要删除此场景吗？')) {
+                scenarios = scenarios.filter(s => s.id !== scenarioId);
+                localStorage.setItem('scenarios', JSON.stringify(scenarios));
+                renderScenarioList();
+            }
+        }
+
+        // 生成唯一ID
+        function generateId() {
+            return 'scenario-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

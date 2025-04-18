@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能电网设备监控与调度系统 - 统计报表</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .page-title {
+            font-size: 28px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            background-color: var(--background-color);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "⌄";
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c4;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--background-color);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 113, 227, 0.03);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 30px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">智能电网监控系统</div>
+            <nav class="nav">
+                <a href="#" class="nav-item">仪表盘</a>
+                <a href="#" class="nav-item">设备监控</a>
+                <a href="#" class="nav-item active">统计报表</a>
+                <a href="#" class="nav-item">告警中心</a>
+                <a href="#" class="nav-item">系统设置</a>
+            </nav>
+        </header>
+
+        <h1 class="page-title">统计报表生成</h1>
+
+        <div class="card">
+            <h2 class="card-title">报表参数设置</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label class="form-label">报表类型</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="reportType">
+                            <option value="daily">日运行报表</option>
+                            <option value="monthly">月运行报表</option>
+                            <option value="yearly">年运行报表</option>
+                            <option value="loss">线损分析报表</option>
+                            <option value="fault">设备故障统计报表</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">时间范围</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="timeRange">
+                            <option value="today">今日</option>
+                            <option value="yesterday">昨日</option>
+                            <option value="week">本周</option>
+                            <option value="month" selected>本月</option>
+                            <option value="lastMonth">上月</option>
+                            <option value="quarter">本季度</option>
+                            <option value="year">本年</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="customDateRange" style="display: none;">
+                    <label class="form-label">自定义日期</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" class="form-control" id="startDate">
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">区域选择</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="region">
+                            <option value="all">全部区域</option>
+                            <option value="north">北部电网</option>
+                            <option value="south">南部电网</option>
+                            <option value="east">东部电网</option>
+                            <option value="west">西部电网</option>
+                            <option value="central">中部电网</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="generateReport">生成报表</button>
+                <button class="btn btn-secondary" id="resetForm">重置</button>
+            </div>
+        </div>
+
+        <div class="card" id="reportResult" style="display: none;">
+            <h2 class="card-title">报表结果</h2>
+            
+            <div class="table-container">
+                <table id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>区域</th>
+                            <th>设备数量</th>
+                            <th>发电量(MWh)</th>
+                            <th>用电量(MWh)</th>
+                            <th>线损率(%)</th>
+                            <th>故障次数</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-placeholder" id="chartPlaceholder">
+                    图表将在这里显示
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="exportCSV">导出CSV</button>
+                <button class="btn btn-secondary" id="exportPDF">导出PDF</button>
+            </div>
+        </div>
+
+        <div class="card" id="noDataMessage" style="display: none;">
+            <div class="no-data">
+                <h3>没有找到匹配的数据</h3>
+                <p>请调整查询条件后重试</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeRangeSelect = document.getElementById('timeRange');
+            const customDateRange = document.getElementById('customDateRange');
+            const generateReportBtn = document.getElementById('generateReport');
+            const resetFormBtn = document.getElementById('resetForm');
+            const reportResult = document.getElementById('reportResult');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const reportTableBody = document.getElementById('reportTableBody');
+            const exportCSVBtn = document.getElementById('exportCSV');
+            const exportPDFBtn = document.getElementById('exportPDF');
+
+            timeRangeSelect.addEventListener('change', function() {
+                customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+
+            generateReportBtn.addEventListener('click', function() {
+                const reportType = document.getElementById('reportType').value;
+                const timeRange = document.getElementById('timeRange').value;
+                const region = document.getElementById('region').value;
+                
+                const reportData = generateReportData(reportType, timeRange, region);
+                
+                if (reportData.length > 0) {
+                    renderReportTable(reportData);
+                    reportResult.style.display = 'block';
+                    noDataMessage.style.display = 'none';
+                } else {
+                    reportResult.style.display = 'none';
+                    noDataMessage.style.display = 'block';
+                }
+            });
+
+            resetFormBtn.addEventListener('click', function() {
+                document.getElementById('reportType').value = 'daily';
+                document.getElementById('timeRange').value = 'month';
+                document.getElementById('region').value = 'all';
+                customDateRange.style.display = 'none';
+                reportResult.style.display = 'none';
+                noDataMessage.style.display = 'none';
+            });
+
+            exportCSVBtn.addEventListener('click', function() {
+                const rows = [];
+                const headers = [];
+                
+                document.querySelectorAll('#reportTable thead th').forEach(header => {
+                    headers.push(header.textContent);
+                });
+                
+                rows.push(headers.join(','));
+                
+                document.querySelectorAll('#reportTable tbody tr').forEach(row => {
+                    const rowData = [];
+                    row.querySelectorAll('td').forEach(cell => {
+                        rowData.push(cell.textContent);
+                    });
+                    rows.push(rowData.join(','));
+                });
+                
+                const csvContent = rows.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', '电网统计报表.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            exportPDFBtn.addEventListener('click', function() {
+                alert('PDF导出功能需要后端支持，当前为演示版本');
+            });
+
+            function generateReportData(reportType, timeRange, region) {
+                const data = [];
+                const regions = ['北部电网', '南部电网', '东部电网', '西部电网', '中部电网'];
+                const count = Math.floor(Math.random() * 15) + 5;
+                
+                for (let i = 0; i < count; i++) {
+                    const selectedRegion = region === 'all' ? regions[Math.floor(Math.random() * regions.length)] : regions[['north', 'south', 'east', 'west', 'central'].indexOf(region)];
+                    
+                    data.push({
+                        time: getRandomTime(reportType),
+                        region: selectedRegion,
+                        devices: Math.floor(Math.random() * 50) + 10,
+                        generation: (Math.random() * 1000 + 500).toFixed(2),
+                        consumption: (Math.random() * 900 + 400).toFixed(2),
+                        lossRate: (Math.random() * 5 + 1).toFixed(2),
+                        faults: Math.floor(Math.random() * 5)
+                    });
+                }
+                
+                return data.sort((a, b) => a.time.localeCompare(b.time));
+            }
+
+            function getRandomTime(reportType) {
+                const now = new Date();
+                
+                if (reportType === 'daily') {
+                    const hour = Math.floor(Math.random() * 24);
+                    return `${hour < 10 ? '0' + hour : hour}:00`;
+                } else if (reportType === 'monthly') {
+                    const day = Math.floor(Math.random() * 28) + 1;
+                    return `6月${day}日`;
+                } else {
+                    const month = Math.floor(Math.random() * 12) + 1;
+                    return `${month}月`;
+                }
+            }
+
+            function renderReportTable(data) {
+                reportTableBody.innerHTML = '';
+                
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${item.time}</td>
+                        <td>${item.region}</td>
+                        <td>${item.devices}</td>
+                        <td>${item.generation}</td>
+                        <td>${item.consumption}</td>
+                        <td>${item.lossRate}</td>
+                        <td>${item.faults}</td>
+                    `;
+                    
+                    reportTableBody.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双相情感障碍智能管理助手</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .logo-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .active {
+            color: var(--primary-color) !important;
+        }
+
+        .page-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .resource-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(0, 113, 227, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .category-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-color);
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .category-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .resource-count {
+            font-size: 13px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .resource-section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .filter-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-right: 10px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            font-size: 14px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px;
+            min-width: 150px;
+        }
+
+        .resource-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .resource-item {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .resource-type {
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+            background-color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .resource-date {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .resource-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .resource-content {
+            font-size: 15px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .resource-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .resource-author {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .resource-action {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .resource-action svg {
+            width: 16px;
+            height: 16px;
+            margin-left: 5px;
+            fill: var(--primary-color);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .resource-categories {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-controls {
+                margin-top: 15px;
+                width: 100%;
+            }
+            
+            .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path>
+                    </svg>
+                </div>
+                <div class="logo-text">双相情感障碍智能管理助手</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">情绪追踪</a></li>
+                    <li><a href="#" class="active">教育资源</a></li>
+                    <li><a href="#">治疗计划</a></li>
+                    <li><a href="#">个人中心</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1 class="page-title">心理教育资源库</h1>
+            <p class="page-subtitle">获取关于双相情感障碍的可靠知识，帮助您更好地理解和应对</p>
+
+            <div class="resource-categories">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="category-title">疾病介绍</h3>
+                    <p class="category-desc">了解双相情感障碍的基本概念、症状和诊断标准</p>
+                    <span class="resource-count">12篇文章</span>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="category-title">治疗方法</h3>
+                    <p class="category-desc">药物、心理治疗和其他治疗方式的详细介绍</p>
+                    <span class="resource-count">8篇文章 | 5个视频</span>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M16.5 12c1.38 0 2.49-1.12 2.49-2.5S17.88 7 16.5 7C15.12 7 14 8.12 14 9.5s1.12 2.5 2.5 2.5zM9 11c1.66 0 2.99-1.34 2.99-3S10.66 5 9 5C7.34 5 6 6.34 6 8s1.34 3 3 3zm7.5 3c-1.83 0-5.5.92-5.5 2.75V19h11v-2.25c0-1.83-3.67-2.75-5.5-2.75zM9 13c-2.33 0-7 1.17-7 3.5V19h7v-2.25c0-.85.33-2.34 2.37-3.47C10.5 13.1 9.66 13 9 13z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="category-title">生活方式</h3>
+                    <p class="category-desc">作息、饮食、运动和压力管理的实用建议</p>
+                    <span class="resource-count">15篇文章 | 3个视频</span>
+                </div>
+            </div>
+
+            <div class="resource-section">
+                <div class="section-header">
+                    <h2 class="section-title">精选文章</h2>
+                    <div class="filter-controls">
+                        <span class="filter-label">排序方式:</span>
+                        <select class="filter-select">
+                            <option>最新发布</option>
+                            <option>最受欢迎</option>
+                            <option>阅读时长</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="resource-list">
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-type">文章</span>
+                            <span class="resource-date">2024年5月15日</span>
+                        </div>
+                        <h3 class="resource-title">双相情感障碍：了解躁狂与抑郁的交替</h3>
+                        <div class="resource-content">
+                            双相情感障碍是一种以情绪极端波动为特征的精神疾病，患者会经历躁狂或轻躁狂发作与抑郁发作的交替。了解这些发作的特点对于早期识别和管理至关重要...
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-author">作者：王医生</span>
+                            <a href="#" class="resource-action">
+                                阅读全文
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-type">文章</span>
+                            <span class="resource-date">2024年4月28日</span>
+                        </div>
+                        <h3 class="resource-title">双相情感障碍的药物治疗指南</h3>
+                        <div class="resource-content">
+                            药物治疗是双相情感障碍管理的重要组成部分。本文将详细介绍常用的心境稳定剂、抗精神病药物和抗抑郁药物的作用机制、使用方法和可能的副作用...
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-author">作者：李药师</span>
+                            <a href="#" class="resource-action">
+                                阅读全文
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-type">文章</span>
+                            <span class="resource-date">2024年4月10日</span>
+                        </div>
+                        <h3 class="resource-title">建立健康作息：双相患者的生活管理</h3>
+                        <div class="resource-content">
+                            规律的作息对于稳定情绪至关重要。本文提供实用的建议，帮助双相情感障碍患者建立健康的睡眠习惯、日常规律和应对生活压力的策略...
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-author">作者：张心理咨询师</span>
+                            <a href="#" class="resource-action">
+                                阅读全文
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resource-section">
+                <div class="section-header">
+                    <h2 class="section-title">视频资源</h2>
+                    <div class="filter-controls">
+                        <span class="filter-label">分类:</span>
+                        <select class="filter-select">
+                            <option>全部视频</option>
+                            <option>疾病知识</option>
+                            <option>治疗方法</option>
+                            <option>生活技巧</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="resource-list">
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-type">视频</span>
+                            <span class="resource-date">2024年3月22日</span>
+                        </div>
+                        <h3 class="resource-title">认识双相情感障碍：症状与诊断</h3>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/example1" allowfullscreen></iframe>
+                        </div>
+                        <div class="resource-content">
+                            这段20分钟的视频由精神科专家讲解双相情感障碍的主要症状、诊断标准和常见的误诊情况，帮助观众更好地理解这种复杂的情绪障碍。
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-author">主讲：陈教授</span>
+                            <a href="#" class="resource-action">
+                                观看视频
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="resource-item">
+                        <div class="resource-header">
+                            <span class="resource-type">视频</span>
+                            <span class="resource-date">2024年2月15日</span>
+                        </div>
+                        <h3 class="resource-title">正念冥想：应对情绪波动的技巧</h3>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/example2" allowfullscreen></iframe>
+                        </div>
+                        <div class="resource-content">
+                            这段30分钟的指导视频教授专门为双相情感障碍患者设计的正念冥想技巧，帮助他们在情绪波动时保持平静和自我觉察。
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-author">主讲：赵心理治疗师</span>
+                            <a href="#" class="resource-action">
+                                观看视频
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resource-section">
+                <div class="section-header">
+                    <h2 class="section-title">常见问题</h2>
+                    <div class="filter-controls">
+                        <span class="filter-label">筛选:</span>
+                        <select class="filter-select">
+                            <option>全部问题</option>
+                            <option>诊断相关</option>
+                            <option>治疗相关</option>
+                            <option>生活相关</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="resource-list">
+                    <div class="resource-item">
+                        <h3 class="resource-title">双相情感障碍会遗传吗？</h3>
+                        <div class="resource-content">
+                            研究表明双相情感障碍确实有遗传倾向。如果父母一方患有双相情感障碍，子女患病的风险约为10-25%；如果双方都患病，风险则增加到30-50%。然而，环境因素也起着重要作用，遗传并非唯一决定因素。
+                        </div>
+                    </div>
+
+                    <div class="resource-item">
+                        <h3 class="resource-title">如何区分双相抑郁和普通抑郁症？</h3>
+                        <div class="resource-content">
+                            双相抑郁与单相抑郁在症状上可能相似，但存在一些关键区别：双相抑郁患者通常发病年龄更早（25岁前），症状发作更突然，持续时间更短但更频繁，可能有精神病性症状，且对单纯抗抑郁药反应不佳甚至可能诱发躁狂。
+                        </div>
+                    </div>
+
+                    <div class="resource-item">
+                        <h3 class="resource-title">双相情感障碍患者可以正常工作吗？</h3>
+                        <div class="resource-content">
+                            许多双相情感障碍患者在适当治疗和支持下能够维持工作。关键在于：坚持治疗计划、保持规律作息、学会识别早期预警信号、与雇主进行适当沟通（如需要）以及选择适合自己状况的工作环境和节奏。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>双相情感障碍智能管理助手 &copy; 版本 1.0</p>
+            <p>本内容仅供参考，不能替代专业医疗建议</p>
+        </footer>
+    </div>
+</body>
+</html>

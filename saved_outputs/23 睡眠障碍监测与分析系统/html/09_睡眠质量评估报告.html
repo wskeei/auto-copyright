@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠质量评估报告 | 睡眠障碍监测与分析系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --primary-dark: #0066cc;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .report-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .report-period {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+        }
+
+        .report-period svg {
+            margin-right: 8px;
+        }
+
+        .report-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-color) 0% 75%, var(--background) 75% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .score-inner {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .metric-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .metric-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .metric-change.up {
+            color: var(--success-color);
+        }
+
+        .metric-change.down {
+            color: var(--danger-color);
+        }
+
+        .metric-change svg {
+            margin-right: 4px;
+        }
+
+        .trend-chart {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .recommendations {
+            margin-top: 30px;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .recommendation-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .recommendation-icon {
+            margin-right: 15px;
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .recommendation-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .recommendation-content p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background-color: #f8f9fa;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-danger {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .date-selector select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: #f8f9fa;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-title {
+                font-size: 24px;
+            }
+            
+            .score-circle {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .score-inner {
+                width: 110px;
+                height: 110px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#0071E3"/>
+                    <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#0071E3"/>
+                    <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="#0071E3"/>
+                </svg>
+                <h1>睡眠监测</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JS</div>
+                <div>
+                    <div style="font-weight: 500;">张伟</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">ID: SL20240615</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="date-selector">
+            <select id="report-period">
+                <option value="weekly">周报告</option>
+                <option value="monthly" selected>月报告</option>
+                <option value="quarterly">季度报告</option>
+            </select>
+            <select id="report-date">
+                <option value="2024-06">2024年6月</option>
+                <option value="2024-05">2024年5月</option>
+                <option value="2024-04">2024年4月</option>
+            </select>
+            <button class="btn btn-outline" style="margin-left: auto;">导出报告</button>
+        </div>
+
+        <h1 class="report-title">睡眠质量评估报告</h1>
+        <div class="report-period">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z" fill="#86868B"/>
+            </svg>
+            <span>2024年6月1日 - 2024年6月30日</span>
+        </div>
+
+        <div class="report-card">
+            <div class="card-header">
+                <h2 class="card-title">综合评分</h2>
+                <div>
+                    <span class="badge badge-success">较上月提升 8%</span>
+                </div>
+            </div>
+            <div class="score-container">
+                <div class="score-circle">
+                    <div class="score-inner">
+                        <div class="score-value">82</div>
+                        <div class="score-label">良好</div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; max-width: 500px; margin: 0 auto; color: var(--text-secondary);">
+                您的睡眠质量在本月有所改善，总体处于良好水平。深睡眠比例有所增加，但入睡时间仍有优化空间。
+            </div>
+        </div>
+
+        <div class="report-card">
+            <div class="card-header">
+                <h2 class="card-title">关键指标</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-title">平均睡眠时长</div>
+                    <div class="metric-value">6.8小时</div>
+                    <div class="metric-change up">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12L20 12M20 12L14 6M20 12L14 18" stroke="#34C759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        比上月增加 0.4小时
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">睡眠效率</div>
+                    <div class="metric-value">87%</div>
+                    <div class="metric-change up">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12L20 12M20 12L14 6M20 12L14 18" stroke="#34C759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        比上月提升 5%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">深睡比例</div>
+                    <div class="metric-value">22%</div>
+                    <div class="metric-change up">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12L20 12M20 12L14 6M20 12L14 18" stroke="#34C759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        比上月增加 3%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">入睡时间</div>
+                    <div class="metric-value">32分钟</div>
+                    <div class="metric-change down">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 12H4M4 12L10 18M4 12L10 6" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        比上月增加 5分钟
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-card">
+            <div class="tabs">
+                <div class="tab active" data-tab="trend">趋势分析</div>
+                <div class="tab" data-tab="details">详细数据</div>
+                <div class="tab" data-tab="comparison">历史对比</div>
+            </div>
+            <div class="tab-content active" id="trend">
+                <div class="trend-chart">
+                    <div class="chart-placeholder">睡眠质量趋势图表区域</div>
+                </div>
+            </div>
+            <div class="tab-content" id="details">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>睡眠时长</th>
+                            <th>入睡时间</th>
+                            <th>醒来次数</th>
+                            <th>深睡比例</th>
+                            <th>质量评分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>6月1日</td>
+                            <td>7.2小时</td>
+                            <td>25分钟</td>
+                            <td>2</td>
+                            <td>21%</td>
+                            <td><span class="badge badge-success">85</span></td>
+                        </tr>
+                        <tr>
+                            <td>6月2日</td>
+                            <td>6.5小时</td>
+                            <td>35分钟</td>
+                            <td>3</td>
+                            <td>18%</td>
+                            <td><span class="badge badge-warning">72</span></td>
+                        </tr>
+                        <tr>
+                            <td>6月3日</td>
+                            <td>7.8小时</td>
+                            <td>22分钟</td>
+                            <td>1</td>
+                            <td>25%</td>
+                            <td><span class="badge badge-success">89</span></td>
+                        </tr>
+                        <tr>
+                            <td>6月4日</td>
+                            <td>6.1小时</td>
+                            <td>40分钟</td>
+                            <td>4</td>
+                            <td>15%</td>
+                            <td><span class="badge badge-danger">65</span></td>
+                        </tr>
+                        <tr>
+                            <td>6月5日</td>
+                            <td>7.0小时</td>
+                            <td>30分钟</td>
+                            <td>2</td>
+                            <td>20%</td>
+                            <td><span class="badge badge-success">80</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-content" id="comparison">
+                <div class="trend-chart">
+                    <div class="chart-placeholder">历史对比图表区域</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-card">
+            <div class="card-header">
+                <h2 class="card-title">改善建议</h2>
+            </div>
+            <div class="recommendations">
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#0071E3"/>
+                        </svg>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>保持规律的作息时间</h4>
+                        <p>您本月有12天在23:30后入睡，建议将入睡时间提前至23:00前，有助于提高睡眠质量。</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#0071E3"/>
+                        </svg>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>减少睡前屏幕时间</h4>
+                        <p>数据显示您在睡前1小时内使用电子设备的频率较高，建议睡前30分钟避免使用手机、电脑等设备。</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#0071E3"/>
+                        </svg>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>适当增加日间活动</h4>
+                        <p>您在本月有8天日间步数低于5000步，适量的日间运动有助于缩短入睡时间。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>本报告基于您的睡眠监测数据自动生成，仅供参考。如有疑问请咨询专业医生。</p>
+            <p style="margin-top: 10px;">版本 1.0 · 生成时间: 2024年6月30日</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            document.getElementById('report-period').addEventListener('change', function() {
+                const period = this.value;
+                const dateSelect = document.getElementById('report-date');
+                
+                if (period === 'weekly') {
+                    dateSelect.innerHTML = `
+                        <option value="2024-06-24">2024年6月第4周</option>
+                        <option value="2024-06-17">2024年6月第3周</option>
+                        <option value="2024-06-10">2024年6月第2周</option>
+                        <option value="2024-06-03">2024年6月第1周</option>
+                    `;
+                } else if (period === 'monthly') {
+                    dateSelect.innerHTML = `
+                        <option value="2024-06">2024年6月</option>
+                        <option value="2024-05">2024年5月</option>
+                        <option value="2024-04">2024年4月</option>
+                    `;
+                } else {
+                    dateSelect.innerHTML = `
+                        <option value="2024-Q2">2024年第2季度</option>
+                        <option value="2024-Q1">2024年第1季度</option>
+                        <option value="2023-Q4">2023年第4季度</option>
+                    `;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能水质监测与预警系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-gauge@0.3.0/dist/chartjs-gauge.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-item {
+            padding: 8px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+        
+        .nav-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: white;
+            appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0062c3;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 30px;
+        }
+        
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .col {
+            flex: 1;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-normal {
+            background-color: #34c759;
+            color: white;
+        }
+        
+        .status-warning {
+            background-color: #ff9500;
+            color: white;
+        }
+        
+        .status-danger {
+            background-color: #ff3b30;
+            color: white;
+        }
+        
+        .saved-configs {
+            margin-top: 30px;
+        }
+        
+        .config-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .config-actions {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">智能水质监测与预警</div>
+            <div class="nav">
+                <div class="nav-item">仪表盘</div>
+                <div class="nav-item active">数据可视化</div>
+                <div class="nav-item">设备管理</div>
+                <div class="nav-item">预警设置</div>
+            </div>
+        </header>
+        
+        <div class="card">
+            <div class="card-title">数据可视化配置</div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="devices">选择监测设备</label>
+                        <select id="devices" multiple>
+                            <option value="device1">北部监测站 #1</option>
+                            <option value="device2">南部监测站 #2</option>
+                            <option value="device3">东部监测站 #3</option>
+                            <option value="device4">西部监测站 #4</option>
+                            <option value="device5">中心监测站 #5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>选择数据指标</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="metrics" value="ph" checked> pH值
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="metrics" value="temperature"> 水温
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="metrics" value="turbidity"> 浊度
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="metrics" value="oxygen"> 溶解氧
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="metrics" value="conductivity"> 电导率
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col">
+                    <div class="form-group">
+                        <label for="chart-type">图表类型</label>
+                        <select id="chart-type">
+                            <option value="line">折线图</option>
+                            <option value="bar">柱状图</option>
+                            <option value="pie">饼图</option>
+                            <option value="gauge">仪表盘</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="time-range">时间范围</label>
+                        <select id="time-range">
+                            <option value="1h">最近1小时</option>
+                            <option value="6h">最近6小时</option>
+                            <option value="24h">最近24小时</option>
+                            <option value="7d">最近7天</option>
+                            <option value="30d">最近30天</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="custom-date-group" style="display: none;">
+                        <div class="row">
+                            <div class="col">
+                                <label for="start-date">开始日期</label>
+                                <input type="date" id="start-date">
+                            </div>
+                            <div class="col">
+                                <label for="end-date">结束日期</label>
+                                <input type="date" id="end-date">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button id="generate-btn" class="btn btn-primary">生成图表</button>
+                <button id="save-btn" class="btn btn-secondary">保存配置</button>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="data-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="card saved-configs">
+            <div class="card-title">已保存的配置</div>
+            <div id="saved-configs-list">
+                <!-- 保存的配置将在这里显示 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeRangeSelect = document.getElementById('time-range');
+            const customDateGroup = document.getElementById('custom-date-group');
+            const generateBtn = document.getElementById('generate-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const chartCanvas = document.getElementById('data-chart');
+            const savedConfigsList = document.getElementById('saved-configs-list');
+            
+            let currentChart = null;
+            
+            timeRangeSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateGroup.style.display = 'block';
+                } else {
+                    customDateGroup.style.display = 'none';
+                }
+            });
+            
+            function generateRandomData(count, min, max) {
+                return Array.from({length: count}, () => 
+                    Math.floor(Math.random() * (max - min + 1)) + min
+                );
+            }
+            
+            function generateTimeLabels(range) {
+                const now = new Date();
+                let count, unit;
+                
+                switch(range) {
+                    case '1h':
+                        count = 12;
+                        unit = 'min';
+                        break;
+                    case '6h':
+                        count = 12;
+                        unit = '30min';
+                        break;
+                    case '24h':
+                        count = 24;
+                        unit = 'hour';
+                        break;
+                    case '7d':
+                        count = 7;
+                        unit = 'day';
+                        break;
+                    case '30d':
+                        count = 30;
+                        unit = 'day';
+                        break;
+                    default:
+                        count = 12;
+                        unit = 'min';
+                }
+                
+                const labels = [];
+                for (let i = count; i >= 0; i--) {
+                    if (unit === 'min') {
+                        const time = new Date(now.getTime() - i * 5 * 60000);
+                        labels.push(time.getHours() + ':' + String(time.getMinutes()).padStart(2, '0'));
+                    } else if (unit === '30min') {
+                        const time = new Date(now.getTime() - i * 30 * 60000);
+                        labels.push(time.getHours() + ':' + String(time.getMinutes()).padStart(2, '0'));
+                    } else if (unit === 'hour') {
+                        const time = new Date(now.getTime() - i * 60 * 60000);
+                        labels.push(time.getHours() + ':00');
+                    } else {
+                        const time = new Date(now.getTime() - i * 24 * 60 * 60000);
+                        labels.push((time.getMonth() + 1) + '/' + time.getDate());
+                    }
+                }
+                
+                return labels;
+            }
+            
+            function renderChart() {
+                const chartType = document.getElementById('chart-type').value;
+                const timeRange = document.getElementById('time-range').value;
+                const selectedDevices = Array.from(document.getElementById('devices').selectedOptions)
+                    .map(option => option.value);
+                const selectedMetrics = Array.from(document.querySelectorAll('input[name="metrics"]:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                if (selectedDevices.length === 0 || selectedMetrics.length === 0) {
+                    alert('请至少选择一个设备和一项指标');
+                    return;
+                }
+                
+                const labels = generateTimeLabels(timeRange);
+                
+                if (currentChart) {
+                    currentChart.destroy();
+                }
+                
+                const ctx = chartCanvas.getContext('2d');
+                
+                if (chartType === 'gauge') {
+                    currentChart = new Chart(ctx, {
+                        type: 'gauge',
+                        data: {
+                            labels: ['pH值', '水温', '浊度', '溶解氧', '电导率'],
+                            datasets: [{
+                                data: generateRandomData(5, 0, 100),
+                                backgroundColor: [
+                                    'rgba(0, 113, 227, 0.8)',
+                                    'rgba(90, 200, 250, 0.8)',
+                                    'rgba(52, 199, 89, 0.8)',
+                                    'rgba(255, 149, 0, 0.8)',
+                                    'rgba(255, 59, 48, 0.8)'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            title: {
+                                display: true,
+                                text: '水质指标仪表盘'
+                            },
+                            needle: {
+                                radiusPercentage: 2,
+                                widthPercentage: 3.2,
+                                lengthPercentage: 80,
+                                color: 'rgba(0, 0, 0, 0.8)'
+                            },
+                            valueLabel: {
+                                display: true,
+                                formatter: (value) => Math.round(value),
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                borderRadius: 5,
+                                padding: {
+                                    top: 5,
+                                    bottom: 5
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    const datasets = [];
+                    const colors = [
+                        'rgba(0, 113, 227, 1)',
+                        'rgba(90, 200, 250, 1)',
+                        'rgba(52, 199, 89, 1)',
+                        'rgba(255, 149, 0, 1)',
+                        'rgba(255, 59, 48, 1)'
+                    ];
+                    
+                    selectedMetrics.forEach((metric, index) => {
+                        datasets.push({
+                            label: getMetricName(metric),
+                            data: generateRandomData(labels.length, getMetricMin(metric), getMetricMax(metric)),
+                            borderColor: colors[index % colors.length],
+                            backgroundColor: chartType === 'bar' ? colors[index % colors.length] : 'transparent',
+                            borderWidth: 2,
+                            fill: chartType === 'line'
+                        });
+                    });
+                    
+                    currentChart = new Chart(ctx, {
+                        type: chartType,
+                        data: {
+                            labels: labels,
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: chartType !== 'line'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            function getMetricName(metric) {
+                const names = {
+                    'ph': 'pH值',
+                    'temperature': '水温(℃)',
+                    'turbidity': '浊度(NTU)',
+                    'oxygen': '溶解氧(mg/L)',
+                    'conductivity': '电导率(μS/cm)'
+                };
+                return names[metric] || metric;
+            }
+            
+            function getMetricMin(metric) {
+                const mins = {
+                    'ph': 0,
+                    'temperature': 10,
+                    'turbidity': 0,
+                    'oxygen': 0,
+                    'conductivity': 0
+                };
+                return mins[metric] || 0;
+            }
+            
+            function getMetricMax(metric) {
+                const maxs = {
+                    'ph': 14,
+                    'temperature': 40,
+                    'turbidity': 100,
+                    'oxygen': 20,
+                    'conductivity': 2000
+                };
+                return maxs[metric] || 100;
+            }
+            
+            function saveConfig() {
+                const config = {
+                    devices: Array.from(document.getElementById('devices').selectedOptions).map(option => option.value),
+                    metrics: Array.from(document.querySelectorAll('input[name="metrics"]:checked')).map(checkbox => checkbox.value),
+                    chartType: document.getElementById('chart-type').value,
+                    timeRange: document.getElementById('time-range').value,
+                    timestamp: new Date().toISOString()
+                };
+                
+                let savedConfigs = JSON.parse(localStorage.getItem('waterQualityChartConfigs')) || [];
+                savedConfigs.push(config);
+                localStorage.setItem('waterQualityChartConfigs', JSON.stringify(savedConfigs));
+                
+                renderSavedConfigs();
+            }
+            
+            function renderSavedConfigs() {
+                const savedConfigs = JSON.parse(localStorage.getItem('waterQualityChartConfigs')) || [];
+                savedConfigsList.innerHTML = '';
+                
+                if (savedConfigs.length === 0) {
+                    savedConfigsList.innerHTML = '<p>暂无保存的配置</p>';
+                    return;
+                }
+                
+                savedConfigs.forEach((config, index) => {
+                    const configItem = document.createElement('div');
+                    configItem.className = 'config-item';
+                    
+                    const configInfo = document.createElement('div');
+                    configInfo.innerHTML = `
+                        <div><strong>设备: </strong>${config.devices.length}个</div>
+                        <div><strong>指标: </strong>${config.metrics.map(m => getMetricName(m)).join(', ')}</div>
+                        <div><strong>图表类型: </strong>${getChartTypeName(config.chartType)}</div>
+                        <div><strong>时间范围: </strong>${getTimeRangeName(config.timeRange)}</div>
+                    `;
+                    
+                    const configActions = document.createElement('div');
+                    configActions.className = 'config-actions';
+                    
+                    const loadBtn = document.createElement('button');
+                    loadBtn.className = 'btn btn-secondary';
+                    loadBtn.textContent = '加载';
+                    loadBtn.addEventListener('click', () => loadConfig(index));
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-secondary';
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.addEventListener('click', () => deleteConfig(index));
+                    
+                    configActions.appendChild(loadBtn);
+                    configActions.appendChild(deleteBtn);
+                    configItem.appendChild(configInfo);
+                    configItem.appendChild(configActions);
+                    savedConfigsList.appendChild(configItem);
+                });
+            }
+            
+            function getChartTypeName(type) {
+                const names = {
+                    'line': '折线图',
+                    'bar': '柱状图',
+                    'pie': '饼图',
+                    'gauge': '仪表盘'
+                };
+                return names[type] || type;
+            }
+            
+            function getTimeRangeName(range) {
+                const names = {
+                    '1h': '最近1小时',
+                    '6h': '最近6小时',
+                    '24h': '最近24小时',
+                    '7d': '最近7天',
+                    '30d': '最近30天',
+                    'custom': '自定义'
+                };
+                return names[range] || range;
+            }
+            
+            function loadConfig(index) {
+                const savedConfigs = JSON.parse(localStorage.getItem('waterQualityChartConfigs')) || [];
+                if (index >= 0 && index < savedConfigs.length) {
+                    const config = savedConfigs[index];
+                    
+                    Array.from(document.getElementById('devices').options).forEach(option => {
+                        option.selected = config.devices.includes(option.value);
+                    });
+                    
+                    document.querySelectorAll('input[name="metrics"]').forEach(checkbox => {
+                        checkbox.checked = config.metrics.includes(checkbox.value);
+                    });
+                    
+                    document.getElementById('chart-type').value = config.chartType;
+                    document.getElementById('time-range').value = config.timeRange;
+                    
+                    if (config.timeRange === 'custom') {
+                        customDateGroup.style.display = 'block';
+                    } else {
+                        customDateGroup.style.display = 'none';
+                    }
+                    
+                    renderChart();
+                }
+            }
+            
+            function deleteConfig(index) {
+                let savedConfigs = JSON.parse(localStorage.getItem('waterQualityChartConfigs')) || [];
+                if (index >= 0 && index < savedConfigs.length) {
+                    savedConfigs.splice(index, 1);
+                    localStorage.setItem('waterQualityChartConfigs', JSON.stringify(savedConfigs));
+                    renderSavedConfigs();
+                }
+            }
+            
+            generateBtn.addEventListener('click', renderChart);
+            saveBtn.addEventListener('click', saveConfig);
+            
+            renderSavedConfigs();
+        });
+    </script>
+</body>
+</html>

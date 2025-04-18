@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠障碍监测与分析系统 - 数据导入</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title-icon {
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--card-color);
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(52, 199, 89, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .data-preview {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .preview-table th, .preview-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .preview-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .device-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .device-option {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .device-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .device-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .device-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .device-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">💤</span>
+                <span>睡眠障碍监测与分析系统</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">数据分析</a></li>
+                    <li><a href="#">报告</a></li>
+                    <li><a href="#">设置</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="card-title-icon">📤</span>
+                    设备数据导入
+                </h2>
+
+                <div class="alert alert-success" id="successAlert">
+                    数据导入成功！已存储5条睡眠记录。
+                </div>
+
+                <div class="device-selector">
+                    <div class="device-option selected" data-device="generic">
+                        <div class="device-icon">⌚️</div>
+                        <div class="device-name">通用设备</div>
+                        <div class="device-description">支持JSON/CSV格式</div>
+                    </div>
+                    <div class="device-option" data-device="brandA">
+                        <div class="device-icon">🛏️</div>
+                        <div class="device-name">智能床垫</div>
+                        <div class="device-description">A系列专用格式</div>
+                    </div>
+                    <div class="device-option" data-device="brandB">
+                        <div class="device-icon">📿</div>
+                        <div class="device-name">睡眠手环</div>
+                        <div class="device-description">B系列专用格式</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deviceType">设备类型</label>
+                    <select id="deviceType">
+                        <option value="smartwatch">智能手表</option>
+                        <option value="smartband">智能手环</option>
+                        <option value="mattress">智能床垫</option>
+                        <option value="other">其他设备</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataFormat">数据格式</label>
+                    <select id="dataFormat">
+                        <option value="json">JSON (推荐)</option>
+                        <option value="csv">CSV</option>
+                        <option value="xml">XML</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataFile">选择数据文件</label>
+                    <input type="file" id="dataFile" accept=".json,.csv,.xml">
+                </div>
+
+                <div class="btn-group">
+                    <button id="importBtn" class="btn">导入数据</button>
+                    <button id="cancelBtn" class="btn btn-secondary">取消</button>
+                </div>
+
+                <div class="data-preview hidden" id="dataPreview">
+                    <h3>数据预览</h3>
+                    <table class="preview-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>入睡时间</th>
+                                <th>醒来时间</th>
+                                <th>深睡时长</th>
+                                <th>浅睡时长</th>
+                                <th>REM时长</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>睡眠障碍监测与分析系统 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deviceOptions = document.querySelectorAll('.device-option');
+            const deviceTypeSelect = document.getElementById('deviceType');
+            const dataFormatSelect = document.getElementById('dataFormat');
+            const dataFileInput = document.getElementById('dataFile');
+            const importBtn = document.getElementById('importBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const successAlert = document.getElementById('successAlert');
+            const dataPreview = document.getElementById('dataPreview');
+            const previewTableBody = document.getElementById('previewTableBody');
+
+            deviceOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    deviceOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const device = this.getAttribute('data-device');
+                    if (device === 'brandA') {
+                        deviceTypeSelect.value = 'mattress';
+                        dataFormatSelect.value = 'xml';
+                    } else if (device === 'brandB') {
+                        deviceTypeSelect.value = 'smartband';
+                        dataFormatSelect.value = 'csv';
+                    } else {
+                        deviceTypeSelect.value = 'smartwatch';
+                        dataFormatSelect.value = 'json';
+                    }
+                });
+            });
+
+            importBtn.addEventListener('click', function() {
+                const file = dataFileInput.files[0];
+                if (!file) {
+                    alert('请选择要导入的文件');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        const deviceType = deviceTypeSelect.value;
+                        const dataFormat = dataFormatSelect.value;
+                        
+                        let sleepData = [];
+                        
+                        if (dataFormat === 'json') {
+                            sleepData = parseJsonData(content, deviceType);
+                        } else if (dataFormat === 'csv') {
+                            sleepData = parseCsvData(content, deviceType);
+                        } else if (dataFormat === 'xml') {
+                            sleepData = parseXmlData(content, deviceType);
+                        }
+                        
+                        if (sleepData.length > 0) {
+                            saveDataToStorage(sleepData);
+                            showPreview(sleepData);
+                            successAlert.style.display = 'block';
+                        } else {
+                            alert('未找到有效的睡眠数据');
+                        }
+                    } catch (error) {
+                        alert('解析文件时出错: ' + error.message);
+                    }
+                };
+                
+                if (dataFormatSelect.value === 'json') {
+                    reader.readAsText(file);
+                } else if (dataFormatSelect.value === 'csv') {
+                    reader.readAsText(file);
+                } else if (dataFormatSelect.value === 'xml') {
+                    reader.readAsText(file);
+                }
+            });
+
+            cancelBtn.addEventListener('click', function() {
+                dataFileInput.value = '';
+                successAlert.style.display = 'none';
+                dataPreview.classList.add('hidden');
+            });
+
+            function parseJsonData(content, deviceType) {
+                const data = JSON.parse(content);
+                
+                if (Array.isArray(data)) {
+                    return data.map(item => ({
+                        date: item.date || item.timestamp.split('T')[0],
+                        sleepTime: item.sleepTime || item.startTime,
+                        wakeTime: item.wakeTime || item.endTime,
+                        deepSleep: item.deepSleep || item.deepSleepDuration,
+                        lightSleep: item.lightSleep || item.lightSleepDuration,
+                        remSleep: item.remSleep || item.remDuration
+                    }));
+                } else if (data.sleepRecords) {
+                    return data.sleepRecords.map(record => ({
+                        date: record.date,
+                        sleepTime: record.sleepTime,
+                        wakeTime: record.wakeTime,
+                        deepSleep: record.deepSleep,
+                        lightSleep: record.lightSleep,
+                        remSleep: record.remSleep
+                    }));
+                }
+                
+                return [];
+            }
+
+            function parseCsvData(content, deviceType) {
+                const lines = content.split('\n');
+                const headers = lines[0].split(',');
+                
+                return lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    if (values.length !== headers.length) return null;
+                    
+                    const record = {};
+                    headers.forEach((header, i) => {
+                        record[header.trim()] = values[i].trim();
+                    });
+                    
+                    return {
+                        date: record.date || record.timestamp.split('T')[0],
+                        sleepTime: record.sleepTime || record.startTime,
+                        wakeTime: record.wakeTime || record.endTime,
+                        deepSleep: record.deepSleep || record.deepSleepDuration,
+                        lightSleep: record.lightSleep || record.lightSleepDuration,
+                        remSleep: record.remSleep || record.remDuration
+                    };
+                }).filter(record => record !== null);
+            }
+
+            function parseXmlData(content, deviceType) {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(content, "text/xml");
+                const records = xmlDoc.getElementsByTagName("Record");
+                
+                return Array.from(records).map(record => {
+                    return {
+                        date: record.getAttribute('date'),
+                        sleepTime: record.getAttribute('sleepTime'),
+                        wakeTime: record.getAttribute('wakeTime'),
+                        deepSleep: record.getAttribute('deepSleep'),
+                        lightSleep: record.getAttribute('lightSleep'),
+                        remSleep: record.getAttribute('remSleep')
+                    };
+                });
+            }
+
+            function saveDataToStorage(data) {
+                const existingData = JSON.parse(localStorage.getItem('sleepData') || [];
+                const newData = [...existingData, ...data];
+                localStorage.setItem('sleepData', JSON.stringify(newData));
+            }
+
+            function showPreview(data) {
+                previewTableBody.innerHTML = '';
+                
+                data.slice(0, 5).forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.sleepTime}</td>
+                        <td>${item.wakeTime}</td>
+                        <td>${item.deepSleep}</td>
+                        <td>${item.lightSleep}</td>
+                        <td>${item.remSleep}</td>
+                    `;
+                    previewTableBody.appendChild(row);
+                });
+                
+                dataPreview.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

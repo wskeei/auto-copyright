@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能水质监测与预警系统 - 用户注册</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --error-color: #ff3b30;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            height: 48px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 16px;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input {
+            margin-right: 12px;
+            margin-top: 3px;
+        }
+
+        .checkbox-group label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .checkbox-group a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-disabled {
+            background-color: #e0e0e0;
+            color: #a0a0a0;
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .strength-weak {
+            background-color: var(--error-color);
+            width: 33%;
+        }
+
+        .strength-medium {
+            background-color: #ff9500;
+            width: 66%;
+        }
+
+        .strength-strong {
+            background-color: var(--success-color);
+            width: 100%;
+        }
+
+        .success-message {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyLDIwQTgsOCAwIDAsMSA0LDEyQTgsOCAwIDAsMSAxMiw0QTgsOCAwIDAsMSAyMCwxMkE4LDggMCAwLDEgMTIsMjBNMTIsMkExMCwxMCAwIDAsMCAyLDEyQTEwLDEwIDAgMCwwIDEyLDIyQTEwLDEwIDAgMCwwIDIyLDEyQTEwLDEwIDAgMCwwIDEyLDJaIi8+PC9zdmc+" alt="Logo">
+            <h1>智能水质监测与预警</h1>
+        </div>
+
+        <div class="card">
+            <h2>创建新账户</h2>
+            
+            <div class="success-message" id="successMessage">
+                注册成功！正在跳转到登录页面...
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" class="form-control" placeholder="输入用户名" required>
+                    <div class="error-message" id="usernameError">用户名已存在</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">电子邮箱</label>
+                    <input type="email" id="email" class="form-control" placeholder="输入电子邮箱" required>
+                    <div class="error-message" id="emailError">请输入有效的电子邮箱</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" class="form-control" placeholder="输入密码" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="passwordStrength"></div>
+                    </div>
+                    <div class="error-message" id="passwordError">密码必须包含至少8个字符，包括字母和数字</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="再次输入密码" required>
+                    <div class="error-message" id="confirmPasswordError">两次输入的密码不一致</div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">我已阅读并同意<a href="#">服务条款</a>和<a href="#">隐私政策</a></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="registerBtn">注册</button>
+            </form>
+
+            <div class="login-link">
+                已有账户？<a href="login.html">立即登录</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const termsCheckbox = document.getElementById('terms');
+            const registerBtn = document.getElementById('registerBtn');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const successMessage = document.getElementById('successMessage');
+
+            const usernameError = document.getElementById('usernameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+            let usernameValid = false;
+            let emailValid = false;
+            let passwordValid = false;
+            let confirmPasswordValid = false;
+            let termsChecked = false;
+
+            function checkExistingUsers(username) {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                return users.some(user => user.username === username);
+            }
+
+            function validateUsername() {
+                const value = usernameInput.value.trim();
+                if (value.length < 3) {
+                    usernameError.textContent = '用户名至少需要3个字符';
+                    usernameError.style.display = 'block';
+                    usernameValid = false;
+                    return false;
+                }
+
+                if (checkExistingUsers(value)) {
+                    usernameError.textContent = '用户名已存在';
+                    usernameError.style.display = 'block';
+                    usernameValid = false;
+                    return false;
+                }
+
+                usernameError.style.display = 'none';
+                usernameValid = true;
+                return true;
+            }
+
+            function validateEmail() {
+                const value = emailInput.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!emailRegex.test(value)) {
+                    emailError.style.display = 'block';
+                    emailValid = false;
+                    return false;
+                }
+
+                emailError.style.display = 'none';
+                emailValid = true;
+                return true;
+            }
+
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                
+                if (password.length >= 8) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+                
+                return strength;
+            }
+
+            function updatePasswordStrength() {
+                const password = passwordInput.value;
+                const strength = checkPasswordStrength(password);
+                
+                passwordStrength.className = 'password-strength-bar';
+                
+                if (password.length === 0) {
+                    return;
+                }
+                
+                if (strength <= 1) {
+                    passwordStrength.classList.add('strength-weak');
+                } else if (strength === 2) {
+                    passwordStrength.classList.add('strength-medium');
+                } else {
+                    passwordStrength.classList.add('strength-strong');
+                }
+            }
+
+            function validatePassword() {
+                const value = passwordInput.value;
+                const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                
+                if (!passwordRegex.test(value)) {
+                    passwordError.style.display = 'block';
+                    passwordValid = false;
+                    return false;
+                }
+                
+                passwordError.style.display = 'none';
+                passwordValid = true;
+                return true;
+            }
+
+            function validateConfirmPassword() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                if (password !== confirmPassword) {
+                    confirmPasswordError.style.display = 'block';
+                    confirmPasswordValid = false;
+                    return false;
+                }
+                
+                confirmPasswordError.style.display = 'none';
+                confirmPasswordValid = true;
+                return true;
+            }
+
+            function validateTerms() {
+                termsChecked = termsCheckbox.checked;
+                return termsChecked;
+            }
+
+            function updateRegisterButton() {
+                if (usernameValid && emailValid && passwordValid && confirmPasswordValid && termsChecked) {
+                    registerBtn.disabled = false;
+                    registerBtn.classList.remove('btn-disabled');
+                } else {
+                    registerBtn.disabled = true;
+                    registerBtn.classList.add('btn-disabled');
+                }
+            }
+
+            function handleRegister(event) {
+                event.preventDefault();
+                
+                if (validateUsername() && validateEmail() && validatePassword() && validateConfirmPassword() && validateTerms()) {
+                    const user = {
+                        username: usernameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        password: btoa(passwordInput.value) 
+                    };
+                    
+                    const users = JSON.parse(localStorage.getItem('users')) || [];
+                    users.push(user);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    
+                    successMessage.style.display = 'block';
+                    registerForm.reset();
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                }
+            }
+
+            usernameInput.addEventListener('blur', validateUsername);
+            emailInput.addEventListener('blur', validateEmail);
+            passwordInput.addEventListener('input', updatePasswordStrength);
+            passwordInput.addEventListener('blur', validatePassword);
+            confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
+            termsCheckbox.addEventListener('change', function() {
+                validateTerms();
+                updateRegisterButton();
+            });
+
+            registerForm.addEventListener('input', updateRegisterButton);
+            registerForm.addEventListener('submit', handleRegister);
+
+            updateRegisterButton();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能睡眠节律调节优化系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --light-text: #86868b;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 8px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .version {
+            font-size: 14px;
+            color: var(--light-text);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--light-text);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            fill: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            background-color: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .time-input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .time-input-group input {
+            flex: 1;
+        }
+
+        .time-input-group span {
+            margin: 0 10px;
+            color: var(--light-text);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c4;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .activity-item select {
+            flex: 2;
+        }
+
+        .activity-item input {
+            flex: 1;
+        }
+
+        .add-activity {
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .add-activity svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            fill: var(--primary-color);
+        }
+
+        .sleep-quality {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .quality-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .quality-item:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .quality-item.selected {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .quality-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .quality-label {
+            font-size: 13px;
+            color: var(--light-text);
+        }
+
+        .divider {
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.1);
+            margin: 25px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--light-text);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="logo-text">智能睡眠节律调节优化系统</span>
+                    <span class="version">1.0</span>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">概览</a></li>
+                    <li><a href="#">分析</a></li>
+                    <li><a href="#">建议</a></li>
+                    <li><a href="#">设置</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1 class="main-title">睡眠/觉醒日志记录</h1>
+            <p class="subtitle">记录您的睡眠和觉醒时间，帮助我们优化您的睡眠节律</p>
+
+            <div class="card">
+                <h2 class="card-title">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"></path>
+                    </svg>
+                    基本睡眠信息
+                </h2>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="sleep-date">记录日期</label>
+                            <input type="date" id="sleep-date" value="2024-06-15">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="bedtime">上床时间</label>
+                            <input type="time" id="bedtime" value="22:30">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="sleep-onset">实际入睡时间</label>
+                            <input type="time" id="sleep-onset" value="23:15">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="wake-up">醒来时间</label>
+                            <input type="time" id="wake-up" value="06:45">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="get-up">起床时间</label>
+                            <input type="time" id="get-up" value="07:00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>睡眠质量评估</label>
+                    <div class="sleep-quality">
+                        <div class="quality-item">
+                            <div class="quality-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                            </div>
+                            <div class="quality-label">很差</div>
+                        </div>
+                        <div class="quality-item">
+                            <div class="quality-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <div class="quality-label">较差</div>
+                        </div>
+                        <div class="quality-item selected">
+                            <div class="quality-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                </svg>
+                            </div>
+                            <div class="quality-label">一般</div>
+                        </div>
+                        <div class="quality-item">
+                            <div class="quality-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <div class="quality-label">良好</div>
+                        </div>
+                        <div class="quality-item">
+                            <div class="quality-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                </svg>
+                            </div>
+                            <div class="quality-label">优秀</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+                    </svg>
+                    日间活动记录
+                </h2>
+
+                <div id="activities-container">
+                    <div class="activity-item">
+                        <select>
+                            <option value="nap">午休</option>
+                            <option value="exercise">运动</option>
+                            <option value="coffee" selected>咖啡因摄入</option>
+                            <option value="alcohol">酒精摄入</option>
+                            <option value="meal">正餐</option>
+                            <option value="snack">零食</option>
+                        </select>
+                        <input type="time" value="14:30">
+                    </div>
+                    <div class="activity-item">
+                        <select>
+                            <option value="nap" selected>午休</option>
+                            <option value="exercise">运动</option>
+                            <option value="coffee">咖啡因摄入</option>
+                            <option value="alcohol">酒精摄入</option>
+                            <option value="meal">正餐</option>
+                            <option value="snack">零食</option>
+                        </select>
+                        <input type="time" value="13:00">
+                    </div>
+                </div>
+
+                <div class="add-activity" id="add-activity">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    添加活动
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="form-group">
+                    <label for="notes">补充说明</label>
+                    <textarea id="notes" rows="3" style="width: 100%; padding: 12px 15px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 15px;" placeholder="任何可能影响睡眠的因素（如压力、环境变化等）"></textarea>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="save-btn">保存记录</button>
+                <button class="btn btn-secondary">取消</button>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>智能睡眠节律调节优化系统 © 保留所有权利</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qualityItems = document.querySelectorAll('.quality-item');
+            qualityItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    qualityItems.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+
+            const addActivityBtn = document.getElementById('add-activity');
+            const activitiesContainer = document.getElementById('activities-container');
+
+            addActivityBtn.addEventListener('click', function() {
+                const newActivity = document.createElement('div');
+                newActivity.className = 'activity-item';
+                newActivity.innerHTML = `
+                    <select>
+                        <option value="nap">午休</option>
+                        <option value="exercise">运动</option>
+                        <option value="coffee">咖啡因摄入</option>
+                        <option value="alcohol">酒精摄入</option>
+                        <option value="meal">正餐</option>
+                        <option value="snack">零食</option>
+                    </select>
+                    <input type="time" value="00:00">
+                `;
+                activitiesContainer.appendChild(newActivity);
+            });
+
+            const saveBtn = document.getElementById('save-btn');
+            saveBtn.addEventListener('click', function() {
+                const sleepData = {
+                    date: document.getElementById('sleep-date').value,
+                    bedtime: document.getElementById('bedtime').value,
+                    sleepOnset: document.getElementById('sleep-onset').value,
+                    wakeUp: document.getElementById('wake-up').value,
+                    getUp: document.getElementById('get-up').value,
+                    quality: document.querySelector('.quality-item.selected').textContent.trim(),
+                    activities: [],
+                    notes: document.getElementById('notes').value
+                };
+
+                const activityItems = document.querySelectorAll('.activity-item');
+                activityItems.forEach(item => {
+                    const type = item.querySelector('select').value;
+                    const time = item.querySelector('input').value;
+                    if (time) {
+                        sleepData.activities.push({ type, time });
+                    }
+                });
+
+                let records = JSON.parse(localStorage.getItem('sleepRecords') || '[]');
+                records.push(sleepData);
+                localStorage.setItem('sleepRecords', JSON.stringify(records));
+
+                alert('睡眠记录已保存');
+            });
+
+            const today = new Date();
+            const dateInput = document.getElementById('sleep-date');
+            if (!dateInput.value) {
+                const formattedDate = today.toISOString().split('T')[0];
+                dateInput.value = formattedDate;
+            }
+        });
+    </script>
+</body>
+</html>

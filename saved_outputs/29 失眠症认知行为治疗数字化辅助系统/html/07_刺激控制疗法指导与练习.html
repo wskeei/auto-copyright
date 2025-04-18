@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>失眠症认知行为治疗 - 刺激控制疗法</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #e6f1fa;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background: #f5f5f7;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-item {
+            font-size: 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin: 25px 0 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .intro-text {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .rule-list {
+            list-style-type: none;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .rule-number {
+            background-color: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .rule-content {
+            flex: 1;
+        }
+
+        .rule-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .rule-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .tracker-section {
+            margin-top: 30px;
+        }
+
+        .tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .tracker-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+        }
+
+        .date-label {
+            margin-right: 10px;
+            color: var(--text-secondary);
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .tracker-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tracker-day {
+            background-color: var(--primary-light);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .day-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .day-status {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+
+        .completed {
+            background-color: #34c759;
+        }
+
+        .partial {
+            background-color: #ffcc00;
+        }
+
+        .missed {
+            background-color: #ff3b30;
+        }
+
+        .empty {
+            background-color: #e5e5ea;
+        }
+
+        .tracker-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: white;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .form-radio {
+            display: flex;
+            align-items: center;
+        }
+
+        .form-radio input {
+            margin-right: 8px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062c4;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+        }
+
+        .progress-section {
+            margin-top: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e5e5ea;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 65%;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .tips-section {
+            margin-top: 40px;
+        }
+
+        .tip-card {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+        }
+
+        .tip-icon {
+            color: var(--primary-color);
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .tip-content {
+            flex: 1;
+        }
+
+        .tip-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .tip-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">失眠症认知行为治疗</div>
+            <nav>
+                <a href="#" class="nav-item">首页</a>
+                <a href="#" class="nav-item active">刺激控制疗法</a>
+                <a href="#" class="nav-item">睡眠限制</a>
+                <a href="#" class="nav-item">认知重构</a>
+                <a href="#" class="nav-item">个人中心</a>
+            </nav>
+        </header>
+
+        <main>
+            <h1>刺激控制疗法指导与练习</h1>
+            <p class="intro-text">
+                刺激控制疗法旨在通过改变与床和卧室相关的行为和联想，重新建立床与睡眠之间的强烈联系。这种方法基于行为心理学原理，通过系统地调整您的睡眠相关行为来改善睡眠效率。
+            </p>
+
+            <div class="card">
+                <h2>刺激控制疗法核心规则</h2>
+                <ul class="rule-list">
+                    <li class="rule-item">
+                        <div class="rule-number">1</div>
+                        <div class="rule-content">
+                            <div class="rule-title">只在困倦时上床</div>
+                            <div class="rule-desc">避免早早上床等待睡眠，只有当您感到明显的睡意时才上床。这有助于强化床与睡眠之间的联系。</div>
+                        </div>
+                    </li>
+                    <li class="rule-item">
+                        <div class="rule-number">2</div>
+                        <div class="rule-content">
+                            <div class="rule-title">床只用于睡觉和性活动</div>
+                            <div class="rule-desc">避免在床上进行看电视、玩手机、工作或进食等活动。这些活动会削弱床与睡眠之间的联系。</div>
+                        </div>
+                    </li>
+                    <li class="rule-item">
+                        <div class="rule-number">3</div>
+                        <div class="rule-content">
+                            <div class="rule-title">15-20分钟无法入睡就起床</div>
+                            <div class="rule-desc">如果躺在床上15-20分钟后仍无法入睡，起床到另一个房间进行放松活动，直到再次感到困倦才返回床上。</div>
+                        </div>
+                    </li>
+                    <li class="rule-item">
+                        <div class="rule-number">4</div>
+                        <div class="rule-content">
+                            <div class="rule-title">固定起床时间</div>
+                            <div class="rule-desc">无论前一晚睡了多久，每天早上在同一时间起床。这有助于稳定您的生物钟。</div>
+                        </div>
+                    </li>
+                    <li class="rule-item">
+                        <div class="rule-number">5</div>
+                        <div class="rule-content">
+                            <div class="rule-title">避免日间小睡</div>
+                            <div class="rule-desc">白天尽量避免小睡，特别是下午和傍晚。如果需要小睡，控制在20-30分钟内。</div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="tracker-section">
+                    <div class="tracker-header">
+                        <div class="tracker-title">执行情况追踪</div>
+                        <div class="date-selector">
+                            <span class="date-label">选择日期:</span>
+                            <input type="date" class="date-input" value="2024-06-10">
+                        </div>
+                    </div>
+
+                    <div class="tracker-grid">
+                        <div class="tracker-day">
+                            <div class="day-name">周一</div>
+                            <div class="day-status completed">✓</div>
+                        </div>
+                        <div class="tracker-day">
+                            <div class="day-name">周二</div>
+                            <div class="day-status completed">✓</div>
+                        </div>
+                        <div class="tracker-day">
+                            <div class="day-name">周三</div>
+                            <div class="day-status partial">!</div>
+                        </div>
+                        <div class="tracker-day">
+                            <div class="day-name">周四</div>
+                            <div class="day-status completed">✓</div>
+                        </div>
+                        <div class="tracker-day">
+                            <div class="day-name">周五</div>
+                            <div class="day-status missed">✕</div>
+                        </div>
+                        <div class="tracker-day">
+                            <div class="day-name">周六</div>
+                            <div class="day-status empty"></div>
+                        </div>
+                        <div class="tracker-day">
+                            <div class="day-name">周日</div>
+                            <div class="day-status empty"></div>
+                        </div>
+                    </div>
+
+                    <div class="tracker-form">
+                        <div class="form-group">
+                            <label class="form-label">今天执行了哪些规则?</label>
+                            <select class="form-select">
+                                <option value="">选择执行的规则...</option>
+                                <option value="rule1">只在困倦时上床</option>
+                                <option value="rule2">床只用于睡觉和性活动</option>
+                                <option value="rule3">15-20分钟无法入睡就起床</option>
+                                <option value="rule4">固定起床时间</option>
+                                <option value="rule5">避免日间小睡</option>
+                                <option value="all">全部规则</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">执行情况评估</label>
+                            <div class="form-radio-group">
+                                <div class="form-radio">
+                                    <input type="radio" id="complete" name="status" checked>
+                                    <label for="complete">完全执行</label>
+                                </div>
+                                <div class="form-radio">
+                                    <input type="radio" id="partial" name="status">
+                                    <label for="partial">部分执行</label>
+                                </div>
+                                <div class="form-radio">
+                                    <input type="radio" id="missed" name="status">
+                                    <label for="missed">未能执行</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">遇到的困难或备注</label>
+                            <textarea class="form-textarea" placeholder="记录今天执行过程中遇到的困难或任何想备注的内容..."></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-outline">保存草稿</button>
+                            <button class="btn btn-primary">提交记录</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h2>本周执行进度</h2>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>完成度: 65%</span>
+                        <span>4/7 天</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips-section">
+                <h2>执行建议与技巧</h2>
+                
+                <div class="tip-card">
+                    <div class="tip-icon">💡</div>
+                    <div class="tip-content">
+                        <div class="tip-title">创造合适的夜间活动</div>
+                        <div class="tip-desc">当您需要起床时，选择低刺激的活动，如阅读轻松的书籍、听舒缓的音乐或进行深呼吸练习。避免使用电子设备或进行剧烈活动。</div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-icon">⏰</div>
+                    <div class="tip-content">
+                        <div class="tip-title">保持规律的作息</div>
+                        <div class="tip-desc">即使在周末也尽量保持相同的睡眠和起床时间。规律的作息有助于稳定您的生物钟，提高睡眠质量。</div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-icon">🛌</div>
+                    <div class="tip-content">
+                        <div class="tip-title">优化睡眠环境</div>
+                        <div class="tip-desc">确保卧室安静、黑暗且温度适宜(约18-22°C)。考虑使用遮光窗帘、耳塞或白噪音机来创造理想的睡眠环境。</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>失眠症认知行为治疗数字化辅助系统 · 版本 1.0</p>
+        </footer>
+    </div>
+</body>
+</html>

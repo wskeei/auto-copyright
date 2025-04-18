@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠日记 - CBT-I辅助系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --light-text: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-item {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .nav-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .time-input select {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .result-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .result-label {
+            font-weight: 500;
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        .sleep-efficiency {
+            color: var(--success-color);
+            font-size: 18px;
+        }
+        
+        .history-card {
+            margin-top: 30px;
+        }
+        
+        .history-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .history-date {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .history-efficiency {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+        
+        .no-data {
+            color: var(--light-text);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .time-input {
+                flex-direction: column;
+            }
+            
+            .time-input select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">CBT-I辅助系统</div>
+            <div class="nav">
+                <a href="#" class="nav-item">概览</a>
+                <a href="#" class="nav-item active">睡眠日记</a>
+                <a href="#" class="nav-item">睡眠限制</a>
+                <a href="#" class="nav-item">刺激控制</a>
+            </div>
+        </header>
+        
+        <div class="card">
+            <h2 class="card-title">睡眠日记记录</h2>
+            
+            <div class="form-group">
+                <label class="form-label">记录日期</label>
+                <input type="date" id="recordDate" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">上床时间</label>
+                <div class="time-input">
+                    <select id="bedTimeHour">
+                        <option value="">时</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                    <select id="bedTimeMinute">
+                        <option value="">分</option>
+                        <option value="00">00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">尝试入睡时间</label>
+                <div class="time-input">
+                    <select id="sleepAttemptHour">
+                        <option value="">时</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                    <select id="sleepAttemptMinute">
+                        <option value="">分</option>
+                        <option value="00">00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">估计入睡潜伏期（分钟）</label>
+                <input type="number" id="sleepLatency" class="form-control" placeholder="输入入睡所需分钟数">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">夜间醒来次数</label>
+                <select id="awakeningCount" class="form-control">
+                    <option value="0">0次</option>
+                    <option value="1">1次</option>
+                    <option value="2">2次</option>
+                    <option value="3">3次</option>
+                    <option value="4">4次</option>
+                    <option value="5">5次或更多</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">每次醒来时长（分钟）</label>
+                <input type="number" id="awakeningDuration" class="form-control" placeholder="输入每次醒来的平均分钟数">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">最终醒来时间</label>
+                <div class="time-input">
+                    <select id="finalAwakeHour">
+                        <option value="">时</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                    <select id="finalAwakeMinute">
+                        <option value="">分</option>
+                        <option value="00">00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">起床时间</label>
+                <div class="time-input">
+                    <select id="getUpHour">
+                        <option value="">时</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                    <select id="getUpMinute">
+                        <option value="">分</option>
+                        <option value="00">00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="calculateBtn" class="btn btn-primary">计算睡眠效率</button>
+        </div>
+        
+        <div class="result-card" id="resultSection" style="display: none;">
+            <h3 class="result-title">睡眠分析结果</h3>
+            
+            <div class="result-item">
+                <span class="result-label">总卧床时间</span>
+                <span class="result-value" id="totalBedTime">--</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">估计总睡眠时间</span>
+                <span class="result-value" id="totalSleepTime">--</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">睡眠效率</span>
+                <span class="result-value sleep-efficiency" id="sleepEfficiency">--</span>
+            </div>
+            
+            <button id="saveBtn" class="btn btn-primary" style="margin-top: 20px;">保存记录</button>
+        </div>
+        
+        <div class="card history-card">
+            <h3 class="history-title">历史记录</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const recordDate = document.getElementById('recordDate');
+            const bedTimeHour = document.getElementById('bedTimeHour');
+            const bedTimeMinute = document.getElementById('bedTimeMinute');
+            const sleepAttemptHour = document.getElementById('sleepAttemptHour');
+            const sleepAttemptMinute = document.getElementById('sleepAttemptMinute');
+            const sleepLatency = document.getElementById('sleepLatency');
+            const awakeningCount = document.getElementById('awakeningCount');
+            const awakeningDuration = document.getElementById('awakeningDuration');
+            const finalAwakeHour = document.getElementById('finalAwakeHour');
+            const finalAwakeMinute = document.getElementById('finalAwakeMinute');
+            const getUpHour = document.getElementById('getUpHour');
+            const getUpMinute = document.getElementById('getUpMinute');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const resultSection = document.getElementById('resultSection');
+            const totalBedTime = document.getElementById('totalBedTime');
+            const totalSleepTime = document.getElementById('totalSleepTime');
+            const sleepEfficiency = document.getElementById('sleepEfficiency');
+            const historyList = document.getElementById('historyList');
+            
+            const today = new Date();
+            recordDate.value = today.toISOString().split('T')[0];
+            
+            function loadHistory() {
+                const history = JSON.parse(localStorage.getItem('sleepDiaryHistory')) || [];
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="no-data">暂无历史记录</div>';
+                    return;
+                }
+                
+                history.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-date">${item.date}</div>
+                        <div>卧床时间: ${item.totalBedTime} | 睡眠时间: ${item.totalSleepTime} | 效率: <span class="history-efficiency">${item.sleepEfficiency}%</span></div>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            function calculateTimeDifference(startHour, startMinute, endHour, endMinute) {
+                if (!startHour || !startMinute || !endHour || !endMinute) return 0;
+                
+                let start = parseInt(startHour) * 60 + parseInt(startMinute);
+                let end = parseInt(endHour) * 60 + parseInt(endMinute);
+                
+                if (end < start) {
+                    end += 24 * 60;
+                }
+                
+                return (end - start) / 60;
+            }
+            
+            calculateBtn.addEventListener('click', function() {
+                if (!bedTimeHour.value || !bedTimeMinute.value || !getUpHour.value || !getUpMinute.value) {
+                    alert('请至少填写上床时间和起床时间');
+                    return;
+                }
+                
+                const bedTime = calculateTimeDifference(
+                    bedTimeHour.value, bedTimeMinute.value,
+                    getUpHour.value, getUpMinute.value
+                );
+                
+                let sleepTime = bedTime;
+                
+                if (sleepAttemptHour.value && sleepAttemptMinute.value && bedTimeHour.value && bedTimeMinute.value) {
+                    const attemptTime = calculateTimeDifference(
+                        bedTimeHour.value, bedTimeMinute.value,
+                        sleepAttemptHour.value, sleepAttemptMinute.value
+                    );
+                    sleepTime -= attemptTime;
+                }
+                
+                if (sleepLatency.value) {
+                    sleepTime -= parseFloat(sleepLatency.value) / 60;
+                }
+                
+                if (awakeningCount.value && awakeningDuration.value) {
+                    sleepTime -= parseInt(awakeningCount.value) * parseFloat(awakeningDuration.value) / 60;
+                }
+                
+                if (finalAwakeHour.value && finalAwakeMinute.value && getUpHour.value && getUpMinute.value) {
+                    const awakeTime = calculateTimeDifference(
+                        finalAwakeHour.value, finalAwakeMinute.value,
+                        getUpHour.value, getUpMinute.value
+                    );
+                    sleepTime -= awakeTime;
+                }
+                
+                sleepTime = Math.max(0, sleepTime);
+                
+                const efficiency = (sleepTime / bedTime * 100).toFixed(1);
+                
+                totalBedTime.textContent = bedTime.toFixed(1) + ' 小时';
+                totalSleepTime.textContent = sleepTime.toFixed(1) + ' 小时';
+                sleepEfficiency.textContent = efficiency + '%';
+                
+                resultSection.style.display = 'block';
+            });
+            
+            saveBtn.addEventListener('click', function() {
+                const date = recordDate.value;
+                const bedTimeText = totalBedTime.textContent;
+                const sleepTimeText = totalSleepTime.textContent;
+                const efficiencyText = sleepEfficiency.textContent;
+                
+                if (!date || !bedTimeText || !sleepTimeText || !efficiencyText) {
+                    alert('请先计算睡眠数据');
+                    return;
+                }
+                
+                const history = JSON.parse(localStorage.getItem('sleepDiaryHistory')) || [];
+                
+                const existingIndex = history.findIndex(item => item.date === date);
+                const record = {
+                    date,
+                    bedTime: bedTimeHour.value + ':' + bedTimeMinute.value,
+                    sleepAttempt: sleepAttemptHour.value + ':' + sleepAttemptMinute.value,
+                    sleepLatency: sleepLatency.value,
+                    awakeningCount: awakeningCount.value,
+                    awakeningDuration: awakeningDuration.value,
+                    finalAwake: finalAwakeHour.value + ':' + finalAwakeMinute.value,
+                    getUp: getUpHour.value + ':' + getUpMinute.value,
+                    totalBedTime: bedTimeText.replace(' 小时', ''),
+                    totalSleepTime: sleepTimeText.replace(' 小时', ''),
+                    sleepEfficiency: efficiencyText.replace('%', '')
+                };
+                
+                if (existingIndex >= 0) {
+                    history[existingIndex] = record;
+                } else {
+                    history.push(record);
+                }
+                
+                localStorage.setItem('sleepDiaryHistory', JSON.stringify(history));
+                loadHistory();
+                alert('记录已保存');
+            });
+            
+            loadHistory();
+        });
+    </script>
+</body>
+</html>

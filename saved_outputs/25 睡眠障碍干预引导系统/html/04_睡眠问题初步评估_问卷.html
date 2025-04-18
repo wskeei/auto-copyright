@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠问题初步评估</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .logo svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: right;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .question-section {
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .option input {
+            margin-right: 12px;
+            accent-color: var(--primary-color);
+        }
+
+        .option-label {
+            font-size: 16px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0077ed;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            display: none;
+            text-align: center;
+        }
+
+        .result-icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(0, 113, 227, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .result-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--primary-color);
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .result-description {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-details {
+            text-align: left;
+            background-color: rgba(0, 113, 227, 0.05);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: var(--text-secondary);
+        }
+
+        .recommendation {
+            margin-top: 30px;
+        }
+
+        .recommendation-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-list {
+            list-style-type: none;
+        }
+
+        .recommendation-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .recommendation-list li:before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            button {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M18 12a6 6 0 01-6 6 6 6 0 01-6-6 6 6 0 016-6 6 6 0 016 6z"></path>
+                </svg>
+            </div>
+            <h1>睡眠问题初步评估</h1>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0/10</div>
+        </div>
+
+        <div class="card">
+            <div id="question-container">
+                <!-- 问题部分将通过JavaScript动态生成 -->
+            </div>
+
+            <div class="result-section" id="result-section">
+                <div class="result-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+                    </svg>
+                </div>
+                <h2 class="result-title">评估完成</h2>
+                <p class="result-description">根据您的回答，我们已经完成了初步评估。以下是您的睡眠问题分析结果。</p>
+                
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">主要睡眠问题</div>
+                        <div class="detail-value" id="main-issue">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">严重程度</div>
+                        <div class="detail-value" id="severity">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">持续时间</div>
+                        <div class="detail-value" id="duration">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">睡眠质量评分</div>
+                        <div class="detail-value" id="score">-</div>
+                    </div>
+                </div>
+
+                <div class="recommendation">
+                    <div class="recommendation-title">初步建议</div>
+                    <ul class="recommendation-list" id="recommendations">
+                        <!-- 建议将通过JavaScript动态生成 -->
+                    </ul>
+                </div>
+
+                <button class="btn-primary" id="finish-btn">完成评估</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                {
+                    id: 'q1',
+                    text: '过去一个月内，您通常需要多长时间才能入睡？',
+                    options: [
+                        { value: '0', label: '15分钟以内' },
+                        { value: '1', label: '16-30分钟' },
+                        { value: '2', label: '31-60分钟' },
+                        { value: '3', label: '超过60分钟' }
+                    ]
+                },
+                {
+                    id: 'q2',
+                    text: '过去一个月内，您每晚实际睡眠时间大约是多少？',
+                    options: [
+                        { value: '0', label: '7小时以上' },
+                        { value: '1', label: '6-7小时' },
+                        { value: '2', label: '5-6小时' },
+                        { value: '3', label: '少于5小时' }
+                    ]
+                },
+                {
+                    id: 'q3',
+                    text: '过去一个月内，您夜间醒来的频率如何？',
+                    options: [
+                        { value: '0', label: '不醒来或1次' },
+                        { value: '1', label: '2次' },
+                        { value: '2', label: '3次' },
+                        { value: '3', label: '4次或更多' }
+                    ]
+                },
+                {
+                    id: 'q4',
+                    text: '夜间醒来后，您通常需要多长时间才能重新入睡？',
+                    options: [
+                        { value: '0', label: '15分钟以内' },
+                        { value: '1', label: '16-30分钟' },
+                        { value: '2', label: '31-60分钟' },
+                        { value: '3', label: '超过60分钟' }
+                    ]
+                },
+                {
+                    id: 'q5',
+                    text: '过去一个月内，您是否比期望的时间早醒且无法再次入睡？',
+                    options: [
+                        { value: '0', label: '没有' },
+                        { value: '1', label: '每周1次' },
+                        { value: '2', label: '每周2-3次' },
+                        { value: '3', label: '每周4次或更多' }
+                    ]
+                },
+                {
+                    id: 'q6',
+                    text: '您对目前的睡眠质量满意吗？',
+                    options: [
+                        { value: '0', label: '非常满意' },
+                        { value: '1', label: '比较满意' },
+                        { value: '2', label: '不太满意' },
+                        { value: '3', label: '非常不满意' }
+                    ]
+                },
+                {
+                    id: 'q7',
+                    text: '您的睡眠问题已经持续了多长时间？',
+                    options: [
+                        { value: '0', label: '少于1个月' },
+                        { value: '1', label: '1-3个月' },
+                        { value: '2', label: '3-6个月' },
+                        { value: '3', label: '超过6个月' }
+                    ]
+                },
+                {
+                    id: 'q8',
+                    text: '白天您感到疲劳或困倦的程度如何？',
+                    options: [
+                        { value: '0', label: '从不' },
+                        { value: '1', label: '偶尔' },
+                        { value: '2', label: '经常' },
+                        { value: '3', label: '几乎每天' }
+                    ]
+                },
+                {
+                    id: 'q9',
+                    text: '您的睡眠问题对日常生活的影响程度如何？',
+                    options: [
+                        { value: '0', label: '没有影响' },
+                        { value: '1', label: '轻微影响' },
+                        { value: '2', label: '中度影响' },
+                        { value: '3', label: '严重影响' }
+                    ]
+                },
+                {
+                    id: 'q10',
+                    text: '您是否因为睡眠问题而服用药物（包括非处方药）？',
+                    options: [
+                        { value: '0', label: '从不' },
+                        { value: '1', label: '偶尔' },
+                        { value: '2', label: '经常' },
+                        { value: '3', label: '几乎每天' }
+                    ]
+                }
+            ];
+
+            const questionContainer = document.getElementById('question-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const resultSection = document.getElementById('result-section');
+            const mainIssueElement = document.getElementById('main-issue');
+            const severityElement = document.getElementById('severity');
+            const durationElement = document.getElementById('duration');
+            const scoreElement = document.getElementById('score');
+            const recommendationsElement = document.getElementById('recommendations');
+            const finishBtn = document.getElementById('finish-btn');
+
+            let currentQuestionIndex = 0;
+            let answers = {};
+            let totalScore = 0;
+
+            function renderQuestion(index) {
+                if (index >= questions.length) {
+                    showResults();
+                    return;
+                }
+
+                currentQuestionIndex = index;
+                const question = questions[index];
+
+                questionContainer.innerHTML = `
+                    <div class="question-section active">
+                        <h2>问题 ${index + 1}/${questions.length}</h2>
+                        <div class="question">
+                            <div class="question-text">${question.text}</div>
+                            <div class="options" id="options-container">
+                                ${question.options.map(option => `
+                                    <label class="option ${answers[question.id] === option.value ? 'selected' : ''}">
+                                        <input type="radio" name="${question.id}" value="${option.value}" 
+                                            ${answers[question.id] === option.value ? 'checked' : ''}>
+                                        <span class="option-label">${option.label}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="navigation">
+                            <button class="btn-secondary ${index === 0 ? 'btn-disabled' : ''}" id="prev-btn">
+                                上一题
+                            </button>
+                            <button class="btn-primary ${!answers[question.id] ? 'btn-disabled' : ''}" id="next-btn">
+                                ${index === questions.length - 1 ? '完成评估' : '下一题'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                updateProgress();
+
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const input = this.querySelector('input');
+                        input.checked = true;
+                        
+                        options.forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        
+                        answers[question.id] = input.value;
+                        document.getElementById('next-btn').classList.remove('btn-disabled');
+                    });
+                });
+
+                document.getElementById('prev-btn').addEventListener('click', goToPreviousQuestion);
+                document.getElementById('next-btn').addEventListener('click', goToNextQuestion);
+            }
+
+            function updateProgress() {
+                const progress = ((currentQuestionIndex) / questions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `${currentQuestionIndex}/${questions.length}`;
+            }
+
+            function goToPreviousQuestion() {
+                if (currentQuestionIndex > 0) {
+                    renderQuestion(currentQuestionIndex - 1);
+                }
+            }
+
+            function goToNextQuestion() {
+                if (answers[questions[currentQuestionIndex].id]) {
+                    renderQuestion(currentQuestionIndex + 1);
+                }
+            }
+
+            function showResults() {
+                questionContainer.style.display = 'none';
+                resultSection.style.display = 'block';
+                progressBar.style.width = '100%';
+                progressText.textContent = `${questions.length}/${questions.length}`;
+
+                calculateResults();
+            }
+
+            function calculateResults() {
+                totalScore = 0;
+                for (const qid in answers) {
+                    totalScore += parseInt(answers[qid]);
+                }
+
+                let mainIssue = '';
+                let severity = '';
+                let duration = answers['q7'];
+                let durationText = '';
+
+                const sleepOnset = parseInt(answers['q1']);
+                const nightAwakenings = parseInt(answers['q3']);
+                const earlyAwakening = parseInt(answers['q5']);
+
+                if (sleepOnset >= 2) {
+                    mainIssue = '入睡困难';
+                } else if (nightAwakenings >= 2) {
+                    mainIssue = '睡眠维持困难';
+                } else if (earlyAwakening >= 2) {
+                    mainIssue = '早醒问题';
+                } else {
+                    mainIssue = '混合型睡眠障碍';
+                }
+
+                if (totalScore <= 10) {
+                    severity = '轻度';
+                } else if (totalScore <= 20) {
+                    severity = '中度';
+                } else {
+                    severity = '重度';
+                }
+
+                switch (duration) {
+                    case '0': durationText = '少于1个月'; break;
+                    case '1': durationText = '1-3个月'; break;
+                    case '2': durationText = '3-6个月'; break;
+                    case '3': durationText = '超过6个月'; break;
+                    default: durationText = '未知';
+                }
+
+                mainIssueElement.textContent = mainIssue;
+                severityElement.textContent = severity;
+                durationElement.textContent = durationText;
+                scoreElement.textContent = `${totalScore}分（总分30分）`;
+
+                const recommendations = getRecommendations(mainIssue, severity);
+                recommendationsElement.innerHTML = recommendations.map(rec => `<li>${rec}</li>`).join('');
+
+                saveResults(mainIssue, severity, durationText, totalScore);
+            }
+
+            function getRecommendations(issue, severity) {
+                const baseRecommendations = [
+                    '保持规律的睡眠时间表，每天同一时间上床和起床',
+                    '睡前1小时避免使用电子设备',
+                    '卧室环境应保持黑暗、安静和适宜的温度',
+                    '避免午睡超过30分钟'
+                ];
+
+                const specificRecommendations = [];
+                
+                if (issue === '入睡困难') {
+                    specificRecommendations.push(
+                        '尝试渐进性肌肉放松或深呼吸练习',
+                        '睡前1小时进行放松活动，如阅读或听轻音乐',
+                        '避免睡前4小时内摄入咖啡因'
+                    );
+                } else if (issue === '睡眠维持困难') {
+                    specificRecommendations.push(
+                        '夜间醒来时不要看时间',
+                        '如果20分钟内无法入睡，起床到另一个房间进行放松活动',
+                        '限制床上的活动只用于睡眠和性生活'
+                    );
+                } else if (issue === '早醒问题') {
+                    specificRecommendations.push(
+                        '早晨接受自然光照至少30分钟',
+                        '考虑是否与情绪问题相关，必要时寻求专业帮助',
+                        '避免过早入睡，逐步调整就寝时间'
+                    );
+                } else {
+                    specificRecommendations.push(
+                        '记录睡眠日记以识别具体问题模式',
+                        '考虑综合性的认知行为疗法',
+                        '咨询睡眠专科医生进行全面评估'
+                    );
+                }
+
+                if (severity === '中度' || severity === '重度') {
+                    specificRecommendations.push('建议预约专业睡眠医生进行详细评估');
+                }
+
+                return [...baseRecommendations, ...specificRecommendations];
+            }
+
+            function saveResults(mainIssue, severity, duration, score) {
+                const assessmentResults = {
+                    date: new Date().toISOString().split('T')[0],
+                    mainIssue,
+                    severity,
+                    duration,
+                    score,
+                    answers
+                };
+
+                localStorage.setItem('sleepAssessmentResults', JSON.stringify(assessmentResults));
+            }
+
+            finishBtn.addEventListener('click', function() {
+                window.location.href = 'dashboard.html';
+            });
+
+            renderQuestion(0);
+        });
+    </script>
+</body>
+</html>

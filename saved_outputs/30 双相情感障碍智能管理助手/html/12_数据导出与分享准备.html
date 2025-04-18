@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双相情感障碍智能管理助手 - 数据导出</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #147ce5;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 32px;
+            margin-right: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+        
+        .main-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title svg {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        select, input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            background-color: var(--card-bg);
+        }
+        
+        select:focus, input[type="date"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-item input {
+            margin-right: 8px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .preview-section {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        
+        .preview-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .preview-content {
+            background-color: var(--background);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success-message {
+            color: var(--success-color);
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .date-range .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .date-range {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyIDJDNi40NzcgMiAyIDYuNDc3IDIgMTJzNC40NzcgMTAgMTAgMTAgMTAtNC40NzcgMTAtMTBTMTcuNTIzIDIgMTIgMnptMCAxOGE4IDggMCAxMTAtMTYgOCA4IDAgMDEwIDE2em0tLjM2My02LjUzNGwtMy43NzQtMy43NzQgMS40MTQtMS40MTRMMTIgMTIuNjZsMi43MjctMi43MjggMS40MTQgMS40MTR6Ii8+PC9zdmc+" alt="Logo">
+                <h1>双相情感障碍智能管理助手</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">记录</a></li>
+                    <li><a href="#">分析</a></li>
+                    <li><a href="#">设置</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <h1 class="main-title">数据导出与分享</h1>
+        <p class="subtitle">将您的记录导出为可分享格式，便于与医生沟通</p>
+        
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z" fill="currentColor"/>
+                </svg>
+                导出设置
+            </h2>
+            
+            <div class="form-group">
+                <label for="exportType">导出格式</label>
+                <select id="exportType">
+                    <option value="pdf">PDF 报告</option>
+                    <option value="csv">CSV 数据表</option>
+                    <option value="text">文本摘要</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>日期范围</label>
+                <div class="date-range">
+                    <div class="form-group">
+                        <input type="date" id="startDate" value="2024-05-01">
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="endDate" value="2024-06-30">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>包含的内容</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="moodData" checked>
+                        <label for="moodData">心境数据</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="activityLog" checked>
+                        <label for="activityLog">活动日志</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medication" checked>
+                        <label for="medication">药物记录</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="sleepData">
+                        <label for="sleepData">睡眠数据</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="notes">
+                        <label for="notes">个人笔记</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="doctorName">医生姓名 (可选)</label>
+                <input type="text" id="doctorName" placeholder="输入医生姓名以添加到报告">
+            </div>
+            
+            <div class="btn-group">
+                <button id="previewBtn" class="btn btn-secondary">预览</button>
+                <button id="exportBtn" class="btn btn-primary">导出数据</button>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                数据已成功导出！
+            </div>
+        </div>
+        
+        <div class="card preview-section" id="previewSection" style="display: none;">
+            <h2 class="card-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3ZM1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12ZM13 10V18H11V10H13ZM12 8.5C12.8284 8.5 13.5 7.82843 13.5 7C13.5 6.17157 12.8284 5.5 12 5.5C11.1716 5.5 10.5 6.17157 10.5 7C10.5 7.82843 11.1716 8.5 12 8.5Z" fill="currentColor"/>
+                </svg>
+                预览
+            </h2>
+            <p class="preview-title">即将导出的内容预览:</p>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportBtn = document.getElementById('exportBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const previewSection = document.getElementById('previewSection');
+            const previewContent = document.getElementById('previewContent');
+            const successMessage = document.getElementById('successMessage');
+            
+            const moodData = [
+                { date: '2024-06-01', mood: '平稳', energy: '中等', notes: '正常工作，情绪稳定' },
+                { date: '2024-06-05', mood: '高涨', energy: '高', notes: '创意迸发，睡眠减少' },
+                { date: '2024-06-10', mood: '低落', energy: '低', notes: '兴趣减退，乏力' },
+                { date: '2024-06-15', mood: '平稳', energy: '中等', notes: '按时服药，情绪好转' },
+                { date: '2024-06-20', mood: '高涨', energy: '高', notes: '社交活跃，话多' },
+                { date: '2024-06-25', mood: '低落', energy: '低', notes: '不想出门，食欲下降' }
+            ];
+            
+            const activities = [
+                { date: '2024-06-01', activity: '工作', duration: '8小时', impact: '中性' },
+                { date: '2024-06-05', activity: '创意写作', duration: '5小时', impact: '正面' },
+                { date: '2024-06-10', activity: '休息', duration: '全天', impact: '中性' },
+                { date: '2024-06-15', activity: '轻度运动', duration: '30分钟', impact: '正面' },
+                { date: '2024-06-20', activity: '社交聚会', duration: '4小时', impact: '正面' },
+                { date: '2024-06-25', activity: '无特别活动', duration: '-', impact: '负面' }
+            ];
+            
+            const medications = [
+                { date: '2024-06-01', name: '锂盐', dose: '300mg', time: '早晚各一次', taken: '是' },
+                { date: '2024-06-05', name: '锂盐', dose: '300mg', time: '早晚各一次', taken: '是' },
+                { date: '2024-06-10', name: '锂盐', dose: '300mg', time: '早晚各一次', taken: '是' },
+                { date: '2024-06-15', name: '锂盐', dose: '300mg', time: '早晚各一次', taken: '是' },
+                { date: '2024-06-20', name: '锂盐', dose: '300mg', time: '早晚各一次', taken: '否' },
+                { date: '2024-06-25', name: '锂盐', dose: '300mg', time: '早晚各一次', taken: '是' }
+            ];
+            
+            function generatePreview() {
+                const exportType = document.getElementById('exportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const includeMood = document.getElementById('moodData').checked;
+                const includeActivity = document.getElementById('activityLog').checked;
+                const includeMedication = document.getElementById('medication').checked;
+                const doctorName = document.getElementById('doctorName').value;
+                
+                let content = '';
+                
+                if (exportType === 'pdf') {
+                    content = `双相情感障碍管理报告\n\n`;
+                    content += `日期范围: ${startDate} 至 ${endDate}\n`;
+                    if (doctorName) content += `医生: ${doctorName}\n\n`;
+                    
+                    if (includeMood) {
+                        content += `=== 心境数据 ===\n`;
+                        moodData.forEach(entry => {
+                            content += `${entry.date}: ${entry.mood} (精力: ${entry.energy})\n`;
+                            content += `备注: ${entry.notes}\n\n`;
+                        });
+                    }
+                    
+                    if (includeActivity) {
+                        content += `=== 活动日志 ===\n`;
+                        activities.forEach(entry => {
+                            content += `${entry.date}: ${entry.activity} (${entry.duration})\n`;
+                            content += `影响: ${entry.impact}\n\n`;
+                        });
+                    }
+                    
+                    if (includeMedication) {
+                        content += `=== 药物记录 ===\n`;
+                        medications.forEach(entry => {
+                            content += `${entry.date}: ${entry.name} ${entry.dose} (${entry.time})\n`;
+                            content += `已服用: ${entry.taken}\n\n`;
+                        });
+                    }
+                    
+                    content += `报告生成时间: 2024年6月\n`;
+                } else if (exportType === 'csv') {
+                    content = '日期,类型,项目,详情\n';
+                    
+                    if (includeMood) {
+                        moodData.forEach(entry => {
+                            content += `${entry.date},心境,情绪状态,${entry.mood}\n`;
+                            content += `${entry.date},心境,精力水平,${entry.energy}\n`;
+                            content += `${entry.date},心境,备注,${entry.notes}\n`;
+                        });
+                    }
+                    
+                    if (includeActivity) {
+                        activities.forEach(entry => {
+                            content += `${entry.date},活动,${entry.activity},时长:${entry.duration}|影响:${entry.impact}\n`;
+                        });
+                    }
+                    
+                    if (includeMedication) {
+                        medications.forEach(entry => {
+                            content += `${entry.date},药物,${entry.name},剂量:${entry.dose}|时间:${entry.time}|已服用:${entry.taken}\n`;
+                        });
+                    }
+                } else {
+                    content = `双相情感障碍管理摘要\n\n`;
+                    content += `以下是您选择时间段内的关键数据摘要:\n\n`;
+                    
+                    if (includeMood) {
+                        const moodCounts = {};
+                        moodData.forEach(entry => {
+                            moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+                        });
+                        
+                        content += `心境状态分布:\n`;
+                        for (const mood in moodCounts) {
+                            content += `- ${mood}: ${moodCounts[mood]} 次记录\n`;
+                        }
+                        content += '\n';
+                    }
+                    
+                    if (includeActivity) {
+                        content += `活动记录摘要:\n`;
+                        const uniqueActivities = [...new Set(activities.map(a => a.activity))];
+                        uniqueActivities.forEach(act => {
+                            const count = activities.filter(a => a.activity === act).length;
+                            content += `- ${act}: ${count} 次\n`;
+                        });
+                        content += '\n';
+                    }
+                    
+                    if (includeMedication) {
+                        const takenCount = medications.filter(m => m.taken === '是').length;
+                        const missedCount = medications.filter(m => m.taken === '否').length;
+                        content += `药物依从性:\n`;
+                        content += `- 按时服药: ${takenCount} 次\n`;
+                        content += `- 漏服: ${missedCount} 次\n`;
+                    }
+                }
+                
+                return content;
+            }
+            
+            previewBtn.addEventListener('click', function() {
+                const preview = generatePreview();
+                previewContent.textContent = preview;
+                previewSection.style.display = 'block';
+            });
+            
+            exportBtn.addEventListener('click', function() {
+                const exportType = document.getElementById('exportType').value;
+                const content = generatePreview();
+                
+                if (exportType === 'pdf') {
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '双相情感障碍报告.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else if (exportType === 'csv') {
+                    const blob = new Blob([content], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '双相情感障碍数据.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else {
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '双相情感障碍摘要.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+                
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>

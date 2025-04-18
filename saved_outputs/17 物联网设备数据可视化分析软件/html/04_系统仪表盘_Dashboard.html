@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备数据可视化分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #d2d2d7;
+            background-color: white;
+            font-size: 14px;
+            color: var(--text-primary);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 32px;
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .positive {
+            color: var(--success-color);
+        }
+
+        .negative {
+            color: var(--danger-color);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+        }
+
+        .device-list {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .list-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-offline {
+            background-color: rgba(142, 142, 147, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .status-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-alert {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+            gap: 8px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #d2d2d7;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">物联网数据平台</div>
+            <div class="user-info">
+                <div class="avatar">AD</div>
+                <select>
+                    <option>管理员</option>
+                    <option>登出</option>
+                </select>
+            </div>
+        </header>
+
+        <h1 class="dashboard-title">系统仪表盘</h1>
+
+        <div class="date-selector">
+            <select>
+                <option>今日</option>
+                <option>本周</option>
+                <option>本月</option>
+                <option selected>2024年6月</option>
+                <option>自定义范围</option>
+            </select>
+            <select>
+                <option>全部设备</option>
+                <option>智能传感器</option>
+                <option>工业控制器</option>
+                <option>环境监测</option>
+                <option>能源计量</option>
+            </select>
+            <select>
+                <option>全部区域</option>
+                <option>华北</option>
+                <option>华东</option>
+                <option>华南</option>
+                <option>西部</option>
+            </select>
+        </div>
+
+        <div class="kpi-cards">
+            <div class="kpi-card">
+                <div class="kpi-title">在线设备</div>
+                <div class="kpi-value">1,248</div>
+                <div class="kpi-change positive">↑ 5.2% 较上月</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">离线设备</div>
+                <div class="kpi-value">32</div>
+                <div class="kpi-change negative">↓ 12.3% 较上月</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">今日数据点</div>
+                <div class="kpi-value">4,782,154</div>
+                <div class="kpi-change positive">↑ 8.7% 较昨日</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">告警事件</div>
+                <div class="kpi-value">17</div>
+                <div class="kpi-change negative">↑ 2 较昨日</div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">设备状态分布</div>
+                <div class="chart-wrapper" id="pieChart"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">设备能耗趋势 (kW·h)</div>
+                <div class="chart-wrapper" id="lineChart"></div>
+            </div>
+        </div>
+
+        <div class="device-list">
+            <div class="list-title">最近告警设备</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>设备ID</th>
+                        <th>设备名称</th>
+                        <th>类型</th>
+                        <th>位置</th>
+                        <th>状态</th>
+                        <th>最后上报</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>DEV-2024-0625</td>
+                        <td>温度传感器-01</td>
+                        <td>环境监测</td>
+                        <td>华北-A区</td>
+                        <td><span class="status status-alert">高温告警</span></td>
+                        <td>2024-06-15 14:32</td>
+                    </tr>
+                    <tr>
+                        <td>DEV-2024-0532</td>
+                        <td>能耗计量-07</td>
+                        <td>能源计量</td>
+                        <td>华东-C区</td>
+                        <td><span class="status status-warning">能耗异常</span></td>
+                        <td>2024-06-15 13:45</td>
+                    </tr>
+                    <tr>
+                        <td>DEV-2024-0418</td>
+                        <td>湿度传感器-12</td>
+                        <td>环境监测</td>
+                        <td>华南-B区</td>
+                        <td><span class="status status-alert">湿度超限</span></td>
+                        <td>2024-06-15 11:20</td>
+                    </tr>
+                    <tr>
+                        <td>DEV-2024-0712</td>
+                        <td>PLC控制器-03</td>
+                        <td>工业控制</td>
+                        <td>西部-D区</td>
+                        <td><span class="status status-warning">通讯中断</span></td>
+                        <td>2024-06-15 10:15</td>
+                    </tr>
+                    <tr>
+                        <td>DEV-2024-0329</td>
+                        <td>压力传感器-05</td>
+                        <td>工业控制</td>
+                        <td>华北-A区</td>
+                        <td><span class="status status-alert">压力超限</span></td>
+                        <td>2024-06-15 09:30</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">下一页</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pieChart = echarts.init(document.getElementById('pieChart'));
+            pieChart.setOption({
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    top: '5%',
+                    left: 'center'
+                },
+                series: [
+                    {
+                        name: '设备状态',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 1248, name: '在线', itemStyle: { color: '#34c759' } },
+                            { value: 32, name: '离线', itemStyle: { color: '#86868b' } },
+                            { value: 17, name: '告警', itemStyle: { color: '#ff3b30' } }
+                        ]
+                    }
+                ]
+            });
+
+            const lineChart = echarts.init(document.getElementById('lineChart'));
+            lineChart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['6月1日', '6月5日', '6月10日', '6月15日', '6月20日', '6月25日', '6月30日']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '峰值能耗',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 4,
+                            color: '#0071e3'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgba(0, 113, 227, 0.3)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgba(0, 113, 227, 0.1)'
+                                }
+                            ])
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        },
+                        data: [3200, 3350, 3650, 3820, 3780, 3950, 4120]
+                    },
+                    {
+                        name: '平均能耗',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 2,
+                            color: '#5ac8fa'
+                        },
+                        data: [2800, 2950, 3100, 3250, 3300, 3450, 3600]
+                    }
+                ]
+            });
+
+            window.addEventListener('resize', function() {
+                pieChart.resize();
+                lineChart.resize();
+            });
+        });
+    </script>
+</body>
+</html>

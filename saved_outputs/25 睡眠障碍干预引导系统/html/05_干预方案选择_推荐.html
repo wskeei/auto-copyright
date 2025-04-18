@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠障碍干预引导系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --subtext-color: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-item {
+            margin-left: 20px;
+            color: var(--subtext-color);
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: var(--subtext-color);
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .card-duration {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 500;
+            background-color: rgba(0, 113, 227, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .card-description {
+            color: var(--subtext-color);
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .card-content {
+            margin-bottom: 20px;
+        }
+
+        .content-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .content-item:before {
+            content: "•";
+            color: var(--primary-color);
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+        .select-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .select-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .selected {
+            background-color: #34c759;
+        }
+
+        .selected:hover {
+            background-color: #30d158;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 30px 0;
+        }
+
+        .progress-container {
+            margin-top: 40px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 33%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            color: var(--subtext-color);
+            font-size: 14px;
+        }
+
+        .step.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--subtext-color);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .nav {
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">睡眠障碍干预引导系统</div>
+            <div class="nav">
+                <a href="#" class="nav-item">首页</a>
+                <a href="#" class="nav-item">评估</a>
+                <a href="#" class="nav-item active">干预方案</a>
+                <a href="#" class="nav-item">进度追踪</a>
+                <a href="#" class="nav-item">设置</a>
+            </div>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-title">当前进度</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="step">初始评估</div>
+                <div class="step active">方案选择</div>
+                <div class="step">干预执行</div>
+                <div class="step">效果评估</div>
+            </div>
+        </div>
+
+        <h1>选择干预方案</h1>
+        <p class="subtitle">根据您的评估结果，我们推荐以下干预方案</p>
+
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">CBT-I 基础方案</div>
+                    <div class="card-duration">6-8 周</div>
+                </div>
+                <p class="card-description">认知行为疗法(CBT-I)是失眠治疗的首选方案，通过改变不良睡眠习惯和错误认知来改善睡眠。</p>
+                <div class="card-content">
+                    <div class="content-item">睡眠限制疗法</div>
+                    <div class="content-item">刺激控制疗法</div>
+                    <div class="content-item">认知重构训练</div>
+                    <div class="content-item">睡眠日记分析</div>
+                </div>
+                <button class="select-btn" data-therapy="cbt">选择此方案</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">放松训练方案</div>
+                    <div class="card-duration">4-6 周</div>
+                </div>
+                <p class="card-description">针对因压力、焦虑导致的入睡困难，通过系统放松训练降低生理唤醒水平。</p>
+                <div class="card-content">
+                    <div class="content-item">渐进性肌肉放松</div>
+                    <div class="content-item">腹式呼吸训练</div>
+                    <div class="content-item">冥想引导</div>
+                    <div class="content-item">想象放松场景</div>
+                </div>
+                <button class="select-btn" data-therapy="relaxation">选择此方案</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">睡眠卫生强化</div>
+                    <div class="card-duration">2-4 周</div>
+                </div>
+                <p class="card-description">改善不良睡眠习惯和环境因素，建立健康的睡眠-觉醒节律。</p>
+                <div class="card-content">
+                    <div class="content-item">睡眠环境评估</div>
+                    <div class="content-item">作息时间调整</div>
+                    <div class="content-item">饮食运动指导</div>
+                    <div class="content-item">电子设备使用建议</div>
+                </div>
+                <button class="select-btn" data-therapy="hygiene">选择此方案</button>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">综合干预方案</div>
+                    <div class="card-duration">8-10 周</div>
+                </div>
+                <p class="card-description">结合CBT-I、放松训练和睡眠卫生的全面干预方案，适合多种因素导致的睡眠障碍。</p>
+                <div class="card-content">
+                    <div class="content-item">CBT-I核心模块</div>
+                    <div class="content-item">深度放松训练</div>
+                    <div class="content-item">个性化睡眠卫生</div>
+                    <div class="content-item">每周进度评估</div>
+                </div>
+                <button class="select-btn" data-therapy="comprehensive">选择此方案</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">快速入睡方案</div>
+                    <div class="card-duration">2-3 周</div>
+                </div>
+                <p class="card-description">针对入睡困难设计的短期干预方案，帮助快速建立入睡条件反射。</p>
+                <div class="card-content">
+                    <div class="content-item">刺激控制技术</div>
+                    <div class="content-item">入睡前放松程序</div>
+                    <div class="content-item">心理暗示训练</div>
+                    <div class="content-item">睡眠限制调整</div>
+                </div>
+                <button class="select-btn" data-therapy="quick">选择此方案</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>睡眠障碍干预引导系统 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectButtons = document.querySelectorAll('.select-btn');
+            
+            selectButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const therapyType = this.getAttribute('data-therapy');
+                    
+                    selectButtons.forEach(btn => {
+                        btn.classList.remove('selected');
+                        btn.textContent = '选择此方案';
+                    });
+                    
+                    this.classList.add('selected');
+                    this.textContent = '✓ 已选择';
+                    
+                    localStorage.setItem('selectedTherapy', therapyType);
+                    localStorage.setItem('therapySelectionDate', new Date().toISOString());
+                    
+                    setTimeout(() => {
+                        window.location.href = 'intervention-plan.html';
+                    }, 800);
+                });
+            });
+            
+            const storedTherapy = localStorage.getItem('selectedTherapy');
+            if (storedTherapy) {
+                const selectedBtn = document.querySelector(`.select-btn[data-therapy="${storedTherapy}"]`);
+                if (selectedBtn) {
+                    selectedBtn.classList.add('selected');
+                    selectedBtn.textContent = '✓ 已选择';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

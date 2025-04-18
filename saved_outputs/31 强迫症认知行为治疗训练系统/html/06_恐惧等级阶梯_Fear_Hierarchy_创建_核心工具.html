@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fear Hierarchy | OCD CBT Training</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #e8f2fc;
+            --primary-dark: #0062c3;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background: #f5f5f7;
+            --card-bg: #ffffff;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-container input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .range-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .range-value {
+            width: 50px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .hierarchy-list {
+            list-style: none;
+        }
+
+        .hierarchy-item {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hierarchy-item-content {
+            flex: 1;
+        }
+
+        .hierarchy-item-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .hierarchy-item-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .hierarchy-item-suds {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .instructions {
+            background-color: var(--primary-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav ul {
+                margin-top: 15px;
+            }
+
+            nav ul li {
+                margin-left: 0;
+                margin-right: 15px;
+            }
+
+            .hierarchy-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .hierarchy-item-suds {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">OCD CBT Training</div>
+            <nav>
+                <ul>
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Tools</a></li>
+                    <li><a href="#">Progress</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Fear Hierarchy</h1>
+            
+            <div class="instructions card">
+                <h2>How to Create Your Fear Hierarchy</h2>
+                <ol>
+                    <li>List situations, thoughts, or objects that trigger your OCD symptoms</li>
+                    <li>Rate each item's distress level (SUDS) from 0-100</li>
+                    <li>Describe any compulsions or avoidance behaviors</li>
+                    <li>The system will automatically sort items by distress level</li>
+                    <li>Use this hierarchy to guide your exposure exercises</li>
+                </ol>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="add">Add New Item</div>
+                <div class="tab" data-tab="view">View Hierarchy</div>
+            </div>
+
+            <div class="tab-content active" id="add-tab">
+                <div class="card">
+                    <form id="hierarchy-form">
+                        <div class="form-group">
+                            <label for="trigger">Trigger (Situation/Thought/Object)</label>
+                            <input type="text" id="trigger" placeholder="E.g. Touching a doorknob, Thinking about contamination" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="suds">Distress Level (SUDS 0-100)</label>
+                            <div class="range-container">
+                                <input type="range" id="suds" min="0" max="100" value="50" step="5">
+                                <span class="range-value" id="suds-value">50</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">No distress</span>
+                                <span style="font-size: 12px; color: var(--text-secondary);">Maximum distress</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="compulsions">Associated Compulsions/Avoidance</label>
+                            <textarea id="compulsions" placeholder="Describe what compulsive behaviors you perform or what you avoid in this situation"></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">Add to Hierarchy</button>
+                            <button type="reset" class="btn btn-outline">Clear</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-content" id="view-tab">
+                <div class="card">
+                    <h2>Your Fear Hierarchy</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">Items are sorted from least to most distressing</p>
+                    
+                    <ul class="hierarchy-list" id="hierarchy-list">
+                        <!-- Items will be inserted here by JavaScript -->
+                    </ul>
+
+                    <div class="empty-state" id="empty-state">
+                        <p>No items in your hierarchy yet. Add your first item to get started.</p>
+                        <button class="btn btn-outline" id="add-first-item">Add First Item</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('hierarchy-form');
+            const sudsSlider = document.getElementById('suds');
+            const sudsValue = document.getElementById('suds-value');
+            const hierarchyList = document.getElementById('hierarchy-list');
+            const emptyState = document.getElementById('empty-state');
+            const addFirstItemBtn = document.getElementById('add-first-item');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            sudsSlider.addEventListener('input', function() {
+                sudsValue.textContent = this.value;
+            });
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(`${this.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+
+            addFirstItemBtn.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                document.querySelector('.tab[data-tab="add"]').classList.add('active');
+                document.getElementById('add-tab').classList.add('active');
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const trigger = document.getElementById('trigger').value;
+                const suds = parseInt(document.getElementById('suds').value);
+                const compulsions = document.getElementById('compulsions').value;
+                
+                const item = {
+                    id: Date.now(),
+                    trigger,
+                    suds,
+                    compulsions,
+                    date: new Date().toISOString().split('T')[0]
+                };
+                
+                saveItem(item);
+                form.reset();
+                sudsValue.textContent = '50';
+                renderHierarchy();
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                document.querySelector('.tab[data-tab="view"]').classList.add('active');
+                document.getElementById('view-tab').classList.add('active');
+            });
+
+            function saveItem(item) {
+                let items = JSON.parse(localStorage.getItem('fearHierarchy')) || [];
+                items.push(item);
+                items.sort((a, b) => a.suds - b.suds);
+                localStorage.setItem('fearHierarchy', JSON.stringify(items));
+            }
+
+            function renderHierarchy() {
+                const items = JSON.parse(localStorage.getItem('fearHierarchy')) || [];
+                
+                if (items.length === 0) {
+                    emptyState.style.display = 'block';
+                    hierarchyList.style.display = 'none';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                hierarchyList.style.display = 'block';
+                hierarchyList.innerHTML = '';
+                
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'hierarchy-item';
+                    li.innerHTML = `
+                        <div class="hierarchy-item-content">
+                            <div class="hierarchy-item-title">${item.trigger}</div>
+                            <div class="hierarchy-item-description">${item.compulsions || 'No compulsions described'}</div>
+                        </div>
+                        <div class="hierarchy-item-suds">${item.suds}</div>
+                    `;
+                    hierarchyList.appendChild(li);
+                });
+            }
+
+            renderHierarchy();
+        });
+    </script>
+</body>
+</html>

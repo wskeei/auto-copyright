@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备边缘计算与数据处理系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo svg {
+            margin-right: 10px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-left: 15px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0062b3;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--card-color);
+            color: var(--text-primary);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(90, 200, 250, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 15px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-deployed {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error-color);
+        }
+
+        .status-running {
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#0071E3"/>
+                    <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="#0071E3"/>
+                    <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" fill="#0071E3"/>
+                </svg>
+                边缘计算任务管理
+            </div>
+            <div class="user-profile">
+                <span>管理员</span>
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE4IDBDOC4wNTkgMCAwIDguMDU5IDAgMThTOC4wNTkgMzYgMTggMzZTMzYgMjcuOTQxIDM2IDE4UzI3Ljk0MSAwIDE4IDB6IiBmaWxsPSIjMDA3MWUzIi8+CjxwYXRoIGQ9Ik0xOCA4YzUuNTIzIDAgMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwLTEwLTQuNDc3LTEwLTEwIDQuNDc3LTEwIDEwLTEweiIgZmlsbD0iI2ZmZiIvPgo8cGF0aCBkPSJNMTggMTBjLTQuNDE4IDAtOCAzLjU4Mi04IDhzMy41ODIgOCA4IDggOC0zLjU4MiA4LThzLTMuNTgyLTgtOC04eiIgZmlsbD0iIzAwNzFlMyIvPgo8cGF0aCBkPSJNMTggMTNjLTIuNzYxIDAtNSAyLjIzOS01IDVzMi4yMzkgNSA1IDUgNS0yLjIzOSA1LTUtMi4yMzktNS01LTV6IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt="用户头像">
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">边缘计算任务</div>
+                <button class="btn btn-primary">创建新任务</button>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="task-name">任务名称</label>
+                    <input type="text" id="task-name" placeholder="输入任务名称">
+                </div>
+                <div class="filter-group">
+                    <label for="task-type">任务类型</label>
+                    <select id="task-type">
+                        <option value="">全部类型</option>
+                        <option value="data-filter">数据过滤</option>
+                        <option value="anomaly-detection">异常检测</option>
+                        <option value="local-control">本地控制逻辑</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="task-status">部署状态</label>
+                    <select id="task-status">
+                        <option value="">全部状态</option>
+                        <option value="deployed">已部署</option>
+                        <option value="pending">未部署</option>
+                        <option value="running">执行中</option>
+                        <option value="error">错误</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>任务名称</th>
+                        <th>任务类型</th>
+                        <th>目标设备/设备组</th>
+                        <th>部署状态</th>
+                        <th>修改时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>温度异常检测</td>
+                        <td>异常检测</td>
+                        <td>车间1-温控设备组</td>
+                        <td><span class="status status-running">执行中</span></td>
+                        <td>2024-06-15 14:30</td>
+                        <td class="actions">
+                            <button class="action-btn">编辑</button>
+                            <button class="action-btn">日志</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>数据预处理</td>
+                        <td>数据过滤</td>
+                        <td>所有边缘节点</td>
+                        <td><span class="status status-deployed">已部署</span></td>
+                        <td>2024-06-10 09:15</td>
+                        <td class="actions">
+                            <button class="action-btn">编辑</button>
+                            <button class="action-btn">日志</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>设备自动重启</td>
+                        <td>本地控制逻辑</td>
+                        <td>服务器节点1-3</td>
+                        <td><span class="status status-pending">未部署</span></td>
+                        <td>2024-06-05 16:45</td>
+                        <td class="actions">
+                            <button class="action-btn">编辑</button>
+                            <button class="action-btn">日志</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>能耗分析</td>
+                        <td>异常检测</td>
+                        <td>电力监测设备</td>
+                        <td><span class="status status-error">错误</span></td>
+                        <td>2024-05-28 11:20</td>
+                        <td class="actions">
+                            <button class="action-btn">编辑</button>
+                            <button class="action-btn">日志</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>视频流压缩</td>
+                        <td>数据过滤</td>
+                        <td>监控摄像头组</td>
+                        <td><span class="status status-deployed">已部署</span></td>
+                        <td>2024-05-20 13:10</td>
+                        <td class="actions">
+                            <button class="action-btn">编辑</button>
+                            <button class="action-btn">日志</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskNameInput = document.getElementById('task-name');
+            const taskTypeSelect = document.getElementById('task-type');
+            const taskStatusSelect = document.getElementById('task-status');
+            const tableRows = document.querySelectorAll('tbody tr');
+            const createBtn = document.querySelector('.btn-primary');
+
+            function filterTasks() {
+                const nameFilter = taskNameInput.value.toLowerCase();
+                const typeFilter = taskTypeSelect.value;
+                const statusFilter = taskStatusSelect.value;
+
+                tableRows.forEach(row => {
+                    const name = row.cells[0].textContent.toLowerCase();
+                    const type = row.cells[1].textContent;
+                    const status = row.cells[3].querySelector('.status').classList[1];
+
+                    const nameMatch = name.includes(nameFilter);
+                    const typeMatch = !typeFilter || 
+                        (typeFilter === 'data-filter' && type === '数据过滤') ||
+                        (typeFilter === 'anomaly-detection' && type === '异常检测') ||
+                        (typeFilter === 'local-control' && type === '本地控制逻辑');
+                    const statusMatch = !statusFilter || 
+                        (statusFilter === 'deployed' && status === 'status-deployed') ||
+                        (statusFilter === 'pending' && status === 'status-pending') ||
+                        (statusFilter === 'running' && status === 'status-running') ||
+                        (statusFilter === 'error' && status === 'status-error');
+
+                    if (nameMatch && typeMatch && statusMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            taskNameInput.addEventListener('input', filterTasks);
+            taskTypeSelect.addEventListener('change', filterTasks);
+            taskStatusSelect.addEventListener('change', filterTasks);
+
+            createBtn.addEventListener('click', function() {
+                alert('新任务创建功能将在后续版本中提供');
+            });
+
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.textContent;
+                    const taskName = this.closest('tr').cells[0].textContent;
+                    alert(`${action}任务: ${taskName}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

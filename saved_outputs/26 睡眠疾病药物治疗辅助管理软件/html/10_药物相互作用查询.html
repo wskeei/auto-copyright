@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠疾病药物治疗辅助管理</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+            --warning-color: #ff453a;
+            --caution-color: #ff9f0a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .version {
+            font-size: 14px;
+            color: #86868b;
+        }
+        
+        .main-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--background-color);
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+        
+        .checkbox-group {
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: #0062c3;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .interaction-result {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: rgba(255, 149, 10, 0.1);
+            border-left: 4px solid var(--caution-color);
+        }
+        
+        .interaction-high {
+            background-color: rgba(255, 69, 58, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .interaction-low {
+            background-color: rgba(52, 199, 89, 0.1);
+            border-left: 4px solid #34c759;
+        }
+        
+        .disclaimer {
+            font-size: 14px;
+            color: #86868b;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+        }
+        
+        .medication-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .selected-count {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 15px;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .flex-row > * {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .flex-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">睡眠疾病药物治疗辅助管理</div>
+            <div class="version">版本 1.0</div>
+        </header>
+        
+        <h1 class="main-title">药物相互作用查询</h1>
+        
+        <div class="card">
+            <h2 class="card-title">选择药物</h2>
+            <div class="form-group">
+                <label>从您的药物列表中选择</label>
+                <div class="medication-list" id="medicationList">
+                    <!-- 药物列表将通过JS动态生成 -->
+                </div>
+                <div class="selected-count" id="selectedCount">已选择 0 种药物</div>
+            </div>
+            
+            <div class="flex-row">
+                <button class="btn" id="checkInteractions">查询相互作用</button>
+                <button class="btn btn-secondary" id="clearSelection">清除选择</button>
+            </div>
+        </div>
+        
+        <div class="card result-container" id="resultContainer">
+            <h2 class="card-title">相互作用结果</h2>
+            <div id="interactionResults">
+                <!-- 结果将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            <p><strong>重要提示：</strong>本工具提供的药物相互作用信息仅供参考，不能替代专业医疗建议。实际药物相互作用可能因个体差异、剂量、用药时间等因素而有所不同。在使用任何药物组合前，请务必咨询医生或药剂师。</p>
+        </div>
+    </div>
+
+    <script>
+        // 药物数据
+        const medications = [
+            { id: 1, name: "唑吡坦 (Zolpidem)", category: "镇静催眠药" },
+            { id: 2, name: "艾司唑仑 (Estazolam)", category: "苯二氮䓬类" },
+            { id: 3, name: "地西泮 (Diazepam)", category: "苯二氮䓬类" },
+            { id: 4, name: "佐匹克隆 (Zopiclone)", category: "镇静催眠药" },
+            { id: 5, name: "米氮平 (Mirtazapine)", category: "抗抑郁药" },
+            { id: 6, name: "曲唑酮 (Trazodone)", category: "抗抑郁药" },
+            { id: 7, name: "普瑞巴林 (Pregabalin)", category: "抗惊厥药" },
+            { id: 8, name: "加巴喷丁 (Gabapentin)", category: "抗惊厥药" },
+            { id: 9, name: "氟西汀 (Fluoxetine)", category: "抗抑郁药" },
+            { id: 10, name: "帕罗西汀 (Paroxetine)", category: "抗抑郁药" },
+            { id: 11, name: "阿普唑仑 (Alprazolam)", category: "苯二氮䓬类" },
+            { id: 12, name: "氯硝西泮 (Clonazepam)", category: "苯二氮䓬类" },
+            { id: 13, name: "喹硫平 (Quetiapine)", category: "抗精神病药" },
+            { id: 14, name: "奥氮平 (Olanzapine)", category: "抗精神病药" },
+            { id: 15, name: "多塞平 (Doxepin)", category: "三环类抗抑郁药" }
+        ];
+
+        // 相互作用规则
+        const interactionRules = [
+            {
+                drugs: [1, 2, 3, 4, 11, 12],
+                severity: "high",
+                message: "这些药物均为中枢神经系统抑制剂，同时使用可能显著增加镇静作用，导致过度嗜睡、呼吸抑制等严重不良反应。"
+            },
+            {
+                drugs: [1, 5, 6],
+                severity: "medium",
+                message: "唑吡坦与米氮平或曲唑酮合用可能增强镇静作用，增加次日嗜睡和认知功能受损的风险。"
+            },
+            {
+                drugs: [2, 7, 8],
+                severity: "medium",
+                message: "艾司唑仑与普瑞巴林或加巴喷丁合用可能增强中枢神经系统抑制作用，需谨慎调整剂量。"
+            },
+            {
+                drugs: [9, 10, 13, 14],
+                severity: "low",
+                message: "这些药物可能通过不同机制影响睡眠，合用时需监测疗效和不良反应。"
+            },
+            {
+                drugs: [5, 15],
+                severity: "high",
+                message: "米氮平与多塞平合用可能显著增加抗胆碱能副作用和镇静作用，不推荐常规联用。"
+            },
+            {
+                drugs: [3, 9, 10],
+                severity: "medium",
+                message: "地西泮与氟西汀或帕罗西汀合用可能增加地西泮血药浓度，需考虑减少地西泮剂量。"
+            }
+        ];
+
+        // 初始化药物列表
+        const medicationListEl = document.getElementById('medicationList');
+        const selectedCountEl = document.getElementById('selectedCount');
+        const checkInteractionsBtn = document.getElementById('checkInteractions');
+        const clearSelectionBtn = document.getElementById('clearSelection');
+        const resultContainerEl = document.getElementById('resultContainer');
+        const interationResultsEl = document.getElementById('interactionResults');
+
+        let selectedMedications = [];
+
+        function renderMedicationList() {
+            medicationListEl.innerHTML = '';
+            medications.forEach(med => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `med-${med.id}`;
+                checkbox.value = med.id;
+                checkbox.checked = selectedMedications.includes(med.id);
+                checkbox.addEventListener('change', handleMedicationSelect);
+                
+                const label = document.createElement('label');
+                label.htmlFor = `med-${med.id}`;
+                label.textContent = `${med.name} (${med.category})`;
+                
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                medicationListEl.appendChild(div);
+            });
+            
+            updateSelectedCount();
+        }
+
+        function handleMedicationSelect(e) {
+            const medId = parseInt(e.target.value);
+            if (e.target.checked) {
+                if (!selectedMedications.includes(medId)) {
+                    selectedMedications.push(medId);
+                }
+            } else {
+                selectedMedications = selectedMedications.filter(id => id !== medId);
+            }
+            
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            selectedCountEl.textContent = `已选择 ${selectedMedications.length} 种药物`;
+        }
+
+        function clearSelection() {
+            selectedMedications = [];
+            renderMedicationList();
+            resultContainerEl.style.display = 'none';
+        }
+
+        function checkInteractions() {
+            if (selectedMedications.length < 2) {
+                alert('请至少选择两种药物进行相互作用查询');
+                return;
+            }
+            
+            const foundInteractions = [];
+            
+            interactionRules.forEach(rule => {
+                const matches = selectedMedications.filter(id => rule.drugs.includes(id)).length;
+                if (matches >= 2) {
+                    foundInteractions.push({
+                        severity: rule.severity,
+                        message: rule.message
+                    });
+                }
+            });
+            
+            displayResults(foundInteractions);
+        }
+
+        function displayResults(interactions) {
+            interationResultsEl.innerHTML = '';
+            
+            if (interactions.length === 0) {
+                const div = document.createElement('div');
+                div.className = 'interaction-result interaction-low';
+                div.textContent = '未发现已知的显著药物相互作用。但仍建议咨询医生确认。';
+                interationResultsEl.appendChild(div);
+            } else {
+                interactions.forEach(interaction => {
+                    const div = document.createElement('div');
+                    div.className = `interaction-result interaction-${interaction.severity}`;
+                    div.textContent = interaction.message;
+                    interationResultsEl.appendChild(div);
+                });
+            }
+            
+            resultContainerEl.style.display = 'block';
+        }
+
+        // 事件监听
+        checkInteractionsBtn.addEventListener('click', checkInteractions);
+        clearSelectionBtn.addEventListener('click', clearSelection);
+
+        // 初始化
+        renderMedicationList();
+    </script>
+</body>
+</html>

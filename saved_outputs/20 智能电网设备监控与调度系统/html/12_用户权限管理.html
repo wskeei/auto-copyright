@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能电网设备监控与调度系统 - 用户权限管理</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+            --disabled-color: #e5e5ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 32px;
+            margin-right: 12px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .main-title .badge {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-left: 12px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--danger-color);
+        }
+
+        .role-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(0, 113, 227, 0.1);
+            color: var(--primary-color);
+        }
+
+        .role-tag-operator {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .role-tag-viewer {
+            background-color: rgba(210, 210, 215, 0.3);
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            padding: 24px;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .page-item {
+            margin: 0 4px;
+        }
+
+        .page-link {
+            display: block;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .page-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .search-bar button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+
+        .empty-state img {
+            width: 120px;
+            opacity: 0.6;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyLDIwQTgsOCAwIDAsMSA0LDEyQTgsOCAwIDAsMSAxMiw0QTgsOCAwIDAsMSAyMCwxMkE4LDggMCAwLDEgMTIsMjBNMTIsMkExMCwxMCAwIDAsMCAyLDEyQTEwLDEwIDAgMCwwIDEyLDIyQTEwLDEwIDAgMCwwIDIyLDEyQTEwLDEwIDAgMCwwIDEyLDJaIi8+PC9zdmc+" alt="Logo">
+                <h1>智能电网设备监控与调度系统</h1>
+            </div>
+            <div class="user-info">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNzFlMyIgZD0iTTEyLDQuMjVDMTQuMjUsNC4yNSAxNiw2IDE2LDguMjVDMTYsMTAuNSAxNC4yNSwxMi4yNSAxMiwxMi4yNUM5Ljc1LDEyLjI1IDgsMTAuNSA4LDguMjVDOCw2IDkuNzUsNC4yNSAxMiw0LjI1TTEyLDE0LjI1QzE1LjUsMTQuMjUgMTguNSwxNi4yNSAxOC41LDE5Ljc1TDE4LjUsMjAuNzVDMTguNSwyMS4yNSAxOC4yNSwyMS41IDE3Ljc1LDIxLjVMNi4yNSwyMS41QzUuNzUsMjEuNSA1LjUsMjEuMjUgNS41LDIwLjc1TDUuNSwxOS43NUM1LjUsMTYuMjUgOC41LDE0LjI1IDEyLDE0LjI1WiIvPjwvc3ZnPg==" alt="User">
+                <div>
+                    <div class="user-name">管理员</div>
+                    <div class="user-role">系统管理员</div>
+                </div>
+            </div>
+        </header>
+
+        <h1 class="main-title">
+            用户权限管理
+            <span class="badge">v1.0</span>
+        </h1>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">用户列表</div>
+                <button class="btn btn-primary" id="addUserBtn">添加用户</button>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" placeholder="搜索用户名、姓名或邮箱...">
+                <button class="btn btn-primary">搜索</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>邮箱</th>
+                            <th>角色</th>
+                            <th>状态</th>
+                            <th>最后登录</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>admin</td>
+                            <td>系统管理员</td>
+                            <td>admin@powergrid.com</td>
+                            <td><span class="role-tag">管理员</span></td>
+                            <td><span class="status status-active">已启用</span></td>
+                            <td>2024-06-15 14:30</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-outline btn-sm">编辑</button>
+                                    <button class="btn btn-outline btn-sm">重置密码</button>
+                                    <button class="btn btn-outline btn-sm btn-danger">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>operator1</td>
+                            <td>张调度</td>
+                            <td>zhang@powergrid.com</td>
+                            <td><span class="role-tag role-tag-operator">调度员</span></td>
+                            <td><span class="status status-active">已启用</span></td>
+                            <td>2024-06-15 09:15</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-outline btn-sm">编辑</button>
+                                    <button class="btn btn-outline btn-sm">重置密码</button>
+                                    <button class="btn btn-outline btn-sm btn-danger">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>operator2</td>
+                            <td>李运维</td>
+                            <td>li@powergrid.com</td>
+                            <td><span class="role-tag role-tag-operator">运维员</span></td>
+                            <td><span class="status status-active">已启用</span></td>
+                            <td>2024-06-14 16:45</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-outline btn-sm">编辑</button>
+                                    <button class="btn btn-outline btn-sm">重置密码</button>
+                                    <button class="btn btn-outline btn-sm btn-danger">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>viewer1</td>
+                            <td>王查看</td>
+                            <td>wang@powergrid.com</td>
+                            <td><span class="role-tag role-tag-viewer">浏览者</span></td>
+                            <td><span class="status status-active">已启用</span></td>
+                            <td>2024-06-14 11:20</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-outline btn-sm">编辑</button>
+                                    <button class="btn btn-outline btn-sm">重置密码</button>
+                                    <button class="btn btn-outline btn-sm btn-danger">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>operator3</td>
+                            <td>赵运维</td>
+                            <td>zhao@powergrid.com</td>
+                            <td><span class="role-tag role-tag-operator">运维员</span></td>
+                            <td><span class="status status-inactive">已禁用</span></td>
+                            <td>2024-05-28 13:10</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-outline btn-sm">编辑</button>
+                                    <button class="btn btn-outline btn-sm">重置密码</button>
+                                    <button class="btn btn-outline btn-sm btn-success">启用</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="page-item">
+                    <a href="#" class="page-link">上一页</a>
+                </div>
+                <div class="page-item">
+                    <a href="#" class="page-link active">1</a>
+                </div>
+                <div class="page-item">
+                    <a href="#" class="page-link">2</a>
+                </div>
+                <div class="page-item">
+                    <a href="#" class="page-link">3</a>
+                </div>
+                <div class="page-item">
+                    <a href="#" class="page-link">下一页</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加新用户</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label for="fullname">姓名</label>
+                    <input type="text" id="fullname" placeholder="输入用户姓名" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" placeholder="输入用户邮箱" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">角色</label>
+                    <select id="role" required>
+                        <option value="">选择用户角色</option>
+                        <option value="admin">管理员</option>
+                        <option value="operator">调度员/运维员</option>
+                        <option value="viewer">浏览者</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">初始密码</label>
+                    <input type="password" id="password" placeholder="设置初始密码" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" placeholder="再次输入密码" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="cancelAddUser">取消</button>
+                    <button type="submit" class="btn btn-primary">添加用户</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal" id="resetPasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">重置密码</h3>
+                <button class="close-btn" id="closeResetModal">&times;</button>
+            </div>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" id="newPassword" placeholder="输入新密码" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">确认新密码</label>
+                    <input type="password" id="confirmNewPassword" placeholder="再次输入新密码" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="cancelReset">取消</button>
+                    <button type="submit" class="btn btn-primary">确认重置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addUserBtn = document.getElementById('addUserBtn');
+            const addUserModal = document.getElementById('addUserModal');
+            const closeModal = document.getElementById('closeModal');
+            const cancelAddUser = document.getElementById('cancelAddUser');
+            const addUserForm = document.getElementById('addUserForm');
+            
+            const resetPasswordModal = document.getElementById('resetPasswordModal');
+            const closeResetModal = document.getElementById('closeResetModal');
+            const cancelReset = document.getElementById('cancelReset');
+            const resetPasswordForm = document.getElementById('resetPasswordForm');
+            
+            const editButtons = document.querySelectorAll('.actions .btn:first-child');
+            const resetButtons = document.querySelectorAll('.actions .btn:nth-child(2)');
+            const toggleStatusButtons = document.querySelectorAll('.actions .btn:last-child');
+            
+            addUserBtn.addEventListener('click', function() {
+                addUserModal.classList.add('active');
+            });
+            
+            closeModal.addEventListener('click', function() {
+                addUserModal.classList.remove('active');
+            });
+            
+            cancelAddUser.addEventListener('click', function() {
+                addUserModal.classList.remove('active');
+            });
+            
+            closeResetModal.addEventListener('click', function() {
+                resetPasswordModal.classList.remove('active');
+            });
+            
+            cancelReset.addEventListener('click', function() {
+                resetPasswordModal.classList.remove('active');
+            });
+            
+            addUserForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                addUserModal.classList.remove('active');
+            });
+            
+            resetPasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                resetPasswordModal.classList.remove('active');
+            });
+            
+            resetButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    resetPasswordModal.classList.add('active');
+                });
+            });
+            
+            toggleStatusButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const statusCell = this.closest('tr').querySelector('.status');
+                    if (statusCell.classList.contains('status-active')) {
+                        statusCell.classList.remove('status-active');
+                        statusCell.classList.add('status-inactive');
+                        statusCell.textContent = '已禁用';
+                        this.classList.remove('btn-danger');
+                        this.classList.add('btn-success');
+                        this.textContent = '启用';
+                    } else {
+                        statusCell.classList.remove('status-inactive');
+                        statusCell.classList.add('status-active');
+                        statusCell.textContent = '已启用';
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-danger');
+                        this.textContent = '禁用';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

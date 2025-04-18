@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠疾病药物治疗辅助管理 - 不良反应记录</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #2997ff;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .records-list {
+            margin-top: 30px;
+        }
+        
+        .record-item {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .record-date {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .record-drug {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .record-severity {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+        
+        .severity-mild {
+            background-color: #f5f5f7;
+            color: var(--text-primary);
+        }
+        
+        .severity-moderate {
+            background-color: #ffd966;
+            color: #5c3b00;
+        }
+        
+        .severity-severe {
+            background-color: #ff3b30;
+            color: white;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-group select {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">睡眠治疗辅助</div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">用药记录</a></li>
+                    <li><a href="#">不良反应</a></li>
+                    <li><a href="#">数据分析</a></li>
+                    <li><a href="#">设置</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <div class="card">
+            <h2 class="card-title">记录不良反应</h2>
+            <form id="sideEffectForm">
+                <div class="form-group">
+                    <label for="date">日期</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="drug">关联药物 (可选)</label>
+                    <select id="drug">
+                        <option value="">-- 请选择 --</option>
+                        <option value="唑吡坦">唑吡坦</option>
+                        <option value="艾司佐匹克隆">艾司佐匹克隆</option>
+                        <option value="雷美替胺">雷美替胺</option>
+                        <option value="苏沃雷生">苏沃雷生</option>
+                        <option value="多塞平">多塞平</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="symptoms">症状描述</label>
+                    <textarea id="symptoms" placeholder="请详细描述您体验到的症状..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="severity">严重程度</label>
+                    <select id="severity" required>
+                        <option value="">-- 请选择 --</option>
+                        <option value="mild">轻微 - 不影响日常活动</option>
+                        <option value="moderate">中等 - 部分影响日常活动</option>
+                        <option value="severe">严重 - 无法进行日常活动</option>
+                    </select>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn">保存记录</button>
+                    <button type="reset" class="btn btn-secondary">重置表单</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">不良反应记录</h2>
+            
+            <div class="filter-group">
+                <select id="filterDrug">
+                    <option value="">所有药物</option>
+                    <option value="唑吡坦">唑吡坦</option>
+                    <option value="艾司佐匹克隆">艾司佐匹克隆</option>
+                    <option value="雷美替胺">雷美替胺</option>
+                    <option value="苏沃雷生">苏沃雷生</option>
+                    <option value="多塞平">多塞平</option>
+                    <option value="其他">其他</option>
+                </select>
+                
+                <select id="filterSeverity">
+                    <option value="">所有严重程度</option>
+                    <option value="mild">轻微</option>
+                    <option value="moderate">中等</option>
+                    <option value="severe">严重</option>
+                </select>
+            </div>
+            
+            <div class="records-list" id="recordsList">
+                <!-- 记录将在这里动态加载 -->
+                <div class="no-records">暂无不良反应记录</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('sideEffectForm');
+            const recordsList = document.getElementById('recordsList');
+            const filterDrug = document.getElementById('filterDrug');
+            const filterSeverity = document.getElementById('filterSeverity');
+            
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // 加载记录
+            loadRecords();
+            
+            // 表单提交
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const record = {
+                    id: Date.now(),
+                    date: document.getElementById('date').value,
+                    drug: document.getElementById('drug').value,
+                    symptoms: document.getElementById('symptoms').value,
+                    severity: document.getElementById('severity').value
+                };
+                
+                saveRecord(record);
+                form.reset();
+                document.getElementById('date').value = today;
+                loadRecords();
+            });
+            
+            // 筛选记录
+            filterDrug.addEventListener('change', loadRecords);
+            filterSeverity.addEventListener('change', loadRecords);
+            
+            function saveRecord(record) {
+                let records = JSON.parse(localStorage.getItem('sideEffectRecords')) || [];
+                records.push(record);
+                localStorage.setItem('sideEffectRecords', JSON.stringify(records));
+            }
+            
+            function loadRecords() {
+                let records = JSON.parse(localStorage.getItem('sideEffectRecords')) || [];
+                
+                // 应用筛选
+                const drugFilter = filterDrug.value;
+                const severityFilter = filterSeverity.value;
+                
+                if (drugFilter) {
+                    records = records.filter(record => record.drug === drugFilter);
+                }
+                
+                if (severityFilter) {
+                    records = records.filter(record => record.severity === severityFilter);
+                }
+                
+                // 按日期降序排序
+                records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // 显示记录
+                if (records.length === 0) {
+                    recordsList.innerHTML = '<div class="no-records">暂无不良反应记录</div>';
+                    return;
+                }
+                
+                recordsList.innerHTML = '';
+                
+                records.forEach(record => {
+                    const severityText = {
+                        'mild': '轻微',
+                        'moderate': '中等',
+                        'severe': '严重'
+                    };
+                    
+                    const severityClass = {
+                        'mild': 'severity-mild',
+                        'moderate': 'severity-moderate',
+                        'severe': 'severity-severe'
+                    };
+                    
+                    const recordEl = document.createElement('div');
+                    recordEl.className = 'record-item';
+                    recordEl.innerHTML = `
+                        <div class="record-header">
+                            <span class="record-date">${formatDate(record.date)}</span>
+                            ${record.drug ? `<span class="record-drug">${record.drug}</span>` : ''}
+                        </div>
+                        <p>${record.symptoms}</p>
+                        <span class="record-severity ${severityClass[record.severity]}">${severityText[record.severity]}</span>
+                    `;
+                    
+                    recordsList.appendChild(recordEl);
+                });
+            }
+            
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('zh-CN', options);
+            }
+        });
+    </script>
+</body>
+</html>

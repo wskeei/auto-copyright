@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物联网设备远程控制系统 - 个人中心</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #147ce5;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --error-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            gap: 30px;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            flex: 1;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .avatar-container {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--primary-color);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .user-info h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 25px 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .avatar-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .avatar-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .password-hint {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .status-message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(52, 199, 89, 0.2);
+        }
+
+        .error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .menu-item.active {
+            background-color: rgba(0, 113, 227, 0.1);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .user-profile {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .avatar-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">🌐</span>
+                <span>物联网设备远程控制系统</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">设备管理</a></li>
+                    <li><a href="#">数据分析</a></li>
+                    <li><a href="#">告警中心</a></li>
+                    <li><a href="#">系统设置</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="user-profile">
+            <div class="sidebar">
+                <div class="sidebar-menu">
+                    <div class="menu-item active">
+                        <i>👤</i>个人资料
+                    </div>
+                    <div class="menu-item">
+                        <i>🔒</i>安全设置
+                    </div>
+                    <div class="menu-item">
+                        <i>🔔</i>通知偏好
+                    </div>
+                    <div class="menu-item">
+                        <i>🔄</i>数据同步
+                    </div>
+                    <div class="menu-item">
+                        <i>❓</i>帮助中心
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="status-message success">个人资料已更新</div>
+                <div class="status-message error">旧密码不正确</div>
+
+                <div class="profile-header">
+                    <div class="avatar-container">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="avatar" id="userAvatar">
+                        <div class="avatar-edit" id="editAvatar">✏️</div>
+                    </div>
+                    <div class="user-info">
+                        <h2 id="usernameDisplay">张伟</h2>
+                        <p>注册时间: 2023年4月</p>
+                    </div>
+                </div>
+
+                <div id="profileForm">
+                    <div class="form-group">
+                        <label for="nickname">昵称</label>
+                        <input type="text" id="nickname" class="form-control" value="张伟">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">电子邮箱</label>
+                        <input type="email" id="email" class="form-control" value="zhangwei@example.com" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">联系电话</label>
+                        <input type="tel" id="phone" class="form-control" value="13800138000">
+                    </div>
+
+                    <div class="form-group">
+                        <label>地区</label>
+                        <select class="form-control">
+                            <option>中国大陆</option>
+                            <option>香港特别行政区</option>
+                            <option>澳门特别行政区</option>
+                            <option>台湾地区</option>
+                            <option>其他地区</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>时区</label>
+                        <select class="form-control">
+                            <option>(UTC+08:00) 北京，重庆，香港，乌鲁木齐</option>
+                            <option>(UTC+09:00) 东京，首尔</option>
+                            <option>(UTC-05:00) 纽约</option>
+                            <option>(UTC+00:00) 伦敦</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" id="saveProfile">保存更改</button>
+                </div>
+
+                <div id="avatarSelector" class="hidden">
+                    <div class="section-title">选择头像</div>
+                    <div class="avatar-grid">
+                        <img src="https://randomuser.me/api/portraits/men/1.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/women/2.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/men/3.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/women/4.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/men/5.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/women/6.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/men/7.jpg" class="avatar-option">
+                        <img src="https://randomuser.me/api/portraits/women/8.jpg" class="avatar-option">
+                    </div>
+                    <div class="form-group">
+                        <label>或上传自定义头像</label>
+                        <input type="file" id="avatarUpload" accept="image/*" class="form-control">
+                    </div>
+                    <button class="btn btn-outline" id="cancelAvatar">取消</button>
+                    <button class="btn btn-primary" id="confirmAvatar">确认选择</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section-title">修改密码</div>
+                <div class="form-group">
+                    <label for="currentPassword">当前密码</label>
+                    <input type="password" id="currentPassword" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" id="newPassword" class="form-control">
+                    <div class="password-strength">
+                        <div class="strength-bar" id="passwordStrength"></div>
+                    </div>
+                    <div class="password-hint">密码至少8个字符，包含字母和数字</div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码</label>
+                    <input type="password" id="confirmPassword" class="form-control">
+                </div>
+                <button class="btn btn-primary" id="changePassword">更改密码</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const editAvatarBtn = document.getElementById('editAvatar');
+            const avatarSelector = document.getElementById('avatarSelector');
+            const profileForm = document.getElementById('profileForm');
+            const cancelAvatarBtn = document.getElementById('cancelAvatar');
+            const confirmAvatarBtn = document.getElementById('confirmAvatar');
+            const avatarOptions = document.querySelectorAll('.avatar-option');
+            const userAvatar = document.getElementById('userAvatar');
+            const avatarUpload = document.getElementById('avatarUpload');
+            const saveProfileBtn = document.getElementById('saveProfile');
+            const changePasswordBtn = document.getElementById('changePassword');
+            const newPasswordInput = document.getElementById('newPassword');
+            const passwordStrengthBar = document.getElementById('passwordStrength');
+            const successMessage = document.querySelector('.status-message.success');
+            const errorMessage = document.querySelector('.status-message.error');
+            const nicknameInput = document.getElementById('nickname');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+
+            let selectedAvatar = null;
+
+            editAvatarBtn.addEventListener('click', function() {
+                profileForm.classList.add('hidden');
+                avatarSelector.classList.remove('hidden');
+            });
+
+            cancelAvatarBtn.addEventListener('click', function() {
+                profileForm.classList.remove('hidden');
+                avatarSelector.classList.add('hidden');
+                selectedAvatar = null;
+                avatarUpload.value = '';
+            });
+
+            avatarOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedAvatar = this.src;
+                    avatarUpload.value = '';
+                });
+            });
+
+            avatarUpload.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        selectedAvatar = event.target.result;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            confirmAvatarBtn.addEventListener('click', function() {
+                if (selectedAvatar) {
+                    userAvatar.src = selectedAvatar;
+                }
+                profileForm.classList.remove('hidden');
+                avatarSelector.classList.add('hidden');
+                selectedAvatar = null;
+                avatarUpload.value = '';
+            });
+
+            saveProfileBtn.addEventListener('click', function() {
+                usernameDisplay.textContent = nicknameInput.value;
+                showSuccessMessage('个人资料已更新');
+            });
+
+            newPasswordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length >= 8) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+                
+                let width = strength * 25;
+                let color = '#ff3b30';
+                
+                if (strength >= 2) color = '#ff9500';
+                if (strength >= 3) color = '#34c759';
+                
+                passwordStrengthBar.style.width = width + '%';
+                passwordStrengthBar.style.backgroundColor = color;
+            });
+
+            changePasswordBtn.addEventListener('click', function() {
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    showErrorMessage('请填写所有密码字段');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showErrorMessage('新密码与确认密码不匹配');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    showErrorMessage('密码长度至少为8个字符');
+                    return;
+                }
+                
+                if (!/[0-9]/.test(newPassword) || !/[a-zA-Z]/.test(newPassword)) {
+                    showErrorMessage('密码必须包含字母和数字');
+                    return;
+                }
+                
+                showSuccessMessage('密码已成功更改');
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                passwordStrengthBar.style.width = '0';
+            });
+
+            function showSuccessMessage(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            function showErrorMessage(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

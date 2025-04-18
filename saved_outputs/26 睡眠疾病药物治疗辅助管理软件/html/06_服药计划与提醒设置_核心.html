@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠药物管理 - 服药计划</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --secondary-color: #5ac8fa;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--card-color);
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .time-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .time-input input {
+            max-width: 100px;
+            margin-right: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0062c3;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .medication-list {
+            margin-top: 30px;
+        }
+
+        .medication-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .medication-item:last-child {
+            border-bottom: none;
+        }
+
+        .medication-info {
+            flex: 1;
+        }
+
+        .medication-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .medication-schedule {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .medication-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .notification-permission {
+            background-color: #f8f8fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-text {
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            nav ul {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">睡眠药物管理</div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">药物库</a></li>
+                    <li><a href="#" class="active">服药计划</a></li>
+                    <li><a href="#">睡眠记录</a></li>
+                    <li><a href="#">个人中心</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <h1>服药计划与提醒设置</h1>
+
+            <div class="card">
+                <div class="card-title">添加新服药计划</div>
+                
+                <div class="form-group">
+                    <label for="medication">选择药物</label>
+                    <select id="medication">
+                        <option value="">-- 请选择药物 --</option>
+                        <option value="melatonin">褪黑素 (Melatonin)</option>
+                        <option value="zolpidem">唑吡坦 (Zolpidem)</option>
+                        <option value="eszopiclone">艾司佐匹克隆 (Eszopiclone)</option>
+                        <option value="trazodone">曲唑酮 (Trazodone)</option>
+                        <option value="doxepin">多塞平 (Doxepin)</option>
+                        <option value="ramelteon">雷美替胺 (Ramelteon)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dosage">剂量</label>
+                    <select id="dosage">
+                        <option value="0.5mg">0.5mg</option>
+                        <option value="1mg">1mg</option>
+                        <option value="2mg">2mg</option>
+                        <option value="3mg">3mg</option>
+                        <option value="5mg">5mg</option>
+                        <option value="10mg">10mg</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>服药时间</label>
+                    <div class="time-input">
+                        <input type="time" id="medication-time" value="22:00">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>重复周期</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="everyday" checked>
+                            <label for="everyday">每天</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="monday">
+                            <label for="monday">周一</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tuesday">
+                            <label for="tuesday">周二</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="wednesday">
+                            <label for="wednesday">周三</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="thursday">
+                            <label for="thursday">周四</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="friday">
+                            <label for="friday">周五</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="saturday">
+                            <label for="saturday">周六</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sunday">
+                            <label for="sunday">周日</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>启用提醒</label>
+                    <label class="switch">
+                        <input type="checkbox" id="reminder-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="notification-permission" id="notification-permission" style="display: none;">
+                    <div class="notification-text">需要您的授权才能发送服药提醒通知</div>
+                    <button class="btn btn-secondary" id="request-permission">授权通知</button>
+                </div>
+
+                <button class="btn" id="save-plan">保存计划</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">当前服药计划</div>
+                
+                <div class="medication-list" id="medication-list">
+                    <div class="medication-item">
+                        <div class="medication-info">
+                            <div class="medication-name">褪黑素 (Melatonin) - 3mg</div>
+                            <div class="medication-schedule">每天 22:00 | 提醒已开启</div>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="btn btn-secondary">编辑</button>
+                            <button class="btn btn-secondary">删除</button>
+                        </div>
+                    </div>
+                    
+                    <div class="medication-item">
+                        <div class="medication-info">
+                            <div class="medication-name">唑吡坦 (Zolpidem) - 10mg</div>
+                            <div class="medication-schedule">周一, 周三, 周五 21:30 | 提醒已关闭</div>
+                        </div>
+                        <div class="medication-actions">
+                            <button class="btn btn-secondary">编辑</button>
+                            <button class="btn btn-secondary">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>睡眠疾病药物治疗辅助管理软件 版本 1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const savePlanBtn = document.getElementById('save-plan');
+            const reminderToggle = document.getElementById('reminder-toggle');
+            const notificationPermission = document.getElementById('notification-permission');
+            const requestPermissionBtn = document.getElementById('request-permission');
+            const medicationList = document.getElementById('medication-list');
+
+            function checkNotificationPermission() {
+                if (reminderToggle.checked && Notification.permission !== 'granted') {
+                    notificationPermission.style.display = 'flex';
+                } else {
+                    notificationPermission.style.display = 'none';
+                }
+            }
+
+            reminderToggle.addEventListener('change', checkNotificationPermission);
+
+            requestPermissionBtn.addEventListener('click', function() {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        notificationPermission.style.display = 'none';
+                    }
+                });
+            });
+
+            savePlanBtn.addEventListener('click', function() {
+                const medication = document.getElementById('medication').value;
+                const dosage = document.getElementById('dosage').value;
+                const time = document.getElementById('medication-time').value;
+                const reminderEnabled = reminderToggle.checked;
+                
+                if (!medication) {
+                    alert('请选择药物');
+                    return;
+                }
+
+                const medicationName = document.getElementById('medication').options[document.getElementById('medication').selectedIndex].text;
+                
+                let schedule = '';
+                const everyday = document.getElementById('everyday').checked;
+                if (everyday) {
+                    schedule = '每天';
+                } else {
+                    const days = [];
+                    if (document.getElementById('monday').checked) days.push('周一');
+                    if (document.getElementById('tuesday').checked) days.push('周二');
+                    if (document.getElementById('wednesday').checked) days.push('周三');
+                    if (document.getElementById('thursday').checked) days.push('周四');
+                    if (document.getElementById('friday').checked) days.push('周五');
+                    if (document.getElementById('saturday').checked) days.push('周六');
+                    if (document.getElementById('sunday').checked) days.push('周日');
+                    schedule = days.join(', ');
+                }
+
+                const reminderStatus = reminderEnabled ? '提醒已开启' : '提醒已关闭';
+
+                const medicationItem = document.createElement('div');
+                medicationItem.className = 'medication-item';
+                medicationItem.innerHTML = `
+                    <div class="medication-info">
+                        <div class="medication-name">${medicationName} - ${dosage}</div>
+                        <div class="medication-schedule">${schedule} ${time} | ${reminderStatus}</div>
+                    </div>
+                    <div class="medication-actions">
+                        <button class="btn btn-secondary">编辑</button>
+                        <button class="btn btn-secondary">删除</button>
+                    </div>
+                `;
+
+                medicationList.prepend(medicationItem);
+
+                medicationItem.querySelector('.medication-actions button:last-child').addEventListener('click', function() {
+                    medicationItem.remove();
+                });
+
+                if (reminderEnabled && Notification.permission === 'granted') {
+                    scheduleNotification(medicationName, dosage, time);
+                }
+            });
+
+            function scheduleNotification(medication, dosage, time) {
+                const now = new Date();
+                const [hours, minutes] = time.split(':').map(Number);
+                const notificationTime = new Date();
+                notificationTime.setHours(hours, minutes, 0, 0);
+
+                if (notificationTime < now) {
+                    notificationTime.setDate(notificationTime.getDate() + 1);
+                }
+
+                const timeout = notificationTime.getTime() - now.getTime();
+
+                setTimeout(() => {
+                    new Notification('服药提醒', {
+                        body: `该服用 ${medication} (${dosage}) 了`,
+                        icon: 'https://example.com/icon.png'
+                    });
+                }, timeout);
+            }
+
+            checkNotificationPermission();
+        });
+    </script>
+</body>
+</html>

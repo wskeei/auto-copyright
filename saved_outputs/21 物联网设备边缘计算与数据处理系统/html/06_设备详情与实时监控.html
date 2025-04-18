@@ -1,0 +1,639 @@
+物联网设备边缘计算与数据处理系统 - 设备详情与实时监控
+html
+复制
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备详情与实时监控 | 物联网边缘计算系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+            --success-color: #34c759;
+            --warning-color: #ff9500;
+            --danger-color: #ff3b30;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .back-button:hover {
+            background-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .device-detail-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .device-info-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .device-info-card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-warning {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-offline {
+            background-color: rgba(210, 210, 215, 0.5);
+            color: var(--text-secondary);
+        }
+
+        .monitoring-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .monitoring-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .monitoring-header h2 {
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .refresh-button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .sensor-card {
+            background-color: var(--background);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .sensor-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .sensor-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sensor-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .sensor-trend {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .trend-up {
+            color: var(--danger-color);
+        }
+
+        .trend-down {
+            color: var(--success-color);
+        }
+
+        .trend-neutral {
+            color: var(--text-secondary);
+        }
+
+        .video-placeholder {
+            background-color: #e8e8ed;
+            border-radius: 8px;
+            height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .system-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            background-color: var(--background);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #e8e8ed;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .cpu-progress {
+            background-color: var(--primary-light);
+        }
+
+        .memory-progress {
+            background-color: var(--warning-color);
+        }
+
+        .network-progress {
+            background-color: var(--success-color);
+        }
+
+        .actions-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .actions-header {
+            margin-bottom: 16px;
+        }
+
+        .actions-header h2 {
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .action-button {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-button:hover {
+            background-color: var(--background);
+        }
+
+        .action-button.primary {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .action-button.primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .action-button.warning {
+            background-color: var(--warning-color);
+            color: white;
+            border-color: var(--warning-color);
+        }
+
+        .action-button.warning:hover {
+            background-color: #ffaa33;
+        }
+
+        .action-button.danger {
+            background-color: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .action-button.danger:hover {
+            background-color: #ff5a50;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            margin-bottom: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .modal-button.secondary {
+            background-color: var(--background);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-button.primary {
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>设备详情与实时监控</h1>
+            <button class="back-button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                返回设备列表
+            </button>
+        </div>
+
+        <div class="device-detail-container">
+            <div class="device-info-card">
+                <h2>设备信息</h2>
+                <div class="info-row">
+                    <span class="info-label">设备名称</span>
+                    <span class="info-value">温湿度传感器 #A203</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">设备类型</span>
+                    <span class="info-value">环境传感器</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">设备ID</span>
+                    <span class="info-value">SN-2024-06-0012</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">厂商</span>
+                    <span class="info-value">TechSense Inc.</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">型号</span>
+                    <span class="info-value">TH-3000</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">固件版本</span>
+                    <span class="info-value">v2.1.4</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">接入时间</span>
+                    <span class="info-value">2024-06-15 14:30</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">最后活跃</span>
+                    <span class="info-value">几秒前</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">状态</span>
+                    <span class="info-value"><span class="status-badge status-active">在线</span></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">位置</span>
+                    <span class="info-value">B栋3楼会议室</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">IP地址</span>
+                    <span class="info-value">192.168.3.42</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h2>实时数据监控</h2>
+                        <button class="refresh-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C15.0396 2 17.7717 3.30367 19.6569 5.34315" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M22 4V8H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            刷新
+                        </button>
+                    </div>
+                    <div class="sensor-grid">
+                        <div class="sensor-card">
+                            <div class="sensor-title">温度</div>
+                            <div class="sensor-value" id="temperature-value">23.5</div>
+                            <div class="sensor-unit">°C</div>
+                            <div class="sensor-trend trend-neutral">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                较稳定
+                            </div>
+                        </div>
+                        <div class="sensor-card">
+                            <div class="sensor-title">湿度</div>
+                            <div class="sensor-value" id="humidity-value">45.2</div>
+                            <div class="sensor-unit">%RH</div>
+                            <div class="sensor-trend trend-down">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                下降 0.3%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h2>视频监控</h2>
+                        <div>
+                            <select style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-primary); font-size: 14px;">
+                                <option>主摄像头</option>
+                                <option>红外摄像头</option>
+                                <option disabled>广角摄像头 (离线)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="video-placeholder">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 10L19.5528 7.72361C20.2177 7.39116 21 7.87465 21 8.61803V15.382C21 16.1253 20.2177 16.6088 19.5528 16.2764L15 14M5 18H13C14.1046 18 15 17.1046 15 16V8C15 6.89543 14.1046 6 13 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="action-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M19.4 15C19.2669 15.3016 19.227 15.6363 19.2863 15.9605C19.3455 16.2847 19.5009 16.5819 19.73 16.81L19.79 16.87C19.9069 16.9856 19.9963 17.1258 20.0518 17.2805C20.1072 17.4352 20.1274 17.6005 20.111 17.7642C20.0946 17.9279 20.042 18.086 19.957 18.227C19.872 18.368 19.7569 18.4882 19.62 18.58C18.726 19.1415 17.7202 19.5026 16.6699 19.6371C15.6196 19.7716 14.5502 19.6758 13.544 19.3578C12.5378 19.0397 11.6206 18.5082 10.86 17.8039C10.0994 17.0996 9.51503 16.2414 9.151 15.2969C8.78697 14.3524 8.65245 13.347 8.75699 12.3517C8.86153 11.3564 9.20239 10.3977 9.75 9.55" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M4.6 9C4.73315 8.69842 4.77296 8.36368 4.7137 8.03947C4.65445 7.71526 4.49914 7.4181 4.27 7.19L4.21 7.13C4.09308 7.01445 4.00366 6.87418 3.94822 6.71949C3.89278 6.5648 3.87261 6.39953 3.88901 6.23583C3.9054 6.07213 3.95799 5.91403 4.04299 5.77303C4.12798 5.63202 4.24315 5.51179 4.38 5.42C5.274 4.85854 6.27979 4.49744 7.3301 4.3629C8.38041 4.22836 9.44985 4.32418 10.456 4.64223C11.4622 4.96028 12.3794 5.49183 13.14 6.19606C13.9006 6.90029 14.485 7.75857 14.849 8.70308C15.213 9.64759 15.3476 10.653 15.243 11.6483C15.1385 12.6436 14.7976 13.6023 14.25 14.45" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            拍照
+                        </button>
+                        <button class="action-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.4875 4.41645 21.838 5.6873 21.9447 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            调整画质
+                        </button>
+                        <button class="action-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            录制 (00:00)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="monitoring-card">
+                    <div class="monitoring-header">
+                        <h2>系统资源</h2>
+                        <div>
+                            <select style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-primary); font-size: 14px;">
+                                <option>边缘网关 #G-204</option>
+                                <option>边缘网关 #G-205</option>
+                                <option>边缘网关 #G-206</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="system-stats">
+                        <div class="stat-card">
+                            <div class="stat-title">CPU 使用率</div>
+                            <div class="stat-value" id="cpu-value">32%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill cpu-progress" style="width: 32%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">内存使用</div>
+                            <div class="stat-value" id="memory-value">64%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill memory-progress" style="width: 64%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">网络负载</div>
+                            <div class="stat-value" id="network-value">18%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill network-progress" style="width: 18%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-card">
+                    <div class="actions-header">
+                        <h2>设备控制</h2>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C15.3019 3 18.1885 4.77814 19.7545 7.42909" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            同步数据
+                        </button>
+                        <button class="action-button warning" id="restart-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 15C14 16.1046 13.1046 17 12 17C10.8954 17 10 16.1046 10 15C10 13.8954 10.8954 13 12 13C13.1046 13 14 13.8954 14 15Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M12 9V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M7.00023 18C5.77019 16.5048 5 14.6576 5 12.7069C5 8.22868 8.80558 4.64771 13.4818 4.07911C14.4726 3.93399 15 4.89543 15 5.8457V6.85027C15 7.72388 14.1699 8.36946 13.3195 8.20513C11.1723 7.78088 9.20047 9.4547 9.20047 11.5998C9.20047 13.1984 10.3194 14.6155 11.8963 14.9637C12.8433 15.172 13.6 15.9656 13.6 16.9381V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M19 10V18M19 18L16 15M19 18L22 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            重启设备
+                        </button>
+                        <button class="action-button primary" id="update-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M19.4 15C19.2669 15.3016 19.227 15.6363 19.2863 15.9605C19.3455 16.2847 19.5009 16.5819 19.73 16.81L19.79 16.87C19.9069 16.9856 19.9963 17.1258 20.0518 17.2805C20.1072 17.4352 20.1274 17.6005 20.111 17.7642C20.0946 17.9279 20.042 18.086 19.957 18.227C19.872 18.368 19.7569 18.4882 19.62 18.58C18.726 19.1415 17.7202 19.5026 16.6699 19.6371C15.6196 19.7716 14.5502 19.6758 13.544 19.3578C12.5378 19.0397 11.6206 18.5082 10.86 17.8039C10.0994 17.0996 9.51503 16.2414 9.151 15.2969C8.78697 14.3524 8.65245 13.347 8.75699 12.3517C8.86153 11.3564 9.20239 10.3977 9.75 9.55" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M4.6 9C4.73315 8.69842 4.77296 8.36368 4.7137 8.03947C4.65445 7.71526 4.49914 7.4181 4.27 7.19L4.21 7.13C4.09308 7.01445 4.00366 6.87418 3.94822 6.71949C3.89278 6.5648 3.87261 6.39953 3.88901 6.23583C3.9054 6.07213 3.95799 5.91403 4.04299 5.77303C4.12798 5.63202 4.24315 5.51179 4.38 5.42C5.274 4.85854 6.27979 4.49744 7.3301 4.3629C8.38041 4.22836 9.44985 4.32418 10.456 4.64223C11.4622 4.96028 12.3794 5.49183 13.14 6.19606C13.9006 6.90029 14.485 7.75857 14.849 8.70308C15.213 9.64759 15.3476 10.653 15.243 11.6483C15.1385 12.6436 14.7976 13.6023 14.25 14.45" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            固件更新
+                        </button>
+                        <button class="action-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M19.4 15C19.2669 15.3016 19.227 15.6363 19.2863 15.9605C19.3455 16.2847 19.5009 16.5819 19.73 16.81L19.79 16.87C19.9069 16.9856 19.9963 17.1258 20.0518 17.2805C20.1072 17.4352 20.1274 17.6005 20.111 17.7642C20.0946 17.9279 20.042 18.086 19.957 18.227C19.872 18.368 19.7569 18.4882 19.62 18.58C18.726 19.1415 17.7202 19.5026 16.6699 19.6371C15.6196 19.7716 14.5502 19.6758 13.544 19.3578C12.5378 19.0397 11.6206 18.5082 10.86 17.8039C10.0994 17.0996 9.51503 16.2414 9.151 15.2969C8.78697 14.3524 8.65245 13.347 8.75699 12.3517C8.86153 11.3564 9.20239 10.3977 9.75 9.55" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M4.6 9C4.73315 8.69842 4.77296 8.36368 4.7137 8.03947C4.65445 7.71526 4.
+运行 HTML

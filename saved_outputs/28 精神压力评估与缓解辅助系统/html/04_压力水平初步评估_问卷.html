@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精神压力评估与缓解辅助系统</title>
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-light: #2997ff;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: #d2d2d7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .version {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            border-color: var(--primary-light);
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .option-radio {
+            margin-right: 12px;
+            accent-color: var(--primary-color);
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 30px 0;
+            display: none;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .result-level {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .result-description {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            color: var(--text-secondary);
+        }
+
+        .result-image {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 25px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+
+        .recommendations {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .recommendation-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 25px 0 15px;
+            color: var(--primary-color);
+        }
+
+        .recommendation-list {
+            list-style-type: none;
+        }
+
+        .recommendation-item {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .recommendation-item:before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 20px;
+            margin-left: -20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">精神压力评估与缓解辅助系统</div>
+            <div class="version">版本 1.0</div>
+        </header>
+
+        <div class="card">
+            <div class="card-title">压力水平初步评估</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div id="questionnaireContainer">
+                <div class="question-container" id="question1">
+                    <div class="question-text">1. 在过去一个月里，你有多经常因为发生意外的事情而感到烦恼?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="0" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="1" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="3" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q1" value="4" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question2">
+                    <div class="question-text">2. 在过去一个月里，你有多经常感到无法控制生活中重要的事情?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="0" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="1" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="3" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q2" value="4" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question3">
+                    <div class="question-text">3. 在过去一个月里，你有多经常感到紧张或有压力?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="0" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="1" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="3" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q3" value="4" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question4">
+                    <div class="question-text">4. 在过去一个月里，你有多经常对自己处理个人问题的能力感到有信心?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="4" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="3" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="1" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q4" value="0" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question5">
+                    <div class="question-text">5. 在过去一个月里，你有多经常感到事情的发展如你所愿?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="4" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="3" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="1" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q5" value="0" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question6">
+                    <div class="question-text">6. 在过去一个月里，你有多经常发现你无法应付所有必须做的事情?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="0" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="1" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="3" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q6" value="4" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question7">
+                    <div class="question-text">7. 在过去一个月里，你有多经常能够控制生活中的恼怒情绪?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="4" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="3" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="1" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q7" value="0" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question8">
+                    <div class="question-text">8. 在过去一个月里，你有多经常感到处理事情得心应手?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="4" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="3" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="1" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q8" value="0" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question9">
+                    <div class="question-text">9. 在过去一个月里，你有多经常因为发生在你控制之外的事情而感到愤怒?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="0" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="1" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="3" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q9" value="4" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-container hidden" id="question10">
+                    <div class="question-text">10. 在过去一个月里，你有多经常感到困难堆积如山而无法克服?</div>
+                    <div class="options-container">
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="0" class="option-radio">
+                            从未
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="1" class="option-radio">
+                            偶尔
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="2" class="option-radio">
+                            有时
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="3" class="option-radio">
+                            经常
+                        </label>
+                        <label class="option-item">
+                            <input type="radio" name="q10" value="4" class="option-radio">
+                            非常频繁
+                        </label>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-secondary" id="prevBtn" disabled>上一题</button>
+                    <button class="btn btn-primary" id="nextBtn">下一题</button>
+                </div>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-image" id="resultImage">✓</div>
+                <div class="result-title">你的压力评估结果</div>
+                <div class="result-level" id="resultLevel"></div>
+                <div class="result-description" id="resultDescription"></div>
+                
+                <div class="recommendations">
+                    <div class="recommendation-title">个性化建议</div>
+                    <ul class="recommendation-list" id="recommendationList"></ul>
+                </div>
+                
+                <button class="btn btn-primary" id="finishBtn">完成评估</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalQuestions = 10;
+            let currentQuestion = 1;
+            const answers = {};
+            
+            const progressBar = document.getElementById('progressBar');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            const questionnaireContainer = document.getElementById('questionnaireContainer');
+            const resultLevel = document.getElementById('resultLevel');
+            const resultDescription = document.getElementById('resultDescription');
+            const resultImage = document.getElementById('resultImage');
+            const recommandationList = document.getElementById('recommendationList');
+            
+            function updateProgress() {
+                const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            function showQuestion(questionNum) {
+                document.querySelectorAll('.question-container').forEach(q => {
+                    q.classList.add('hidden');
+                });
+                document.getElementById(`question${questionNum}`).classList.remove('hidden');
+                
+                prevBtn.disabled = questionNum === 1;
+                nextBtn.textContent = questionNum === totalQuestions ? '查看结果' : '下一题';
+                
+                updateProgress();
+            }
+            
+            function saveAnswer(questionNum) {
+                const selectedOption = document.querySelector(`input[name="q${questionNum}"]:checked`);
+                if (selectedOption) {
+                    answers[`q${questionNum}`] = parseInt(selectedOption.value);
+                }
+            }
+            
+            function calculateResult() {
+                let totalScore = 0;
+                for (let i = 1; i <= totalQuestions; i++) {
+                    totalScore += answers[`q${i}`] || 0;
+                }
+                
+                let level, description, color;
+                if (totalScore <= 13) {
+                    level = "低压力水平";
+                    description = "你的压力水平在正常范围内，继续保持健康的生活方式和应对策略。";
+                    color = "#34c759";
+                } else if (totalScore <= 26) {
+                    level = "中等压力水平";
+                    description = "你正经历适度的压力，建议采取一些压力管理技巧来防止压力升级。";
+                    color = "#ffcc00";
+                } else {
+                    level = "高压力水平";
+                    description = "你的压力水平较高，建议寻求专业帮助或采取积极的压力缓解措施。";
+                    color = "#ff3b30";
+                }
+                
+                resultLevel.textContent = level;
+                resultLevel.style.color = color;
+                resultDescription.textContent = description;
+                resultImage.style.backgroundColor = color;
+                
+                generateRecommendations(totalScore);
+                
+                localStorage.setItem('stressAssessmentResult', JSON.stringify({
+                    score: totalScore,
+                    level: level,
+                    date: new Date().toISOString()
+                }));
+            }
+            
+            function generateRecommendations(score) {
+                const recommendations = [];
+                
+                recommendations.push("定期进行深呼吸练习或冥想，每天5-10分钟");
+                recommendations.push("保持规律的睡眠时间，确保每天7-8小时睡眠");
+                
+                if (score > 13) {
+                    recommendations.push("尝试进行有氧运动，如快走、跑步或游泳，每周至少3次");
+                    recommendations.push("减少咖啡因和酒精摄入量");
+                }
+                
+                if (score > 26) {
+                    recommendations.push("考虑与心理咨询师或心理健康专家预约咨询");
+                    recommendations.push("练习时间管理技巧，合理分配工作和休息时间");
+                }
+                
+                recommandationList.innerHTML = '';
+                recommendations.forEach(rec => {
+                    const li = document.createElement('li');
+                    li.className = 'recommendation-item';
+                    li.textContent = rec;
+                    recommandationList.appendChild(li);
+                });
+            }
+            
+            prevBtn.addEventListener('click', function() {
+                saveAnswer(currentQuestion);
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                saveAnswer(currentQuestion);
+                
+                if (currentQuestion === totalQuestions) {
+                    calculateResult();
+                    questionnaireContainer.classList.add('hidden');
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                }
+            });
+            
+            finishBtn.addEventListener('click', function() {
+                window.location.href = "dashboard.html";
+            });
+            
+            document.querySelectorAll('.option-radio').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const optionItem = this.closest('.option-item');
+                    document.querySelectorAll(`.option-item[name="${optionItem.name}"]`).forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    optionItem.classList.add('selected');
+                });
+            });
+            
+            showQuestion(1);
+        });
+    </script>
+</body>
+</html>
