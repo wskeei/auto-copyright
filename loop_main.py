@@ -74,7 +74,6 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
     user_data_dir = "./user_data_chromium"
     import shutil
     if force_clean_user_data_dir and os.path.exists(user_data_dir):
-        # 注意：频繁清理 user_data_dir 可能导致需要重新登录
         print(f"检测到 user_data_dir {user_data_dir} 存在，正在自动清理...")
         shutil.rmtree(user_data_dir)
         print("user_data_dir 已清理。")
@@ -82,20 +81,9 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
     page = context.pages[0] if context.pages else await context.new_page()
     await random_human_delay()
     await page.goto("https://chat.deepseek.com/")
-    try:
-        await page.wait_for_load_state('domcontentloaded', timeout=30000) # 等待 DOM 加载
-    except Exception as e:
-        print(f"页面加载状态等待超时或出错: {e}")
-        await page.screenshot(path=os.path.join(save_dir, f"{safe_filename(user_title)}_0_pageload_error.png"))
-        # 可以选择抛出异常或尝试继续
     print(f"已打开 https://chat.deepseek.com/，处理：{user_title}")
     await random_human_delay()
-    try:
-        await page.wait_for_selector("textarea", timeout=30000) # 等待输入框
-    except Exception as e:
-        print(f"等待 textarea 超时或出错: {e}")
-        await page.screenshot(path=os.path.join(save_dir, f"{safe_filename(user_title)}_1_wait_textarea_error.png"))
-        raise # 重新抛出异常，因为这是关键步骤
+    await page.wait_for_selector("textarea")
     # 1. 组合第一个 prompt，生成代码
     prompt_code = f"# AI角色设定\n{ai_role}\n\n# {user_title}\n{user_content}"
     await random_human_delay()
@@ -103,30 +91,12 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
     await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
     await random_human_delay()
     await page.click('div._7436101[role="button"][aria-disabled="false"]')
-    # copy_button_selector = 'div._8f60047 div.ds-flex._965abe9 div.ds-icon-button:first-child' # 复制按钮可能不稳定
+    copy_button_selector = 'div._8f60047 div.ds-flex._965abe9 div.ds-icon-button:first-child'
     print("等待 AI 代码回复生成完毕...")
     try:
-        # 尝试等待更稳定的标志，例如代码块的出现
-        await page.wait_for_selector('div._8f60047 .ds-markdown.ds-markdown--block pre code', timeout=600000)
+        await page.wait_for_selector(copy_button_selector, timeout=600000)
         await random_human_delay()
-        print("检测到代码块，AI 代码已生成。")
-        # 可选：短暂等待复制按钮，如果需要交互
-        # await page.wait_for_selector(copy_button_selector, timeout=10000)
-    except Exception as e:
-        print(f"等待 AI 代码生成（检测代码块）超时或出错: {e}")
-        await page.screenshot(path=os.path.join(save_dir, f"{safe_filename(user_title)}_3_wait_code_gen_error.png"))
-        # 检查是否是服务器繁忙
-        content_selector = 'div._8f60047 .ds-markdown.ds-markdown--block'
-        try:
-            content_check = await page.inner_text(content_selector, timeout=5000)
-            if '服务器繁忙，请稍后再试' in content_check:
-                print("检测到服务器繁忙，将进入繁忙处理逻辑...")
-            else:
-                raise e # 如果不是服务器繁忙，重新抛出原始错误
-        except Exception as inner_e:
-            print(f"检查服务器繁忙时出错: {inner_e}")
-            raise e # 抛出原始的等待超时错误
-        # 如果是服务器繁忙，后续的 while True 循环会处理
+        print("检测到复制按钮，AI 代码已生成。")
         # 保存 HTML 文件
         content_selector = 'div._8f60047 .ds-markdown.ds-markdown--block'
         # 检查是否遇到服务器繁忙提示，若是则自动刷新重试
@@ -152,11 +122,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                         continue  # 重新进入 while True 循环
                 print('检测到"服务器繁忙"，自动点击刷新按钮重试...')
                 await refresh_retry_click(page)
-                await asyncio.sleep(5) # 刷新后多等一会
-                # 刷新后需要重新等待内容出现
-                print("刷新后等待内容重新加载...")
-                # 等待代码块重新出现
-                await page.wait_for_selector('div._8f60047 .ds-markdown.ds-markdown--block pre code', timeout=60000)
+                await asyncio.sleep(2)
                 await page.wait_for_selector(content_selector, timeout=60000)
                 continue
             break
@@ -196,14 +162,8 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
         if clicked_run_html:
             try:
                 print("点击 '运行 HTML' 后刷新页面，重置状态...")
-                await page.reload(wait_until="domcontentloaded") # 等待 DOM 加载完成
-                print("页面已刷新，等待输入框...")
+                await page.reload()
                 await page.wait_for_selector("#chat-input", timeout=60000)
-                print("输入框已找到。")
-                # 增加额外的短暂等待，确保页面元素稳定
-                await asyncio.sleep(2)
-                # 尝试点击输入框确保焦点
-                await page.click("#chat-input", timeout=5000)
                 await asyncio.sleep(1)
                 # 激活输入框，促使发送按钮enabled
                 await page.focus("#chat-input")
@@ -211,28 +171,15 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                 await asyncio.sleep(0.2)
                 await page.fill("#chat-input", "")  # 清空
                 await asyncio.sleep(0.2)
-                # await page.type("#chat-input", ai_doc, delay=30)  # 逐字输入可能不稳定，尝试直接填充
-                # await asyncio.sleep(0.5)
+                await page.type("#chat-input", ai_doc, delay=30)  # 模拟逐字输入 prompt
+                await asyncio.sleep(0.5)
                 # 手动触发 input 事件，确保按钮被激活
-                # await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
+                await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
                 send_btn_selector = 'div._7436101[role="button"]'
-                # btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
-                # print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
+                btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"刷新后发送按钮aria-disabled={btn_state}, chat-input内容: '{await page.input_value('#chat-input')}'")
                 # 等待按钮可用
-                print("尝试填充 ai_doc 并等待发送按钮可用...")
-                await page.fill("#chat-input", ai_doc)
-                await asyncio.sleep(0.5) # 等待填充生效
-                # 轮询等待按钮可用
-                button_enabled = False
-                for attempt in range(60): # 最多等待 60 秒
-                    btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
-                    print(f"刷新后等待发送按钮可用，第 {attempt+1} 秒，aria-disabled={btn_state}")
-                    if btn_state == "false":
-                        button_enabled = True
-                        break
-                    await asyncio.sleep(1)
-                if not button_enabled:
-                    raise Exception("刷新后填充 ai_doc 后等待发送按钮可用超时")
+                await page.wait_for_selector(f'{send_btn_selector}[aria-disabled="false"]', timeout=60000)
                 print("发送按钮已可用，准备输入 02 AI 角色设定 prompt")
                 # 多次尝试填入内容并确认
                 # 修正：逐字符输入，遇到换行用 Shift+Enter，避免提前发送
@@ -258,15 +205,13 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
                     raise Exception("无法写入 02 AI 角色设定 prompt 到输入框！")
                 await asyncio.sleep(0.3)
             except Exception as e:
-                print(f"刷新页面后处理异常（填充 ai_doc 或等待按钮）: {e}")
-                await page.screenshot(path=os.path.join(save_dir, f"{safe_filename(user_title)}_5_reload_error.png"))
-                raise # 抛出异常，中断当前 prompt 处理
+                print(f"刷新页面后处理异常: {e}")
             # 手动触发 input 事件，确保按钮被激活
-            # await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))") # 可能不需要了
+            await page.evaluate("document.querySelector('#chat-input').dispatchEvent(new Event('input', { bubbles: true }))")
             await random_human_delay()
             print("页面已刷新并成功写入 02 AI 角色设定 prompt")
-    # except Exception as e: # 这个 except 块似乎位置不太对，移到上面刷新逻辑内部
-    #    print(f"刷新页面或写入 prompt 时出错: {e}")
+    except Exception as e:
+        print(f"刷新页面或写入 prompt 时出错: {e}")
     # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     # 重新整理第二次输入流程：点击发送按钮、等待生成、自动点击"继续生成"、保存说明
     print("发送 02 AI 角色设定 prompt...")
@@ -274,12 +219,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
     try:
         while True:
             # 再次确认按钮可用
-            try:
-                await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]', timeout=10000) # 短暂确认
-            except Exception as e:
-                print(f"发送第二个 prompt 前按钮不可用: {e}")
-                await page.screenshot(path=os.path.join(save_dir, f"{safe_filename(user_title)}_6_send_doc_btn_not_ready.png"))
-                raise Exception("发送第二个 prompt 前按钮不可用")
+            await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]')
             btn_state = await page.get_attribute(send_btn_selector, "aria-disabled")
             print(f"发送前按钮aria-disabled={btn_state}")
             await random_human_delay()
@@ -287,28 +227,25 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             print("已点击发送按钮，等待按钮状态变化...")
             # 严格等待按钮状态变化
             found_enabled = False
-            # 等待 AI 回复开始（按钮通常会先变 disabled）
-            print("等待发送按钮变为 disabled (AI 开始生成)...")
-            try:
-                await page.wait_for_selector('div._7436101[role="button"][aria-disabled="true"]', timeout=10000)
-                print("按钮已变为 disabled。")
-            except Exception:
-                print("警告：点击发送后按钮未立即变为 disabled。")
-
-            # 等待 AI 回复完成（按钮会变回 enabled）
-            print("等待 AI 说明生成完成 (按钮变回 enabled)...")
-            try:
-                await page.wait_for_selector('div._7436101[role="button"][aria-disabled="false"]', timeout=600000) # 等待最多 10 分钟
-                print("AI 说明生成完毕 (按钮已变回 enabled)。")
-                found_enabled = True
-            except Exception as e:
-                print(f"等待 AI 说明生成超时或出错: {e}")
-                await page.screenshot(path=os.path.join(save_dir, f"{safe_filename(user_title)}_7_wait_doc_gen_error.png"))
-                # 这里可以根据需要决定是跳过保存，还是抛出异常
-                # 检查是否服务器繁忙
+            for i in range(300):  # 最长5分钟
                 state = await page.get_attribute(send_btn_selector, "aria-disabled")
-                print(f"超时时按钮状态: aria-disabled={state}")
-                # 此处可以加入服务器繁忙检查逻辑
+                print(f"发送后第{i+1}秒，按钮aria-disabled={state}")
+                if state == "false":
+                    found_enabled = True
+                    break
+                await asyncio.sleep(1)
+            if not found_enabled:
+                print("发送后按钮未变为enabled，流程异常")
+            # 再等待生成结束（按钮变为disabled）
+            for i in range(600):  # 最长10分钟
+                state = await page.get_attribute(send_btn_selector, "aria-disabled")
+                print(f"生成中第{i+1}秒，按钮aria-disabled={state}")
+                if state == "true":
+                    print("AI 说明生成完毕。")
+                    break
+                await asyncio.sleep(1)
+            else:
+                print("AI 说明生成超时！")
             # 获取所有说明节点，取最新一条（最后一条）内容
             doc_nodes = await page.query_selector_all(content_selector)
             if not doc_nodes:
@@ -334,8 +271,7 @@ async def process_prompt(p, ai_role, ai_doc, user_title, user_content, save_dir,
             f.write(f"\n# {user_title}\n\n{doc_content.strip()}\n")
         print(f"AI 说明已追加到 {doc_path}")
     except Exception as e:
-        print(f"处理第二个 prompt (AI 说明) 时出错: {e}")
-        # 错误已在内部处理或抛出，这里可以不再重复打印
+        print(f"等待复制按钮超时或出错: {e}")
     await context.close()
 
 
@@ -375,7 +311,7 @@ async def main():
                 ai_doc_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_doc)
                 for user_title, user_content in user_prompts:
                     print(f"[LOG] 处理一级标题：{user_title}")
-                    await switch_user(headless=False)
+                    # 移除此处多余的 switch_user 调用，复用外部循环已建立的登录会话
                     await process_prompt(p, ai_role_dynamic, ai_doc_dynamic, user_title, user_content, save_dir)
                 print(f"[LOG] {user_prompt_path} 处理完成。")
             except Exception as e:
@@ -383,7 +319,7 @@ async def main():
             # 如果不是最后一个，等待1小时
             if idx < len(user_prompt_files) - 1:
                 print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
-                for remain in range(300, 0, -60):
+                for remain in range(1800, 0, -60):
                     print(f"[LOG] 剩余等待时间: {remain//60} 分钟...")
                     await asyncio.sleep(60)
     print("[LOG] 全部 user_prompt.md 文件处理完成！")
