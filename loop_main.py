@@ -371,7 +371,7 @@ async def main():
                 # Wait between files if not the last one
                 if idx < len(user_prompt_files) - 1:
                     print("[LOG] 等待半小时后继续处理下一个 user_prompt.md ...")
-                    wait_seconds = 1 * 60 # 30 minutes
+                    wait_seconds = 30 * 60 # 1 minutes
                     for remain in range(wait_seconds, 0, -60):
                         print(f"[LOG] 剩余等待时间: {remain//60} 分钟...")
                         await asyncio.sleep(60)
