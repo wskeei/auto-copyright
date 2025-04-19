@@ -103,7 +103,7 @@ def update_user_login_time(user_pool_path, users: list, username_to_update: str)
         print(f"Error writing updated user list to {user_pool_path}: {e}")
 
 # --- switch_user is async, now uses browser.new_context ---
-async def switch_user(browser: Browser, file_lock: asyncio.Lock, active_users_lock: asyncio.Lock, active_users: set, headless=False) -> tuple[BrowserContext, Page]:
+async def switch_user(browser: Browser, file_lock: asyncio.Lock, active_users_lock: asyncio.Lock, active_users: set, headless=False) -> tuple[dict, BrowserContext, Page]:
     """
     (并发安全) 选择一个可用账户，标记为活跃并更新时间戳。
     使用传入的 Browser 实例创建一个新的、隔离的上下文并登录。
@@ -112,7 +112,7 @@ async def switch_user(browser: Browser, file_lock: asyncio.Lock, active_users_lo
     :param active_users_lock: 用于保护 active_users 集合访问的锁
     :param active_users: 当前正在使用的账户用户名集合
     :param headless: (不再直接使用，浏览器已启动)
-    :return: tuple(BrowserContext, Page) 登录成功后的新上下文和页面
+    :return: tuple(dict, BrowserContext, Page) 包含选中用户信息的字典、登录成功后的新上下文和页面
     :raises: Exception 如果没有可用的账户或登录失败
     """
     user_pool_path = 'user_pool.md'
@@ -201,7 +201,7 @@ async def switch_user(browser: Browser, file_lock: asyncio.Lock, active_users_lo
 
         # --- Login successful, return context and page ---
         print(f"[并发登录] 用户 {selected_user['username']} 登录流程完成。")
-        return context, page # Return the new context and page
+        return selected_user, context, page # Return the user dict, context, and page
 
     except Exception as login_err:
         print(f"[并发登录][ERROR] Login process failed for user {selected_user['username']}: {login_err}")
@@ -237,17 +237,18 @@ async def _test_switch_user_async(headless=False):
             browser = await p.chromium.launch(headless=headless)
             print("[Test] Browser launched. Calling switch_user...")
             # Call the modified switch_user, passing the browser instance
-            context, page = await switch_user(browser, file_lock, active_users_lock, active_users, headless=headless)
-            # Infer username from active_users (since switch_user doesn't return it directly anymore)
-            if active_users:
-                 username_in_test = list(active_users)[0] # Get the user added by switch_user
-                 print(f"测试成功切换到用户: {username_in_test}")
-                 print(f"当前活跃用户集合: {active_users}")
-                 # Add a simple check
-                 await page.wait_for_selector("textarea", timeout=5000)
-                 print("[Test] Textarea found, login likely successful.")
-            else:
-                 print("[Test ERROR] switch_user completed but no user added to active_users.")
+            # Call the modified switch_user, expecting user_dict, context, page
+            selected_user_dict, context, page = await switch_user(browser, file_lock, active_users_lock, active_users, headless=headless)
+            username_in_test = selected_user_dict['username'] # Get username from the returned dict
+            print(f"测试成功切换到用户: {username_in_test}")
+            print(f"当前活跃用户集合: {active_users}") # Should contain username_in_test
+            # Add a simple check
+            await page.wait_for_selector("textarea", timeout=5000)
+            print("[Test] Textarea found, login likely successful.")
+            # Verify active_users set
+            if username_in_test not in active_users:
+                 print(f"[Test ERROR] User {username_in_test} was returned but not found in active_users set: {active_users}")
+
 
         except Exception as e:
             print(f"测试切换用户失败: {e}")

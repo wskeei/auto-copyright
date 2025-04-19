@@ -69,8 +69,9 @@ def safe_filename(title):
 
 # --- New function to handle browser tasks for a single prompt ---
 async def run_browser_task(
-    browser: Browser,
-    selected_user: dict,
+    context: BrowserContext, # Accept context from switch_user
+    page: Page,             # Accept page from switch_user
+    task_id: str,           # Pass task_id for logging consistency
     ai_role: str,
     ai_doc: str,
     user_title: str,
@@ -78,69 +79,17 @@ async def run_browser_task(
     save_dir: str
 ):
     """
-    Handles the browser interaction for a single prompt using a new isolated context.
-    Logs in, sends prompts, saves results.
+    Handles the browser interaction for a single prompt using the provided context and page.
+    Assumes login is already completed by switch_user. Sends prompts, saves results.
     """
-    context: BrowserContext | None = None
-    page: Page | None = None
-    task_id = f"{selected_user['username']}-{safe_filename(user_title)}" # Unique ID for logging
+    # context and page are now passed in, already logged in.
+    # task_id is also passed in.
 
-    print(f"[{task_id}] 开始浏览器任务...")
+    print(f"[{task_id}] 开始浏览器任务 (已登录)...")
     try:
-        # 1. Create new isolated context
-        print(f"[{task_id}] 创建新的浏览器上下文...")
-        context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-            java_script_enabled=True,
-            accept_downloads=True,
-        )
-        page = await context.new_page()
-        print(f"[{task_id}] 新上下文和页面已创建。")
+        # Login is already done by switch_user. Start directly with prompt processing.
 
-        # 2. Navigate and Login
-        await page.goto("https://chat.deepseek.com/")
-        await asyncio.sleep(random.uniform(2, 4))
-
-        # --- Execute Login Steps ---
-        print(f"[{task_id}] 执行登录步骤...")
-        try:
-            # Attempt to switch to password login tab if needed
-            password_tab_locator = page.locator('div.ds-tab:has-text("密码登录")')
-            await password_tab_locator.wait_for(state="visible", timeout=5000)
-            is_active = await password_tab_locator.evaluate("node => node.classList.contains('ds-tab--active')")
-            if not is_active:
-                print(f"[{task_id}] 点击'密码登录'标签页...")
-                await password_tab_locator.click()
-                await asyncio.sleep(random.uniform(1, 2))
-            else:
-                print(f"[{task_id}] '密码登录'标签页已激活。")
-        except Exception as e:
-            print(f"[{task_id}][INFO] 查找或点击'密码登录'时出错或超时: {e}")
-
-        # Input username (Use updated locator)
-        username_input = page.locator('input[placeholder="请输入手机号/邮箱地址"]')
-        await username_input.wait_for(state="visible", timeout=10000)
-        await username_input.fill(selected_user['username'])
-        await asyncio.sleep(random.uniform(0.5, 1))
-
-        # Input password (Use updated locator)
-        password_input = page.locator('input[placeholder="请输入密码"]')
-        await password_input.wait_for(state="visible", timeout=10000)
-        await password_input.fill(selected_user['password'])
-        await asyncio.sleep(random.uniform(0.5, 1))
-
-        # Click login button (Use updated locator)
-        login_button = page.locator('div[role="button"].ds-button--primary:has-text("登录")')
-        await login_button.wait_for(state="visible", timeout=10000)
-        await login_button.click()
-        print(f"[{task_id}] 已点击登录按钮。")
-
-        # Wait for successful login
-        await page.wait_for_selector("textarea", timeout=30000, state="visible")
-        print(f"[{task_id}] 登录成功。")
-        # --- Login Complete ---
-
-        # 3. Process the actual prompt (adapted from old process_prompt)
+        # 3. Process the actual prompt
         print(f"[{task_id}] 处理提示: {user_title}")
         await random_human_delay()
         # Ensure textarea is ready after login/navigation
@@ -237,8 +186,12 @@ async def run_browser_task(
             await page.wait_for_selector(f'{send_button_selector}[aria-disabled="false"]', timeout=10000)
             await page.click(f'{send_button_selector}[aria-disabled="false"]')
             print(f"[{task_id}] 等待 AI 说明生成...")
-            await page.wait_for_selector(f'{send_button_selector}[aria-disabled="false"]', timeout=600000)
+            await asyncio.sleep(10) 
+            # 增加10S延迟，严重怀疑是因为发送过程中卡住了，导致判断失败
+            print("10S延迟结束")
+            await page.wait_for_selector(f'{send_button_selector}[aria-disabled="true"]', timeout=600000)
             print(f"[{task_id}] AI 说明可能已生成。")
+
             await asyncio.sleep(2)
 
             retry_busy = 0
@@ -312,7 +265,7 @@ async def run_browser_task(
 async def main():
     import glob
     import time
-    CONCURRENCY_LIMIT = 3 # Set concurrency limit
+    CONCURRENCY_LIMIT = 2 # Set concurrency limit
     print(f"[LOG] 开始批量处理，并发限制: {CONCURRENCY_LIMIT}")
     file_lock = asyncio.Lock()
     active_users_lock = asyncio.Lock()
@@ -417,44 +370,63 @@ async def process_single_prompt_concurrently(
     save_dir: str
 ):
     """
-    Wrapper function for a single prompt task: selects user, runs browser task, releases user.
+    Wrapper function for a single prompt task: selects user, logs in via switch_user,
+    runs browser task with the logged-in context/page, and releases user.
     Controlled by semaphore.
     """
-    selected_user = None
-    task_id_prefix = safe_filename(user_title) # For logging
+    selected_user_info: dict | None = None # Store the selected user dict if switch_user returns it
+    context: BrowserContext | None = None
+    page: Page | None = None
+    task_id_prefix = safe_filename(user_title) # Base for logging ID
+    task_id = task_id_prefix # Default task_id if user selection fails
 
     async with semaphore: # Acquire semaphore slot
-        print(f"[{task_id_prefix}] 获取到信号量，开始处理...")
+        print(f"[{task_id_prefix}] 获取到信号量，尝试选择用户并登录...")
         try:
-            # 1. Select user (concurrency safe)
-            print(f"[{task_id_prefix}] 尝试选择用户...")
-            selected_user = await switch_user(file_lock, active_users_lock, active_users)
-            print(f"[{task_id_prefix}] 成功选择用户: {selected_user['username']}")
+            # 1. Select user, login, and get context/page
+            # *** This assumes concurrent_test_user_switch.switch_user is modified ***
+            # *** to return (user_dict, context, page). Example: return selected_user, context, page ***
+            selected_user_info, context, page = await switch_user(browser, file_lock, active_users_lock, active_users)
+            selected_username = selected_user_info['username']
+            task_id = f"{selected_username}-{task_id_prefix}" # Construct full task_id
 
-            # 2. Run the browser task
+            print(f"[{task_id}] 成功选择用户并登录: {selected_username}")
+
+            # 2. Run the browser task using the obtained context and page
             await run_browser_task(
-                browser, selected_user, ai_role, ai_doc, user_title, user_content, save_dir
+                context, page, task_id, ai_role, ai_doc, user_title, user_content, save_dir
             )
-            print(f"[{task_id_prefix}] 浏览器任务成功完成 for user {selected_user['username']}")
+            print(f"[{task_id}] 浏览器任务成功完成。")
+            # Context will be closed inside run_browser_task's finally block
 
         except Exception as e:
-            print(f"[{task_id_prefix}][ERROR] 处理时发生错误: {e}")
-            # Error is logged, task will finish
+            # Handle potential errors from switch_user (e.g., no users, login fail) or run_browser_task
+            print(f"[{task_id}][ERROR] 处理时发生错误: {e}")
+            # Ensure context is closed if it exists and run_browser_task didn't run/finish
+            if context and not context.is_closed():
+                 print(f"[{task_id}][ERROR] 错误处理：尝试关闭未关闭的上下文...")
+                 try:
+                     await context.close()
+                 except Exception as close_err:
+                     print(f"[{task_id}][ERROR] 关闭上下文时出错: {close_err}")
 
         finally:
-            # 3. Release user (concurrency safe)
-            if selected_user:
+            # 3. Release user (concurrency safe) - This MUST run regardless of success/failure
+            if selected_user_info:
+                username_to_release = selected_user_info['username']
                 async with active_users_lock:
-                    if selected_user['username'] in active_users:
-                        active_users.remove(selected_user['username'])
-                        print(f"[{task_id_prefix}] 释放用户: {selected_user['username']}")
+                    if username_to_release in active_users:
+                        active_users.remove(username_to_release)
+                        print(f"[{task_id}] 释放用户: {username_to_release}")
                     else:
-                        # This might happen if switch_user failed after adding the user but before returning
-                        print(f"[{task_id_prefix}][WARN] 尝试释放用户 {selected_user['username']} 但其不在活跃集合中。")
+                        # This could happen if switch_user failed *after* adding the user
+                        # but *before* returning successfully, or if error handling in switch_user released it.
+                        print(f"[{task_id}][WARN] 尝试释放用户 {username_to_release} 但其不在活跃集合中。")
             else:
-                 print(f"[{task_id_prefix}][WARN] 任务结束时无用户可释放 (可能选择用户时失败)。")
+                 # This means switch_user failed before selecting/returning a user
+                 print(f"[{task_id_prefix}][WARN] 任务结束时无用户可释放 (选择用户或登录失败)。")
 
-            print(f"[{task_id_prefix}] 处理结束，释放信号量。")
+            print(f"[{task_id}] 处理结束，释放信号量。")
 
 
 if __name__ == "__main__":
