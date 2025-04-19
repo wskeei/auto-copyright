@@ -313,52 +313,60 @@ async def main():
                 os.makedirs(save_dir, exist_ok=True)
                 print(f"\n[LOG] 开始处理文件 {idx+1}/{len(user_prompt_files)}: {user_prompt_path}，输出目录：{save_dir}")
 
-                current_context = None # Context per file
                 try:
-                    # 1. Switch user: Creates a NEW context and page using the browser instance
-                    print("[LOG] 切换账户并创建新的浏览器上下文...")
-                    current_context, current_page = await switch_user(browser, headless=False)
-                    print("[LOG] 账户切换成功，获取到新的上下文和页面。")
-
-                    # 2. Process all prompts within this file using the same context/page
+                    # 1. 获取此文件的所有 prompts
                     user_prompts = get_user_prompts(user_prompt_path)
                     match = re.match(r"\d+\s*(.*)", basename_no_ext)
                     software_name = match.group(1) if match else basename_no_ext
                     ai_role_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_role)
                     ai_doc_dynamic = re.sub(r"我现在需要的制作的软件名称为：.*", f"我现在需要的制作的软件名称为：{software_name}", ai_doc)
 
+                    # 2. 遍历处理每个 prompt
                     for prompt_idx, (user_title, user_content) in enumerate(user_prompts):
-                        print(f"[LOG] 处理标题 {prompt_idx+1}/{len(user_prompts)}：{user_title}")
+                        print(f"\n[LOG] 开始处理标题 {prompt_idx+1}/{len(user_prompts)}：{user_title}")
+                        current_context = None # Context per prompt
+                        current_page = None
                         try:
-                            # Pass the page obtained from switch_user
-                            await process_prompt(current_page, ai_role_dynamic, ai_doc_dynamic, user_title, user_content, save_dir)
-                        except Exception as prompt_e:
-                             print(f"[ERROR] 处理标题 '{user_title}' 时出错: {prompt_e}")
-                             # Decide if we should break the inner loop or continue
-                             if "服务器持续繁忙" in str(prompt_e):
-                                 print("[WARN] 因服务器持续繁忙，跳过当前文件的剩余标题。")
-                                 break # Break inner loop, go to finally block for context closing
-                             else:
-                                 print("[WARN] 发生其他错误，继续处理下一个标题（如果可能）。")
-                                 # Optionally add a delay or specific error handling here
-                                 await asyncio.sleep(5) # Brief pause after error
+                            # 2.1 切换用户（为每个 prompt 创建新的上下文和页面）
+                            print("[LOG] 切换账户并创建新的浏览器上下文...")
+                            current_context, current_page = await switch_user(browser, headless=False)
+                            print("[LOG] 账户切换成功，获取到新的上下文和页面。")
 
-                    print(f"[LOG] {user_prompt_path} 处理完成。")
+                            # 2.2 处理当前 prompt
+                            await process_prompt(current_page, ai_role_dynamic, ai_doc_dynamic, user_title, user_content, save_dir)
+                            print(f"[LOG] 标题 '{user_title}' 处理完成。")
+
+                        except Exception as prompt_e:
+                            print(f"[ERROR] 处理标题 '{user_title}' 时出错: {prompt_e}")
+                            if "服务器持续繁忙" in str(prompt_e):
+                                print("[WARN] 因服务器持续繁忙，可能需要稍后重试该标题或文件。")
+                                # 根据需要决定是否跳过文件剩余部分，这里选择继续处理下一个标题
+                                # break # 如果需要跳过文件剩余部分，取消注释此行
+                            else:
+                                print("[WARN] 发生其他错误，继续处理下一个标题（如果可能）。")
+                            # 即使 prompt 处理出错，也尝试关闭 context
+                        finally:
+                            # 关闭为当前 prompt 创建的上下文
+                            if current_context:
+                                print("[LOG] 关闭当前 prompt 的浏览器上下文...")
+                                try:
+                                    await current_context.close()
+                                    print("[LOG] 上下文已关闭。")
+                                except Exception as close_e:
+                                    print(f"[ERROR] 关闭上下文时出错: {close_e}")
+                            # 短暂等待，避免切换过快
+                            await asyncio.sleep(5) # Wait 5 seconds between prompts
+
+                    print(f"[LOG] 文件 {user_prompt_path} 内所有标题处理尝试完毕。")
 
                 except Exception as file_e:
-                    # Catch errors during switch_user or other file-level setup
-                    print(f"[ERROR] 处理文件 {user_prompt_path} 时发生严重错误: {file_e}")
-                    # Log the error, the finally block will handle context closing
+                    # 捕获文件级别的错误（例如 get_user_prompts 失败）
+                    print(f"[ERROR] 处理文件 {user_prompt_path} 时发生错误: {file_e}")
+                    # 这里不需要关闭 context，因为 context 是在内层循环管理的
 
-                finally:
-                    # Close the context used for this specific file
-                    if current_context:
-                        print("[LOG] 关闭当前浏览器上下文...")
-                        try:
-                            await current_context.close()
-                            print("[LOG] 上下文已关闭。")
-                        except Exception as close_e:
-                            print(f"[ERROR] 关闭上下文时出错: {close_e}")
+                # 外层循环的 finally 块不再需要，因为 context 在内层管理
+                # finally:
+                #     pass # No context closing needed here anymore
 
                 # Wait between files if not the last one
                 if idx < len(user_prompt_files) - 1:
