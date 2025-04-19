@@ -218,13 +218,16 @@ async def process_prompt(page, ai_role, ai_doc, user_title, user_content, save_d
     # --- Send second prompt and save description ---
     print("发送 02 AI 角色设定 prompt...")
     try:
+        # AI生成过程中为false，空的就是为true，输入内容后为flase
         # Ensure send button is enabled before clicking
         await page.wait_for_selector(f'{send_button_selector}[aria-disabled="false"]', timeout=10000)
         await page.click(f'{send_button_selector}[aria-disabled="false"]')
         print("已点击发送按钮，等待 AI 说明生成...")
-
+        await asyncio.sleep(10) 
+        # 增加10S延迟，严重怀疑是因为发送过程中卡住了，导致判断失败
+        print("10S延迟结束")
         # Wait for the response to complete (e.g., wait for send button to be enabled again)
-        await page.wait_for_selector(f'{send_button_selector}[aria-disabled="false"]', timeout=600000) # Wait up to 10 mins
+        await page.wait_for_selector(f'{send_button_selector}[aria-disabled="true"]', timeout=600000) # Wait up to 10 mins
         print("检测到发送按钮再次可用，AI 说明可能已生成。")
         await asyncio.sleep(2) # Extra wait for content to settle
 
