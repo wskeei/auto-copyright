@@ -10,6 +10,8 @@ build/
 # Playwright user data
 user_data_chromium/
 user_data_concurrent/
+saved_outputs/
+user_prompt.md/
 
 # VSCode
 .vscode/

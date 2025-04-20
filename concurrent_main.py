@@ -288,7 +288,7 @@ async def main():
     print("[LOG] 扫描所有 user_prompt.md 文件...")
     user_prompt_dir = "user_prompt.md"
     user_prompt_files = sorted(
-        glob.glob(os.path.join(user_prompt_dir, "[0-9][0-9] *.md")),
+        glob.glob(os.path.join(user_prompt_dir, "[0-9]* *.md")),
         key=lambda x: int(os.path.basename(x).split()[0])
     )
     print(f"[LOG] 共找到 {len(user_prompt_files)} 个 user_prompt.md 文件。")
